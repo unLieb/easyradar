@@ -141,7 +141,7 @@
         <button id="trails-on" onclick="setTrails(true)">An</button>
         <button id="trails-off" onclick="setTrails(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.4.0</div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.5.0</div>
     </div>
   </div>
 
@@ -282,6 +282,33 @@ function planeSvg(cls, color, size) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg">
     <path d="${d}" fill="${color}" stroke="#ffffff" stroke-width="1"/>
   </svg>`;
+}
+
+// Exact-type icon set (RexKramer1/AircraftShapesSVG, GPL-3.0), keyed by ICAO type designator.
+const typeIconCache = {};
+
+function ensureTypeIcon(type) {
+  if (!type || typeIconCache[type] !== undefined) return;
+  typeIconCache[type] = 'loading';
+  fetch('/icons/' + encodeURIComponent(type) + '.svg')
+    .then(res => { if (!res.ok) throw new Error('404'); return res.text(); })
+    .then(text => {
+      const vb = text.match(/viewBox="([^"]+)"/);
+      const groups = [...text.matchAll(/<g[\s\S]*?<\/g>/g)].map(m => m[0]).join('');
+      typeIconCache[type] = groups ? { template: groups, viewBox: vb ? vb[1] : '0 0 80 80' } : null;
+    })
+    .catch(() => { typeIconCache[type] = null; });
+}
+
+function getIconHtml(a, cls, color, size) {
+  const type = (a.t || '').toUpperCase();
+  if (type) ensureTypeIcon(type);
+  const cached = type ? typeIconCache[type] : null;
+  if (cached && cached !== 'loading') {
+    const colored = cached.template.replace(/#000000/g, color);
+    return `<svg width="${size}" height="${size}" viewBox="${cached.viewBox}" xmlns="http://www.w3.org/2000/svg">${colored}</svg>`;
+  }
+  return planeSvg(cls, color, size);
 }
 
 function haversine(lat1, lon1, lat2, lon2) {
@@ -440,7 +467,7 @@ async function refresh() {
     const size = ICON_SIZE[cls] || ICON_SIZE.default;
     const icon = L.divIcon({
       className: '',
-      html: `<div class="plane-icon" style="transform: rotate(${getTrack(a) || 0}deg)">${planeSvg(cls, color, size)}</div>`,
+      html: `<div class="plane-icon" style="transform: rotate(${getTrack(a) || 0}deg)">${getIconHtml(a, cls, color, size)}</div>`,
       iconSize: [size, size],
       iconAnchor: [size / 2, size / 2]
     });
