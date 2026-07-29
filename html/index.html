@@ -169,7 +169,7 @@
         <button id="trails-on" onclick="setTrails(true)">An</button>
         <button id="trails-off" onclick="setTrails(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.12.0</div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.12.1</div>
     </div>
   </div>
 </div>
@@ -415,7 +415,7 @@ async function loadRoute(hex, flight) {
   el.style.display = 'none';
   airlineEl.style.display = 'none';
   try {
-    const res = await fetch(`https://api.adsbdb.com/v1/callsign/${cs}`);
+    const res = await fetch(`https://api.adsbdb.com/v0/callsign/${cs}`);
     if (!res.ok) throw new Error('unbekannt');
     const data = await res.json();
     const route = (data.response && data.response.flightroute) || null;
