@@ -141,7 +141,7 @@
         <button id="trails-on" onclick="setTrails(true)">An</button>
         <button id="trails-off" onclick="setTrails(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.5.0</div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.5.1</div>
     </div>
   </div>
 
@@ -294,8 +294,8 @@ function ensureTypeIcon(type) {
     .then(res => { if (!res.ok) throw new Error('404'); return res.text(); })
     .then(text => {
       const vb = text.match(/viewBox="([^"]+)"/);
-      const groups = [...text.matchAll(/<g[\s\S]*?<\/g>/g)].map(m => m[0]).join('');
-      typeIconCache[type] = groups ? { template: groups, viewBox: vb ? vb[1] : '0 0 80 80' } : null;
+      const inner = text.match(/<svg[^>]*>([\s\S]*)<\/svg>/);
+      typeIconCache[type] = (inner && vb) ? { template: inner[1], viewBox: vb[1] } : null;
     })
     .catch(() => { typeIconCache[type] = null; });
 }
@@ -305,7 +305,10 @@ function getIconHtml(a, cls, color, size) {
   if (type) ensureTypeIcon(type);
   const cached = type ? typeIconCache[type] : null;
   if (cached && cached !== 'loading') {
-    const colored = cached.template.replace(/#000000/g, color);
+    const colored = cached.template
+      .replace(/fill:\s*none/g, `fill:${color}`)
+      .replace(/fill:\s*#ffffff/gi, `fill:${color}`)
+      .replace(/#000000/g, color);
     return `<svg width="${size}" height="${size}" viewBox="${cached.viewBox}" xmlns="http://www.w3.org/2000/svg">${colored}</svg>`;
   }
   return planeSvg(cls, color, size);
