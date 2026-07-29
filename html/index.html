@@ -67,6 +67,10 @@
   .detail-rows .row .value { font-weight: 600; }
 
   #map { flex: 1; height: 100%; }
+  .map-tiles-dark { filter: brightness(0.82); }
+
+  .highlight-ring { animation: highlight-pulse 1.4s ease-in-out infinite; }
+  @keyframes highlight-pulse { 0%, 100% { opacity: 0.9; } 50% { opacity: 0.35; } }
 
   #map-controls-bottom { position: absolute; left: 356px; bottom: 16px; display: flex; align-items: center; gap: 12px; z-index: 500; transition: left 0.2s ease; }
   #app.collapsed #map-controls-bottom { left: 16px; }
@@ -147,7 +151,7 @@
         <button id="trails-on" onclick="setTrails(true)">An</button>
         <button id="trails-off" onclick="setTrails(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.9.1</div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.10.0</div>
     </div>
   </div>
 </div>
@@ -165,7 +169,8 @@ const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8
 L.control.zoom({ position: 'topright' }).addTo(map);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; OpenStreetMap &copy; CARTO',
-  maxZoom: 19
+  maxZoom: 19,
+  className: 'map-tiles-dark'
 }).addTo(map);
 
 map.on('click', () => { if (selectedHex) closeDetail(); });
@@ -175,6 +180,7 @@ L.circleMarker([SITE_LAT, SITE_LON], { radius: 5, color: '#1a73e8', fillColor: '
 const markers = {};
 const trails = {};
 const trailPoints = {};
+let highlightMarker = null;
 let selectedHex = null;
 let sidebarCollapsed = false;
 let unitSystem = localStorage.getItem('unitSystem') || 'imperial';
@@ -396,18 +402,38 @@ async function loadRoute(hex, flight) {
   }
 }
 
+function updateHighlight(hex) {
+  const a = window.currentAircraft && window.currentAircraft[hex];
+  if (!a || a.lat == null) { removeHighlight(); return; }
+  if (highlightMarker) {
+    highlightMarker.setLatLng([a.lat, a.lon]);
+  } else {
+    highlightMarker = L.circleMarker([a.lat, a.lon], {
+      radius: 20, color: '#1a73e8', weight: 3, fill: false, opacity: 0.9, className: 'highlight-ring'
+    }).addTo(map);
+  }
+}
+
+function removeHighlight() {
+  if (highlightMarker) { map.removeLayer(highlightMarker); highlightMarker = null; }
+}
+
 function selectPlane(hex) {
   selectedHex = hex;
   document.getElementById('panel-list').classList.add('hidden');
   document.getElementById('panel-detail').classList.add('show');
   if (sidebarCollapsed) toggleSidebar();
   showDetail(hex);
+  updateHighlight(hex);
+  const a = window.currentAircraft && window.currentAircraft[hex];
+  if (a && a.lat != null) map.panTo([a.lat, a.lon]);
 }
 
 function closeDetail() {
   selectedHex = null;
   document.getElementById('panel-detail').classList.remove('show');
   document.getElementById('panel-list').classList.remove('hidden');
+  removeHighlight();
 }
 
 let lastDetailHex = null;
@@ -497,7 +523,7 @@ async function refresh() {
   lastWithPos = withPos;
   renderList(withPos);
 
-  if (selectedHex && seen.has(selectedHex)) showDetail(selectedHex);
+  if (selectedHex && seen.has(selectedHex)) { showDetail(selectedHex); updateHighlight(selectedHex); }
   else if (selectedHex) closeDetail();
 }
 
