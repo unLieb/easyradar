@@ -60,6 +60,7 @@
   #d-route .airport .code { font-size: 17px; font-weight: 600; }
   #d-route .airport .name { font-size: 10px; color: var(--text-muted); }
   #d-route .arrow { color: var(--text-muted); }
+  #d-airline { padding: 8px 18px 0; text-align: center; font-size: 13px; font-weight: 600; color: var(--text); }
 
   .detail-rows { padding: 4px 18px 18px; }
   .detail-rows .row { display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--border); font-size: 13px; }
@@ -131,6 +132,7 @@
           <h2 id="d-callsign">—</h2>
           <div id="d-type">—</div>
         </div>
+        <div id="d-airline" style="display:none"></div>
         <div id="d-route" style="display:none"></div>
         <div class="detail-rows">
           <div class="row"><span class="label">Höhe</span><span class="value" id="d-alt">—</span></div>
@@ -167,7 +169,7 @@
         <button id="trails-on" onclick="setTrails(true)">An</button>
         <button id="trails-off" onclick="setTrails(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.11.1</div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.12.0</div>
     </div>
   </div>
 </div>
@@ -389,8 +391,15 @@ async function loadPhoto(hex) {
 
 function renderRoute(route) {
   const el = document.getElementById('d-route');
-  if (!route) { el.style.display = 'none'; return; }
+  const airlineEl = document.getElementById('d-airline');
+  if (!route) { el.style.display = 'none'; airlineEl.style.display = 'none'; return; }
   el.style.display = 'flex';
+  if (route.airline && route.airline.name) {
+    airlineEl.style.display = 'block';
+    airlineEl.textContent = route.airline.name;
+  } else {
+    airlineEl.style.display = 'none';
+  }
   const o = route.origin, d = route.destination;
   el.innerHTML = `<div class="airport"><div class="code">${o.icao_code || o.iata_code || '?'}</div><div class="name">${o.name || ''}</div></div>
     <div class="arrow">→</div>
@@ -400,9 +409,11 @@ function renderRoute(route) {
 async function loadRoute(hex, flight) {
   const cs = (flight || '').trim();
   const el = document.getElementById('d-route');
-  if (!cs) { el.style.display = 'none'; return; }
+  const airlineEl = document.getElementById('d-airline');
+  if (!cs) { el.style.display = 'none'; airlineEl.style.display = 'none'; return; }
   if (routeCache[cs] !== undefined) { renderRoute(routeCache[cs]); return; }
   el.style.display = 'none';
+  airlineEl.style.display = 'none';
   try {
     const res = await fetch(`https://api.adsbdb.com/v1/callsign/${cs}`);
     if (!res.ok) throw new Error('unbekannt');
