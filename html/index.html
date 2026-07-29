@@ -167,7 +167,7 @@
         <button id="trails-on" onclick="setTrails(true)">An</button>
         <button id="trails-off" onclick="setTrails(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.11.0</div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.11.1</div>
     </div>
   </div>
 </div>
@@ -441,6 +441,7 @@ function closeDetail() {
   document.getElementById('panel-detail').classList.remove('show');
   document.getElementById('panel-list').classList.remove('hidden');
   refreshMarkerGlow();
+  if (window.innerWidth <= 768 && !sidebarCollapsed) toggleSidebar();
 }
 
 let lastDetailHex = null;
