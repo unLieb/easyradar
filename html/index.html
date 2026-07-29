@@ -147,7 +147,7 @@
         <button id="trails-on" onclick="setTrails(true)">An</button>
         <button id="trails-off" onclick="setTrails(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.7.0</div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.7.1</div>
     </div>
   </div>
 </div>
@@ -274,7 +274,7 @@ function getPlaneIcon(a) {
   const type = (a.t || '').toUpperCase() || null;
   const [shapeName, scale] = getBaseMarker(a.category || null, type, null, null, a.type || null, a.alt_baro, false);
   const shape = shapes[shapeName] || shapes['unknown'];
-  const renderScale = scale * 2.2;
+  const renderScale = scale * 1.1;
   const svg = svgShapeToSVG(shape, color, '#ffffff', 1, renderScale);
   return { svg, w: shape.w * renderScale, h: shape.h * renderScale };
 }
