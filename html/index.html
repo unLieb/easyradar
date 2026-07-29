@@ -95,6 +95,19 @@
   .segmented { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .segmented button { flex: 1; padding: 7px 0; font-size: 13px; border: none; background: var(--card); color: var(--text); cursor: pointer; }
   .segmented button.active { background: var(--blue); color: #fff; }
+
+  @media (max-width: 768px) {
+    #sidebar { position: fixed; top: 0; left: 0; width: 100%; min-width: 0; height: 100%; margin-left: 0; transform: translateX(0); transition: transform 0.2s ease; }
+    #sidebar.collapsed { margin-left: 0; transform: translateX(-100%); }
+    #sidebar header { padding-left: 56px; }
+
+    #collapse-btn { position: fixed; top: 12px; left: 12px; width: 36px; height: 36px; border-radius: 50%; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.18); z-index: 950; }
+    #sidebar.collapsed ~ #collapse-btn, #app.collapsed #collapse-btn { left: 12px; }
+
+    #detail-header .close { width: 36px; height: 36px; font-size: 18px; }
+    .plane-row { padding: 13px 18px; }
+    #map-controls-bottom { left: 16px !important; }
+  }
 </style>
 </head>
 <body>
@@ -154,7 +167,7 @@
         <button id="trails-on" onclick="setTrails(true)">An</button>
         <button id="trails-off" onclick="setTrails(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.10.1</div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.11.0</div>
     </div>
   </div>
 </div>
@@ -184,7 +197,7 @@ const markers = {};
 const trails = {};
 const trailPoints = {};
 let selectedHex = null;
-let sidebarCollapsed = false;
+let sidebarCollapsed = window.innerWidth <= 768;
 let unitSystem = localStorage.getItem('unitSystem') || 'imperial';
 let showTrails = localStorage.getItem('showTrails') !== 'false';
 let lastWithPos = [];
@@ -543,6 +556,11 @@ function renderList(withPos) {
   }
 }
 
+if (sidebarCollapsed) {
+  document.getElementById('sidebar').classList.add('collapsed');
+  document.getElementById('app').classList.add('collapsed');
+  document.getElementById('collapse-btn').innerHTML = '&#9654;';
+}
 updateUnitButtons();
 updateTrailButtons();
 renderLegend();
