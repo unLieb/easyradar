@@ -19,7 +19,7 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--text); background: var(--bg); }
   #page { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; }
-  #app { flex: 1; display: flex; position: relative; overflow: hidden; }
+  #app { flex: 1; display: flex; position: relative; overflow: hidden; height: 100%; }
 
   #sidebar { width: 340px; min-width: 340px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 500; transition: margin-left 0.2s ease; }
   #sidebar.collapsed { margin-left: -340px; }
@@ -68,18 +68,21 @@
 
   #map { flex: 1; height: 100%; }
 
-  #legend { position: absolute; left: 356px; bottom: 16px; background: var(--card); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); padding: 8px 12px; font-size: 11px; color: var(--text-muted); z-index: 500; transition: left 0.2s ease; }
-  #app.collapsed #legend { left: 16px; }
-  #legend .bar { width: 160px; height: 8px; border-radius: 4px; margin: 4px 0; background: linear-gradient(to right, #2196f3, #4caf50, #ffc107, #ff5722); }
-  #legend .labels { display: flex; justify-content: space-between; }
+  #map-controls-bottom { position: absolute; left: 356px; bottom: 16px; display: flex; align-items: center; gap: 12px; z-index: 500; transition: left 0.2s ease; }
+  #app.collapsed #map-controls-bottom { left: 16px; }
+
+  #legend { background: var(--card); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); padding: 8px 12px; font-size: 11px; color: var(--text-muted); }
+  #legend .legend-title { font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  #legend .legend-row { display: flex; align-items: center; gap: 6px; margin: 3px 0; white-space: nowrap; }
+  #legend .swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  #settings-btn-float { width: 40px; height: 40px; border-radius: 50%; background: var(--card); border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.12); cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  #settings-btn-float:hover, #settings-btn-float.active { color: var(--blue); }
 
   .plane-icon { transition: transform 0.4s linear; }
 
-  #bottombar { height: 52px; background: var(--dark); display: flex; align-items: center; justify-content: center; gap: 30px; z-index: 900; position: relative; }
-  #bottombar button { background: none; border: none; color: var(--dark-text); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; cursor: pointer; padding: 4px 8px; }
-  #bottombar button:hover, #bottombar button.active { color: #fff; }
-
-  #settings-panel { display: none; position: absolute; bottom: 64px; left: 50%; transform: translateX(-50%); background: var(--card); border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.22); padding: 14px 16px; width: 220px; z-index: 950; }
+  #settings-panel { display: none; position: absolute; bottom: 64px; left: 356px; background: var(--card); border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.22); padding: 14px 16px; width: 220px; z-index: 950; transition: left 0.2s ease; }
+  #app.collapsed #settings-panel { left: 16px; }
   #settings-panel.show { display: block; }
   #settings-panel .label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
   .segmented { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
@@ -111,6 +114,7 @@
         <div id="d-route" style="display:none"></div>
         <div class="detail-rows">
           <div class="row"><span class="label">Höhe</span><span class="value" id="d-alt">—</span></div>
+          <div class="row"><span class="label">Außentemperatur</span><span class="value" id="d-temp">—</span></div>
           <div class="row"><span class="label">Steig-/Sinkrate</span><span class="value" id="d-vrate">—</span></div>
           <div class="row"><span class="label">Geschwindigkeit</span><span class="value" id="d-speed">—</span></div>
           <div class="row"><span class="label">Kurs</span><span class="value" id="d-track">—</span></div>
@@ -124,10 +128,12 @@
     <button id="collapse-btn" onclick="toggleSidebar()">&#9664;</button>
 
     <div id="map"></div>
-    <div id="legend">
-      <div>Flughöhe</div>
-      <div class="bar"></div>
-      <div class="labels"><span>niedrig</span><span>hoch</span></div>
+
+    <div id="map-controls-bottom">
+      <div id="legend"></div>
+      <button id="settings-btn-float" onclick="toggleSettings()" aria-label="Einstellungen">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
     </div>
 
     <div id="settings-panel">
@@ -141,15 +147,8 @@
         <button id="trails-on" onclick="setTrails(true)">An</button>
         <button id="trails-off" onclick="setTrails(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.5.2</div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.6.0</div>
     </div>
-  </div>
-
-  <div id="bottombar">
-    <button id="settings-btn" onclick="toggleSettings()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      Einstellungen
-    </button>
   </div>
 </div>
 
@@ -186,7 +185,7 @@ function toggleSidebar() {
 
 function toggleSettings() {
   document.getElementById('settings-panel').classList.toggle('show');
-  document.getElementById('settings-btn').classList.toggle('active');
+  document.getElementById('settings-btn-float').classList.toggle('active');
 }
 
 function updateUnitButtons() {
@@ -194,10 +193,36 @@ function updateUnitButtons() {
   document.getElementById('unit-imperial').classList.toggle('active', unitSystem === 'imperial');
 }
 
+const ALT_BANDS = [
+  { color: '#2196f3', maxFt: 5000 },
+  { color: '#4caf50', maxFt: 15000 },
+  { color: '#ffc107', maxFt: 30000 },
+  { color: '#ff5722', maxFt: null }
+];
+
+function renderLegend() {
+  const rows = ALT_BANDS.map((b, i) => {
+    const prevFt = i === 0 ? 0 : ALT_BANDS[i - 1].maxFt;
+    let label;
+    if (b.maxFt == null) {
+      label = unitSystem === 'metric' ? `> ${Math.round(prevFt * 0.3048).toLocaleString('de-DE')} m` : `> ${prevFt.toLocaleString('de-DE')} ft`;
+    } else if (i === 0) {
+      label = unitSystem === 'metric' ? `< ${Math.round(b.maxFt * 0.3048).toLocaleString('de-DE')} m` : `< ${b.maxFt.toLocaleString('de-DE')} ft`;
+    } else {
+      label = unitSystem === 'metric'
+        ? `${Math.round(prevFt * 0.3048).toLocaleString('de-DE')}–${Math.round(b.maxFt * 0.3048).toLocaleString('de-DE')} m`
+        : `${prevFt.toLocaleString('de-DE')}–${b.maxFt.toLocaleString('de-DE')} ft`;
+    }
+    return `<div class="legend-row"><span class="swatch" style="background:${b.color}"></span>${label}</div>`;
+  }).join('');
+  document.getElementById('legend').innerHTML = `<div class="legend-title">Flughöhe</div>${rows}`;
+}
+
 function setUnits(sys) {
   unitSystem = sys;
   localStorage.setItem('unitSystem', sys);
   updateUnitButtons();
+  renderLegend();
   renderList(lastWithPos);
   if (selectedHex) showDetail(selectedHex);
 }
@@ -219,7 +244,7 @@ function setTrails(on) {
 
 document.addEventListener('click', (e) => {
   const panel = document.getElementById('settings-panel');
-  const btn = document.getElementById('settings-btn');
+  const btn = document.getElementById('settings-btn-float');
   if (panel.classList.contains('show') && !panel.contains(e.target) && !btn.contains(e.target)) {
     panel.classList.remove('show');
     btn.classList.remove('active');
@@ -369,6 +394,21 @@ function fmtVRate(fpm) {
   return `${arrow} ${Math.abs(Math.round(fpm))} ft/min`;
 }
 
+function isaTempC(altFt) {
+  if (altFt == null) return null;
+  if (altFt <= 36089) return 15 - 1.98 * (altFt / 1000);
+  return -56.5;
+}
+
+function fmtTemp(a) {
+  const measuredC = a.oat != null ? a.oat : (a.tat != null ? a.tat : null);
+  const isMeasured = measuredC != null;
+  const c = isMeasured ? measuredC : isaTempC(a.alt_baro);
+  if (c == null) return 'unbekannt';
+  const val = unitSystem === 'metric' ? Math.round(c) + ' °C' : Math.round(c * 9 / 5 + 32) + ' °F';
+  return val + (isMeasured ? ' (gemessen)' : ' (ISA-Schätzung)');
+}
+
 const photoCache = {};
 const routeCache = {};
 
@@ -453,6 +493,7 @@ function showDetail(hex) {
   document.getElementById('d-callsign').textContent = (a.flight || a.hex || '—').trim();
   document.getElementById('d-type').textContent = a.desc || a.t || 'Typ unbekannt';
   document.getElementById('d-alt').textContent = fmtAlt(a.alt_baro);
+  document.getElementById('d-temp').textContent = fmtTemp(a);
   document.getElementById('d-vrate').textContent = fmtVRate(a.baro_rate != null ? a.baro_rate : a.geom_rate);
   document.getElementById('d-speed').textContent = fmtSpeed(a.gs);
   document.getElementById('d-track').textContent = fmtTrack(getTrack(a));
@@ -560,6 +601,7 @@ function renderList(withPos) {
 
 updateUnitButtons();
 updateTrailButtons();
+renderLegend();
 refresh();
 setInterval(refresh, 2000);
 </script>
