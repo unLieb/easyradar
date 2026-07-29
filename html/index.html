@@ -141,7 +141,7 @@
         <button id="trails-on" onclick="setTrails(true)">An</button>
         <button id="trails-off" onclick="setTrails(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.5.1</div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.5.2</div>
     </div>
   </div>
 
@@ -255,8 +255,8 @@ function classify(a) {
 }
 
 const ICON_SIZE = {
-  heavy: 32, large: 26, transport: 30, business_jet: 20,
-  light_prop: 18, glider: 24, helicopter: 22, default: 24
+  heavy: 64, large: 52, transport: 60, business_jet: 40,
+  light_prop: 36, glider: 48, helicopter: 44, default: 48
 };
 
 const ICON_SHAPE = {
@@ -300,15 +300,37 @@ function ensureTypeIcon(type) {
     .catch(() => { typeIconCache[type] = null; });
 }
 
+function colorizeIconTemplate(inner, color) {
+  // Only fill the first shape/group (main silhouette) with the color; later
+  // groups are fine detail/accent lines and must stay stroke-only, otherwise
+  // overlapping thin strokes render as an ugly filled blob.
+  const groups = [...inner.matchAll(/<g[^>]*>[\s\S]*?<\/g>/g)].map(m => m[0]);
+  if (groups.length >= 1) {
+    const [first, ...rest] = groups;
+    const filled = first
+      .replace(/fill:\s*none/g, `fill:${color}`)
+      .replace(/fill:\s*#ffffff/gi, `fill:${color}`)
+      .replace(/#000000/g, color);
+    const strokedRest = rest.map(g => g.replace(/#000000/g, color)).join('');
+    return filled + strokedRest;
+  }
+  let firstPathDone = false;
+  return inner.replace(/<path[^>]*>/g, (tag) => {
+    if (firstPathDone) return tag.replace(/#000000/g, color);
+    firstPathDone = true;
+    return tag
+      .replace(/fill:\s*none/g, `fill:${color}`)
+      .replace(/fill:\s*#ffffff/gi, `fill:${color}`)
+      .replace(/#000000/g, color);
+  });
+}
+
 function getIconHtml(a, cls, color, size) {
   const type = (a.t || '').toUpperCase();
   if (type) ensureTypeIcon(type);
   const cached = type ? typeIconCache[type] : null;
   if (cached && cached !== 'loading') {
-    const colored = cached.template
-      .replace(/fill:\s*none/g, `fill:${color}`)
-      .replace(/fill:\s*#ffffff/gi, `fill:${color}`)
-      .replace(/#000000/g, color);
+    const colored = colorizeIconTemplate(cached.template, color);
     return `<svg width="${size}" height="${size}" viewBox="${cached.viewBox}" xmlns="http://www.w3.org/2000/svg">${colored}</svg>`;
   }
   return planeSvg(cls, color, size);
