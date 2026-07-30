@@ -182,7 +182,14 @@
       <div class="stat-row"><span class="label">Max. Reichweite</span><span class="value" id="s-maxrange">—</span></div>
       <div class="stat-row"><span class="label">MLAT-Anteil (aktuell)</span><span class="value" id="s-mlat">—</span></div>
 
-      <div class="stat-section-title">Sitzungs-Rekorde</div>
+      <div class="stat-section-title">Zeitraum</div>
+      <div class="segmented">
+        <button id="stats-range-today" onclick="setStatsRange('today')">Heute</button>
+        <button id="stats-range-alltime" onclick="setStatsRange('alltime')">Insgesamt</button>
+      </div>
+
+      <div class="stat-section-title">Rekorde</div>
+      <div class="stat-row"><span class="label">Flugzeuge</span><span class="value" id="s-uniquecount">—</span></div>
       <div class="stat-row"><span class="label">Höchste Flughöhe</span><span class="value" id="s-maxalt">—</span></div>
       <div class="stat-row"><span class="label">Weiteste Entfernung</span><span class="value" id="s-maxdist">—</span></div>
 
@@ -192,7 +199,7 @@
       <div class="stat-section-title">Häufigste Rufzeichen</div>
       <div id="s-topcallsigns"></div>
 
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">seit Laden dieser Seite</div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">Rekorde/Top-Listen dauerhaft gespeichert</div>
     </div>
 
     <div id="settings-panel">
@@ -223,7 +230,7 @@
         <button id="airports-on" onclick="setAirports(true)">An</button>
         <button id="airports-off" onclick="setAirports(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.17.0</div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.18.0</div>
     </div>
   </div>
 </div>
@@ -263,14 +270,8 @@ let radiusKm = parseFloat(localStorage.getItem('radiusKm')) || 0;
 let externalEnabled = localStorage.getItem('externalEnabled') === 'true';
 let externalAircraft = [];
 
-const sessionStats = {
-  seenHexes: new Set(),
-  typeCounts: {},
-  callsignCounts: {},
-  maxAlt: null, maxAltInfo: null,
-  maxDist: null, maxDistInfo: null
-};
 let lastMsgTotal = null, lastMsgTime = null;
+let statsRange = localStorage.getItem('statsRange') || 'today';
 
 function toggleSidebar() {
   sidebarCollapsed = !sidebarCollapsed;
@@ -393,8 +394,8 @@ function airportIcon(type) {
 }
 
 function mediaHtml(info) {
-  if (!info) return 'Keine weiteren Informationen verfügbar';
-  return `${info.thumb ? `<img src="${info.thumb}" style="width:100%; border-radius:6px; margin-bottom:6px; display:block;">` : ''}${info.extract ? `<div style="font-size:11px; color:#1a1f27;">${info.extract}</div>` : ''}`;
+  if (!info || !info.thumb) return 'Kein Foto verfügbar';
+  return `<img src="${info.thumb}" style="width:100%; border-radius:6px; display:block;">`;
 }
 
 function airportPopupHtml(ap, media) {
@@ -776,42 +777,37 @@ async function fetchReceiverStats() {
   } catch (e) { /* receiver stats optional, ignore failures */ }
 }
 
-function trackSessionStats(a) {
-  if (!sessionStats.seenHexes.has(a.hex)) {
-    sessionStats.seenHexes.add(a.hex);
-    const type = a.t || (a.desc || '').trim() || null;
-    if (type) sessionStats.typeCounts[type] = (sessionStats.typeCounts[type] || 0) + 1;
-    const cs = (a.flight || '').trim();
-    if (cs) sessionStats.callsignCounts[cs] = (sessionStats.callsignCounts[cs] || 0) + 1;
-  }
-  if (typeof a.alt_baro === 'number' && (sessionStats.maxAlt == null || a.alt_baro > sessionStats.maxAlt)) {
-    sessionStats.maxAlt = a.alt_baro;
-    sessionStats.maxAltInfo = { flight: (a.flight || a.hex || '').trim() };
-  }
-  if (a.lat != null) {
-    const dist = haversine(SITE_LAT, SITE_LON, a.lat, a.lon);
-    if (sessionStats.maxDist == null || dist > sessionStats.maxDist) {
-      sessionStats.maxDist = dist;
-      sessionStats.maxDistInfo = { flight: (a.flight || a.hex || '').trim() };
-    }
-  }
+function updateStatsRangeButtons() {
+  document.getElementById('stats-range-today').classList.toggle('active', statsRange === 'today');
+  document.getElementById('stats-range-alltime').classList.toggle('active', statsRange === 'alltime');
 }
 
-function renderStatsPanel() {
-  document.getElementById('s-maxalt').textContent = sessionStats.maxAlt != null
-    ? `${fmtAlt(sessionStats.maxAlt)} (${sessionStats.maxAltInfo.flight})` : '—';
-  document.getElementById('s-maxdist').textContent = sessionStats.maxDist != null
-    ? `${fmtDist(sessionStats.maxDist)} (${sessionStats.maxDistInfo.flight})` : '—';
+function setStatsRange(range) {
+  statsRange = range;
+  localStorage.setItem('statsRange', range);
+  updateStatsRangeButtons();
+  fetchAndRenderDbStats();
+}
 
-  const topTypes = Object.entries(sessionStats.typeCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-  document.getElementById('s-toptypes').innerHTML = topTypes.length
-    ? topTypes.map(([t, c]) => `<div class="stat-list-row"><span class="name">${t}</span><span class="count">${c}</span></div>`).join('')
-    : '<div class="stat-list-row"><span class="name">—</span></div>';
+async function fetchAndRenderDbStats() {
+  try {
+    const res = await fetch(`/stats-api/summary?range=${statsRange}`, { cache: 'no-store' });
+    const d = await res.json();
 
-  const topCalls = Object.entries(sessionStats.callsignCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-  document.getElementById('s-topcallsigns').innerHTML = topCalls.length
-    ? topCalls.map(([c, n]) => `<div class="stat-list-row"><span class="name">${c}</span><span class="count">${n}</span></div>`).join('')
-    : '<div class="stat-list-row"><span class="name">—</span></div>';
+    document.getElementById('s-uniquecount').textContent = d.uniqueCount != null ? d.uniqueCount : '—';
+    document.getElementById('s-maxalt').textContent = d.maxAlt
+      ? `${fmtAlt(d.maxAlt.value)} (${d.maxAlt.callsign || '?'})` : '—';
+    document.getElementById('s-maxdist').textContent = d.maxDist
+      ? `${fmtDist(d.maxDist.value)} (${d.maxDist.callsign || '?'})` : '—';
+
+    document.getElementById('s-toptypes').innerHTML = (d.topTypes && d.topTypes.length)
+      ? d.topTypes.map(([t, c]) => `<div class="stat-list-row"><span class="name">${t}</span><span class="count">${c}</span></div>`).join('')
+      : '<div class="stat-list-row"><span class="name">—</span></div>';
+
+    document.getElementById('s-topcallsigns').innerHTML = (d.topCallsigns && d.topCallsigns.length)
+      ? d.topCallsigns.map(([c, n]) => `<div class="stat-list-row"><span class="name">${c}</span><span class="count">${n}</span></div>`).join('')
+      : '<div class="stat-list-row"><span class="name">—</span></div>';
+  } catch (e) { /* db stats optional, ignore failures */ }
 }
 
 async function refresh() {
@@ -840,7 +836,6 @@ async function refresh() {
     a._external = false;
     withPos.push(a);
     buildOrUpdateMarker(a, false);
-    trackSessionStats(a);
   }
 
   if (externalEnabled) {
@@ -851,7 +846,6 @@ async function refresh() {
       a._external = true;
       withPos.push(a);
       buildOrUpdateMarker(a, true);
-      trackSessionStats(a);
     }
   }
 
@@ -860,7 +854,7 @@ async function refresh() {
   document.getElementById('s-mlat').textContent = localVisible.length
     ? `${mlatCount} / ${localVisible.length} (${Math.round(100 * mlatCount / localVisible.length)}%)`
     : '—';
-  renderStatsPanel();
+  fetchAndRenderDbStats();
 
   for (const hex in markers) {
     if (!seen.has(hex)) {
@@ -912,6 +906,7 @@ updateExternalButtons();
 updateRadiusUI();
 updateAirportButtons();
 if (showAirports) setAirports(true);
+updateStatsRangeButtons();
 renderLegend();
 refresh();
 setInterval(refresh, 2000);
