@@ -86,8 +86,8 @@
   #legend .legend-row { display: flex; align-items: center; gap: 6px; margin: 3px 0; white-space: nowrap; }
   #legend .swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 
-  #settings-btn-float { width: 40px; height: 40px; border-radius: 50%; background: var(--card); border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.12); cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  #settings-btn-float:hover, #settings-btn-float.active { color: var(--blue); }
+  #settings-btn-float, #stats-btn-float { width: 40px; height: 40px; border-radius: 50%; background: var(--card); border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.12); cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  #settings-btn-float:hover, #settings-btn-float.active, #stats-btn-float:hover, #stats-btn-float.active { color: var(--blue); }
 
   .plane-icon { transition: transform 0.4s linear; }
 
@@ -95,6 +95,18 @@
   #app.collapsed #settings-panel { left: 16px; }
   #settings-panel.show { display: block; }
   #settings-panel .label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+
+  #stats-panel { display: none; position: absolute; bottom: 64px; left: 356px; background: var(--card); border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.22); padding: 14px 16px; width: 260px; max-height: 70vh; overflow-y: auto; z-index: 950; transition: left 0.2s ease; }
+  #app.collapsed #stats-panel { left: 16px; }
+  #stats-panel.show { display: block; }
+  #stats-panel .stat-section-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .03em; margin: 12px 0 6px; }
+  #stats-panel .stat-section-title:first-child { margin-top: 0; }
+  #stats-panel .stat-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+  #stats-panel .stat-row .label { color: var(--text-muted); }
+  #stats-panel .stat-row .value { font-weight: 600; text-align: right; }
+  #stats-panel .stat-list-row { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; }
+  #stats-panel .stat-list-row .name { color: var(--text); }
+  #stats-panel .stat-list-row .count { color: var(--text-muted); font-weight: 600; }
   .segmented { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .segmented button { flex: 1; padding: 7px 0; font-size: 13px; border: none; background: var(--card); color: var(--text); cursor: pointer; }
   .segmented button.active { background: var(--blue); color: #fff; }
@@ -158,6 +170,29 @@
       <button id="settings-btn-float" onclick="toggleSettings()" aria-label="Einstellungen">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
+      <button id="stats-btn-float" onclick="toggleStats()" aria-label="Statistik">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </button>
+    </div>
+
+    <div id="stats-panel">
+      <div class="stat-section-title">Empfänger</div>
+      <div class="stat-row"><span class="label">Nachrichten/s</span><span class="value" id="s-msgrate">—</span></div>
+      <div class="stat-row"><span class="label">Verstärkung (Gain)</span><span class="value" id="s-gain">—</span></div>
+      <div class="stat-row"><span class="label">Max. Reichweite</span><span class="value" id="s-maxrange">—</span></div>
+      <div class="stat-row"><span class="label">MLAT-Anteil (aktuell)</span><span class="value" id="s-mlat">—</span></div>
+
+      <div class="stat-section-title">Sitzungs-Rekorde</div>
+      <div class="stat-row"><span class="label">Höchste Flughöhe</span><span class="value" id="s-maxalt">—</span></div>
+      <div class="stat-row"><span class="label">Weiteste Entfernung</span><span class="value" id="s-maxdist">—</span></div>
+
+      <div class="stat-section-title">Top Flugzeugtypen</div>
+      <div id="s-toptypes"></div>
+
+      <div class="stat-section-title">Häufigste Rufzeichen</div>
+      <div id="s-topcallsigns"></div>
+
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">seit Laden dieser Seite</div>
     </div>
 
     <div id="settings-panel">
@@ -188,7 +223,7 @@
         <button id="airports-on" onclick="setAirports(true)">An</button>
         <button id="airports-off" onclick="setAirports(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.16.0</div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.17.0</div>
     </div>
   </div>
 </div>
@@ -228,6 +263,15 @@ let radiusKm = parseFloat(localStorage.getItem('radiusKm')) || 0;
 let externalEnabled = localStorage.getItem('externalEnabled') === 'true';
 let externalAircraft = [];
 
+const sessionStats = {
+  seenHexes: new Set(),
+  typeCounts: {},
+  callsignCounts: {},
+  maxAlt: null, maxAltInfo: null,
+  maxDist: null, maxDistInfo: null
+};
+let lastMsgTotal = null, lastMsgTime = null;
+
 function toggleSidebar() {
   sidebarCollapsed = !sidebarCollapsed;
   document.getElementById('sidebar').classList.toggle('collapsed', sidebarCollapsed);
@@ -236,8 +280,17 @@ function toggleSidebar() {
 }
 
 function toggleSettings() {
+  document.getElementById('stats-panel').classList.remove('show');
+  document.getElementById('stats-btn-float').classList.remove('active');
   document.getElementById('settings-panel').classList.toggle('show');
   document.getElementById('settings-btn-float').classList.toggle('active');
+}
+
+function toggleStats() {
+  document.getElementById('settings-panel').classList.remove('show');
+  document.getElementById('settings-btn-float').classList.remove('active');
+  document.getElementById('stats-panel').classList.toggle('show');
+  document.getElementById('stats-btn-float').classList.toggle('active');
 }
 
 function updateUnitButtons() {
@@ -431,11 +484,13 @@ function setExternal(on) {
 }
 
 document.addEventListener('click', (e) => {
-  const panel = document.getElementById('settings-panel');
-  const btn = document.getElementById('settings-btn-float');
-  if (panel.classList.contains('show') && !panel.contains(e.target) && !btn.contains(e.target)) {
-    panel.classList.remove('show');
-    btn.classList.remove('active');
+  for (const [panelId, btnId] of [['settings-panel', 'settings-btn-float'], ['stats-panel', 'stats-btn-float']]) {
+    const panel = document.getElementById(panelId);
+    const btn = document.getElementById(btnId);
+    if (panel.classList.contains('show') && !panel.contains(e.target) && !btn.contains(e.target)) {
+      panel.classList.remove('show');
+      btn.classList.remove('active');
+    }
   }
 });
 
@@ -701,6 +756,64 @@ function buildOrUpdateMarker(a, isExternal) {
   }
 }
 
+async function fetchReceiverStats() {
+  try {
+    const res = await fetch('/data/stats.json', { cache: 'no-store' });
+    const d = await res.json();
+    document.getElementById('s-gain').textContent = d.gain_db != null ? d.gain_db.toFixed(1) + ' dB' : '—';
+    const maxDistKm = d.total && d.total.max_distance != null ? d.total.max_distance / 1000 : null;
+    document.getElementById('s-maxrange').textContent = maxDistKm != null ? fmtDist(maxDistKm) : '—';
+
+    const msgTotal = d.total ? d.total.messages : null;
+    const now = Date.now();
+    if (msgTotal != null && lastMsgTotal != null && lastMsgTime != null) {
+      const dt = (now - lastMsgTime) / 1000;
+      const rate = dt > 0 ? (msgTotal - lastMsgTotal) / dt : 0;
+      document.getElementById('s-msgrate').textContent = Math.max(0, Math.round(rate)) + ' /s';
+    }
+    lastMsgTotal = msgTotal;
+    lastMsgTime = now;
+  } catch (e) { /* receiver stats optional, ignore failures */ }
+}
+
+function trackSessionStats(a) {
+  if (!sessionStats.seenHexes.has(a.hex)) {
+    sessionStats.seenHexes.add(a.hex);
+    const type = a.t || (a.desc || '').trim() || null;
+    if (type) sessionStats.typeCounts[type] = (sessionStats.typeCounts[type] || 0) + 1;
+    const cs = (a.flight || '').trim();
+    if (cs) sessionStats.callsignCounts[cs] = (sessionStats.callsignCounts[cs] || 0) + 1;
+  }
+  if (typeof a.alt_baro === 'number' && (sessionStats.maxAlt == null || a.alt_baro > sessionStats.maxAlt)) {
+    sessionStats.maxAlt = a.alt_baro;
+    sessionStats.maxAltInfo = { flight: (a.flight || a.hex || '').trim() };
+  }
+  if (a.lat != null) {
+    const dist = haversine(SITE_LAT, SITE_LON, a.lat, a.lon);
+    if (sessionStats.maxDist == null || dist > sessionStats.maxDist) {
+      sessionStats.maxDist = dist;
+      sessionStats.maxDistInfo = { flight: (a.flight || a.hex || '').trim() };
+    }
+  }
+}
+
+function renderStatsPanel() {
+  document.getElementById('s-maxalt').textContent = sessionStats.maxAlt != null
+    ? `${fmtAlt(sessionStats.maxAlt)} (${sessionStats.maxAltInfo.flight})` : '—';
+  document.getElementById('s-maxdist').textContent = sessionStats.maxDist != null
+    ? `${fmtDist(sessionStats.maxDist)} (${sessionStats.maxDistInfo.flight})` : '—';
+
+  const topTypes = Object.entries(sessionStats.typeCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  document.getElementById('s-toptypes').innerHTML = topTypes.length
+    ? topTypes.map(([t, c]) => `<div class="stat-list-row"><span class="name">${t}</span><span class="count">${c}</span></div>`).join('')
+    : '<div class="stat-list-row"><span class="name">—</span></div>';
+
+  const topCalls = Object.entries(sessionStats.callsignCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  document.getElementById('s-topcallsigns').innerHTML = topCalls.length
+    ? topCalls.map(([c, n]) => `<div class="stat-list-row"><span class="name">${c}</span><span class="count">${n}</span></div>`).join('')
+    : '<div class="stat-list-row"><span class="name">—</span></div>';
+}
+
 async function refresh() {
   let data;
   try {
@@ -712,6 +825,7 @@ async function refresh() {
   }
 
   if (externalEnabled) await fetchExternal();
+  fetchReceiverStats();
 
   const seen = new Set();
   const withPos = [];
@@ -726,6 +840,7 @@ async function refresh() {
     a._external = false;
     withPos.push(a);
     buildOrUpdateMarker(a, false);
+    trackSessionStats(a);
   }
 
   if (externalEnabled) {
@@ -736,8 +851,16 @@ async function refresh() {
       a._external = true;
       withPos.push(a);
       buildOrUpdateMarker(a, true);
+      trackSessionStats(a);
     }
   }
+
+  const localVisible = withPos.filter(a => !a._external);
+  const mlatCount = localVisible.filter(a => a.mlat && a.mlat.length > 0).length;
+  document.getElementById('s-mlat').textContent = localVisible.length
+    ? `${mlatCount} / ${localVisible.length} (${Math.round(100 * mlatCount / localVisible.length)}%)`
+    : '—';
+  renderStatsPanel();
 
   for (const hex in markers) {
     if (!seen.has(hex)) {
