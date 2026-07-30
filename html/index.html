@@ -171,6 +171,11 @@
         <button id="trails-on" onclick="setTrails(true)">An</button>
         <button id="trails-off" onclick="setTrails(false)">Aus</button>
       </div>
+      <div class="label" style="margin-top:12px">Alle Flugverläufe anzeigen (statt nur ausgewähltes Flugzeug)</div>
+      <div class="segmented">
+        <button id="trails-all-on" onclick="setTrailsShowAll(true)">An</button>
+        <button id="trails-all-off" onclick="setTrailsShowAll(false)">Aus</button>
+      </div>
       <div class="label" style="margin-top:12px">Empfangsradius (<span id="radius-unit-label">km</span>, 0 = kein Limit)</div>
       <input type="number" id="radius-input" min="0" step="10" style="width:100%; padding:6px 8px; border:1px solid var(--border); border-radius:8px; font-size:13px; box-sizing:border-box;" onchange="setRadius(this.value)">
       <div class="label" style="margin-top:12px">Externe Quelle (adsb.fi)</div>
@@ -183,7 +188,7 @@
         <button id="airports-on" onclick="setAirports(true)">An</button>
         <button id="airports-off" onclick="setAirports(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.15.0</div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.16.0</div>
     </div>
   </div>
 </div>
@@ -217,6 +222,7 @@ let selectedHex = null;
 let sidebarCollapsed = window.innerWidth <= 768;
 let unitSystem = localStorage.getItem('unitSystem') || 'imperial';
 let showTrails = localStorage.getItem('showTrails') !== 'false';
+let trailsShowAll = localStorage.getItem('trailsShowAll') === 'true';
 let lastWithPos = [];
 let radiusKm = parseFloat(localStorage.getItem('radiusKm')) || 0;
 let externalEnabled = localStorage.getItem('externalEnabled') === 'true';
@@ -282,16 +288,40 @@ function updateTrailButtons() {
   document.getElementById('trails-off').classList.toggle('active', !showTrails);
 }
 
+function setTrailVisibility(hex, visible) {
+  const segs = trails[hex];
+  if (!segs) return;
+  for (const seg of segs) {
+    if (visible) { if (!map.hasLayer(seg)) seg.addTo(map); }
+    else if (map.hasLayer(seg)) map.removeLayer(seg);
+  }
+}
+
+function shouldShowTrail(hex) {
+  return showTrails && (trailsShowAll || hex === selectedHex);
+}
+
+function refreshAllTrailVisibility() {
+  for (const hex in trails) setTrailVisibility(hex, shouldShowTrail(hex));
+}
+
 function setTrails(on) {
   showTrails = on;
   localStorage.setItem('showTrails', on);
   updateTrailButtons();
-  for (const hex in trails) {
-    for (const seg of trails[hex]) {
-      if (showTrails) seg.addTo(map);
-      else map.removeLayer(seg);
-    }
-  }
+  refreshAllTrailVisibility();
+}
+
+function updateTrailsShowAllButtons() {
+  document.getElementById('trails-all-on').classList.toggle('active', trailsShowAll);
+  document.getElementById('trails-all-off').classList.toggle('active', !trailsShowAll);
+}
+
+function setTrailsShowAll(on) {
+  trailsShowAll = on;
+  localStorage.setItem('trailsShowAll', on);
+  updateTrailsShowAllButtons();
+  refreshAllTrailVisibility();
 }
 
 let airportLayer = null;
@@ -309,42 +339,38 @@ function airportIcon(type) {
   });
 }
 
-function airportPopupHtml(ap) {
+function mediaHtml(info) {
+  if (!info) return 'Keine weiteren Informationen verfügbar';
+  return `${info.thumb ? `<img src="${info.thumb}" style="width:100%; border-radius:6px; margin-bottom:6px; display:block;">` : ''}${info.extract ? `<div style="font-size:11px; color:#1a1f27;">${info.extract}</div>` : ''}`;
+}
+
+function airportPopupHtml(ap, media) {
   return `<div style="min-width:180px">
     <div style="font-weight:600; font-size:13px; margin-bottom:2px;">${ap.name}</div>
     <div style="font-size:11px; color:#6b7480; margin-bottom:6px;">${ap.icao}${ap.iata ? ' / ' + ap.iata : ''}</div>
-    <div class="airport-popup-media">${ap.wiki ? 'Lade Info…' : 'Keine weiteren Informationen verfügbar'}</div>
+    <div>${media}</div>
   </div>`;
 }
 
 const airportInfoCache = {};
 
-function renderAirportInfo(marker, info) {
-  const popup = marker.getPopup();
-  const el = popup && popup.getElement();
-  const container = el && el.querySelector('.airport-popup-media');
-  if (!container) return;
-  if (!info) {
-    container.textContent = 'Keine weiteren Informationen verfügbar';
-  } else {
-    container.innerHTML = `${info.thumb ? `<img src="${info.thumb}" style="width:100%; border-radius:6px; margin-bottom:6px; display:block;">` : ''}${info.extract ? `<div style="font-size:11px; color:#1a1f27;">${info.extract}</div>` : ''}`;
-  }
-  popup.update();
-}
-
 async function loadAirportInfo(ap, marker) {
-  if (!ap.wiki) return;
-  if (airportInfoCache[ap.wiki] !== undefined) { renderAirportInfo(marker, airportInfoCache[ap.wiki]); return; }
+  if (!ap.wikiTitle) return;
+  const key = ap.wikiLang + ':' + ap.wikiTitle;
+  if (airportInfoCache[key] !== undefined) {
+    marker.setPopupContent(airportPopupHtml(ap, mediaHtml(airportInfoCache[key])));
+    return;
+  }
   try {
-    const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(ap.wiki)}`);
+    const res = await fetch(`https://${ap.wikiLang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(ap.wikiTitle)}`);
     if (!res.ok) throw new Error('not found');
     const data = await res.json();
     const info = { thumb: data.thumbnail ? data.thumbnail.source : null, extract: data.extract || '' };
-    airportInfoCache[ap.wiki] = info;
-    renderAirportInfo(marker, info);
+    airportInfoCache[key] = info;
+    marker.setPopupContent(airportPopupHtml(ap, mediaHtml(info)));
   } catch (e) {
-    airportInfoCache[ap.wiki] = null;
-    renderAirportInfo(marker, null);
+    airportInfoCache[key] = null;
+    marker.setPopupContent(airportPopupHtml(ap, mediaHtml(null)));
   }
 }
 
@@ -355,7 +381,7 @@ async function loadAirports() {
   airportLayer = L.layerGroup();
   for (const ap of data) {
     const marker = L.marker([ap.lat, ap.lon], { icon: airportIcon(ap.type) });
-    marker.bindPopup(airportPopupHtml(ap));
+    marker.bindPopup(airportPopupHtml(ap, ap.wikiTitle ? 'Lade Info…' : 'Keine weiteren Informationen verfügbar'));
     marker.on('popupopen', () => loadAirportInfo(ap, marker));
     airportLayer.addLayer(marker);
   }
@@ -579,6 +605,7 @@ function selectPlane(hex) {
   if (sidebarCollapsed) toggleSidebar();
   showDetail(hex);
   refreshMarkerGlow();
+  refreshAllTrailVisibility();
   const a = window.currentAircraft && window.currentAircraft[hex];
   if (a && a.lat != null) map.panTo([a.lat, a.lon]);
 }
@@ -588,6 +615,7 @@ function closeDetail() {
   document.getElementById('panel-detail').classList.remove('show');
   document.getElementById('panel-list').classList.remove('hidden');
   refreshMarkerGlow();
+  refreshAllTrailVisibility();
   if (window.innerWidth <= 768 && !sidebarCollapsed) toggleSidebar();
 }
 
@@ -660,7 +688,7 @@ function buildOrUpdateMarker(a, isExternal) {
   if (!last || last.lat !== a.lat || last.lon !== a.lon) {
     if (last) {
       const seg = L.polyline([[last.lat, last.lon], [a.lat, a.lon]], { color, weight: 2, opacity: 0.7 });
-      if (showTrails) seg.addTo(map);
+      if (shouldShowTrail(a.hex)) seg.addTo(map);
       segs.push(seg);
     }
     pts.push({ lat: a.lat, lon: a.lon, alt: a.alt_baro });
@@ -756,6 +784,7 @@ if (sidebarCollapsed) {
 }
 updateUnitButtons();
 updateTrailButtons();
+updateTrailsShowAllButtons();
 updateExternalButtons();
 updateRadiusUI();
 updateAirportButtons();
