@@ -178,7 +178,12 @@
         <button id="external-on" onclick="setExternal(true)">An</button>
         <button id="external-off" onclick="setExternal(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.13.0</div>
+      <div class="label" style="margin-top:12px">Flughäfen</div>
+      <div class="segmented">
+        <button id="airports-on" onclick="setAirports(true)">An</button>
+        <button id="airports-off" onclick="setAirports(false)">Aus</button>
+      </div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.14.0</div>
     </div>
   </div>
 </div>
@@ -207,6 +212,7 @@ L.circleMarker([SITE_LAT, SITE_LON], { radius: 5, color: '#1a73e8', fillColor: '
 const markers = {};
 const trails = {};
 const trailPoints = {};
+const MAX_TRAIL_POINTS = 1800;
 let selectedHex = null;
 let sidebarCollapsed = window.innerWidth <= 768;
 let unitSystem = localStorage.getItem('unitSystem') || 'imperial';
@@ -281,8 +287,54 @@ function setTrails(on) {
   localStorage.setItem('showTrails', on);
   updateTrailButtons();
   for (const hex in trails) {
-    if (showTrails) trails[hex].addTo(map);
-    else map.removeLayer(trails[hex]);
+    for (const seg of trails[hex]) {
+      if (showTrails) seg.addTo(map);
+      else map.removeLayer(seg);
+    }
+  }
+}
+
+let airportLayer = null;
+let airportsLoaded = false;
+let showAirports = localStorage.getItem('showAirports') === 'true';
+
+function airportIcon(type) {
+  const size = type === 'large' ? 14 : 10;
+  return L.divIcon({
+    className: '',
+    html: `<svg width="${size}" height="${size}" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="#455a64" stroke="#ffffff" stroke-width="1.5"/><rect x="4" y="9" width="12" height="2" fill="#ffffff"/></svg>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2]
+  });
+}
+
+async function loadAirports() {
+  if (airportsLoaded) return;
+  const res = await fetch('/airports.json');
+  const data = await res.json();
+  airportLayer = L.layerGroup();
+  for (const ap of data) {
+    const marker = L.marker([ap.lat, ap.lon], { icon: airportIcon(ap.type) });
+    marker.bindTooltip(`${ap.icao}${ap.iata ? ' / ' + ap.iata : ''} — ${ap.name}`, { direction: 'top' });
+    airportLayer.addLayer(marker);
+  }
+  airportsLoaded = true;
+}
+
+function updateAirportButtons() {
+  document.getElementById('airports-on').classList.toggle('active', showAirports);
+  document.getElementById('airports-off').classList.toggle('active', !showAirports);
+}
+
+async function setAirports(on) {
+  showAirports = on;
+  localStorage.setItem('showAirports', on);
+  updateAirportButtons();
+  if (on) {
+    await loadAirports();
+    airportLayer.addTo(map);
+  } else if (airportLayer) {
+    map.removeLayer(airportLayer);
   }
 }
 
@@ -558,19 +610,25 @@ function buildOrUpdateMarker(a, isExternal) {
     markers[a.hex] = m;
   }
 
-  if (isExternal) return;
-
   if (!trailPoints[a.hex]) trailPoints[a.hex] = [];
+  if (!trails[a.hex]) trails[a.hex] = [];
   const pts = trailPoints[a.hex];
+  const segs = trails[a.hex];
   const last = pts[pts.length - 1];
-  if (!last || last[0] !== a.lat || last[1] !== a.lon) pts.push([a.lat, a.lon]);
-  if (pts.length > 100) pts.shift();
-  if (trails[a.hex]) {
-    trails[a.hex].setLatLngs(pts);
-  } else {
-    const line = L.polyline(pts, { color, weight: 2, opacity: 0.55 });
-    if (showTrails) line.addTo(map);
-    trails[a.hex] = line;
+
+  if (!last || last.lat !== a.lat || last.lon !== a.lon) {
+    if (last) {
+      const seg = L.polyline([[last.lat, last.lon], [a.lat, a.lon]], { color, weight: 2, opacity: 0.7 });
+      if (showTrails) seg.addTo(map);
+      segs.push(seg);
+    }
+    pts.push({ lat: a.lat, lon: a.lon, alt: a.alt_baro });
+  }
+
+  while (pts.length > MAX_TRAIL_POINTS) {
+    pts.shift();
+    const oldSeg = segs.shift();
+    if (oldSeg) map.removeLayer(oldSeg);
   }
 }
 
@@ -616,7 +674,7 @@ async function refresh() {
     if (!seen.has(hex)) {
       map.removeLayer(markers[hex]);
       delete markers[hex];
-      if (trails[hex]) { map.removeLayer(trails[hex]); delete trails[hex]; delete trailPoints[hex]; }
+      if (trails[hex]) { trails[hex].forEach(seg => map.removeLayer(seg)); delete trails[hex]; delete trailPoints[hex]; }
     }
   }
 
@@ -659,6 +717,8 @@ updateUnitButtons();
 updateTrailButtons();
 updateExternalButtons();
 updateRadiusUI();
+updateAirportButtons();
+if (showAirports) setAirports(true);
 renderLegend();
 refresh();
 setInterval(refresh, 2000);
