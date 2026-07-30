@@ -183,7 +183,7 @@
         <button id="airports-on" onclick="setAirports(true)">An</button>
         <button id="airports-off" onclick="setAirports(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.14.0</div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.15.0</div>
     </div>
   </div>
 </div>
@@ -299,13 +299,53 @@ let airportsLoaded = false;
 let showAirports = localStorage.getItem('showAirports') === 'true';
 
 function airportIcon(type) {
-  const size = type === 'large' ? 14 : 10;
+  const size = type === 'large' ? 16 : 12;
+  const h = Math.round(size * 1.3);
   return L.divIcon({
     className: '',
-    html: `<svg width="${size}" height="${size}" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="#455a64" stroke="#ffffff" stroke-width="1.5"/><rect x="4" y="9" width="12" height="2" fill="#ffffff"/></svg>`,
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2]
+    html: `<svg width="${size}" height="${h}" viewBox="0 0 20 26"><rect x="8" y="12" width="4" height="12" fill="#455a64"/><rect x="3" y="4" width="14" height="9" rx="1.5" fill="#455a64" stroke="#ffffff" stroke-width="1"/><rect x="5" y="6.5" width="10" height="2.5" fill="#ffffff"/></svg>`,
+    iconSize: [size, h],
+    iconAnchor: [size / 2, h]
   });
+}
+
+function airportPopupHtml(ap) {
+  return `<div style="min-width:180px">
+    <div style="font-weight:600; font-size:13px; margin-bottom:2px;">${ap.name}</div>
+    <div style="font-size:11px; color:#6b7480; margin-bottom:6px;">${ap.icao}${ap.iata ? ' / ' + ap.iata : ''}</div>
+    <div class="airport-popup-media">${ap.wiki ? 'Lade Info…' : 'Keine weiteren Informationen verfügbar'}</div>
+  </div>`;
+}
+
+const airportInfoCache = {};
+
+function renderAirportInfo(marker, info) {
+  const popup = marker.getPopup();
+  const el = popup && popup.getElement();
+  const container = el && el.querySelector('.airport-popup-media');
+  if (!container) return;
+  if (!info) {
+    container.textContent = 'Keine weiteren Informationen verfügbar';
+  } else {
+    container.innerHTML = `${info.thumb ? `<img src="${info.thumb}" style="width:100%; border-radius:6px; margin-bottom:6px; display:block;">` : ''}${info.extract ? `<div style="font-size:11px; color:#1a1f27;">${info.extract}</div>` : ''}`;
+  }
+  popup.update();
+}
+
+async function loadAirportInfo(ap, marker) {
+  if (!ap.wiki) return;
+  if (airportInfoCache[ap.wiki] !== undefined) { renderAirportInfo(marker, airportInfoCache[ap.wiki]); return; }
+  try {
+    const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(ap.wiki)}`);
+    if (!res.ok) throw new Error('not found');
+    const data = await res.json();
+    const info = { thumb: data.thumbnail ? data.thumbnail.source : null, extract: data.extract || '' };
+    airportInfoCache[ap.wiki] = info;
+    renderAirportInfo(marker, info);
+  } catch (e) {
+    airportInfoCache[ap.wiki] = null;
+    renderAirportInfo(marker, null);
+  }
 }
 
 async function loadAirports() {
@@ -315,7 +355,8 @@ async function loadAirports() {
   airportLayer = L.layerGroup();
   for (const ap of data) {
     const marker = L.marker([ap.lat, ap.lon], { icon: airportIcon(ap.type) });
-    marker.bindTooltip(`${ap.icao}${ap.iata ? ' / ' + ap.iata : ''} — ${ap.name}`, { direction: 'top' });
+    marker.bindPopup(airportPopupHtml(ap));
+    marker.on('popupopen', () => loadAirportInfo(ap, marker));
     airportLayer.addLayer(marker);
   }
   airportsLoaded = true;
