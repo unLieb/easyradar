@@ -75,6 +75,8 @@
     0%, 100% { filter: drop-shadow(0 0 3px #1a73e8) drop-shadow(0 0 8px #1a73e8) drop-shadow(0 0 14px #1a73e8); }
     50% { filter: drop-shadow(0 0 2px #1a73e8) drop-shadow(0 0 5px #1a73e8) drop-shadow(0 0 8px #1a73e8); }
   }
+  .external-marker { opacity: 0.72; }
+  .external-tag { display: inline-block; font-size: 9px; font-weight: 600; color: #9575cd; border: 1px solid #9575cd; border-radius: 4px; padding: 0 4px; margin-left: 6px; vertical-align: middle; }
 
   #map-controls-bottom { position: absolute; left: 356px; bottom: 16px; display: flex; align-items: center; gap: 12px; z-index: 500; transition: left 0.2s ease; }
   #app.collapsed #map-controls-bottom { left: 16px; }
@@ -169,7 +171,14 @@
         <button id="trails-on" onclick="setTrails(true)">An</button>
         <button id="trails-off" onclick="setTrails(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.12.1</div>
+      <div class="label" style="margin-top:12px">Empfangsradius (<span id="radius-unit-label">km</span>, 0 = kein Limit)</div>
+      <input type="number" id="radius-input" min="0" step="10" style="width:100%; padding:6px 8px; border:1px solid var(--border); border-radius:8px; font-size:13px; box-sizing:border-box;" onchange="setRadius(this.value)">
+      <div class="label" style="margin-top:12px">Externe Quelle (adsb.fi)</div>
+      <div class="segmented">
+        <button id="external-on" onclick="setExternal(true)">An</button>
+        <button id="external-off" onclick="setExternal(false)">Aus</button>
+      </div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.13.0</div>
     </div>
   </div>
 </div>
@@ -203,6 +212,9 @@ let sidebarCollapsed = window.innerWidth <= 768;
 let unitSystem = localStorage.getItem('unitSystem') || 'imperial';
 let showTrails = localStorage.getItem('showTrails') !== 'false';
 let lastWithPos = [];
+let radiusKm = parseFloat(localStorage.getItem('radiusKm')) || 0;
+let externalEnabled = localStorage.getItem('externalEnabled') === 'true';
+let externalAircraft = [];
 
 function toggleSidebar() {
   sidebarCollapsed = !sidebarCollapsed;
@@ -243,7 +255,10 @@ function renderLegend() {
     }
     return `<div class="legend-row"><span class="swatch" style="background:${b.color}"></span>${label}</div>`;
   }).join('');
-  document.getElementById('legend').innerHTML = `<div class="legend-title">Flughöhe</div>${rows}`;
+  const externalRow = externalEnabled
+    ? `<div class="legend-row" style="margin-top:4px; border-top:1px solid var(--border); padding-top:4px;"><span class="swatch" style="background:${EXTERNAL_COLOR}"></span>Externe Quelle (adsb.fi)</div>`
+    : '';
+  document.getElementById('legend').innerHTML = `<div class="legend-title">Flughöhe</div>${rows}${externalRow}`;
 }
 
 function setUnits(sys) {
@@ -251,6 +266,7 @@ function setUnits(sys) {
   localStorage.setItem('unitSystem', sys);
   updateUnitButtons();
   renderLegend();
+  updateRadiusUI();
   renderList(lastWithPos);
   if (selectedHex) showDetail(selectedHex);
 }
@@ -268,6 +284,31 @@ function setTrails(on) {
     if (showTrails) trails[hex].addTo(map);
     else map.removeLayer(trails[hex]);
   }
+}
+
+function updateRadiusUI() {
+  document.getElementById('radius-unit-label').textContent = unitSystem === 'metric' ? 'km' : 'nm';
+  const displayVal = radiusKm > 0 ? (unitSystem === 'metric' ? Math.round(radiusKm) : Math.round(radiusKm / 1.852)) : '';
+  document.getElementById('radius-input').value = displayVal;
+}
+
+function setRadius(value) {
+  const n = parseFloat(value) || 0;
+  radiusKm = n > 0 ? (unitSystem === 'metric' ? n : n * 1.852) : 0;
+  localStorage.setItem('radiusKm', radiusKm);
+}
+
+function updateExternalButtons() {
+  document.getElementById('external-on').classList.toggle('active', externalEnabled);
+  document.getElementById('external-off').classList.toggle('active', !externalEnabled);
+}
+
+function setExternal(on) {
+  externalEnabled = on;
+  localStorage.setItem('externalEnabled', on);
+  updateExternalButtons();
+  renderLegend();
+  if (!on) externalAircraft = [];
 }
 
 document.addEventListener('click', (e) => {
@@ -292,8 +333,10 @@ function altColor(altFt) {
 // CategoryIcons{}, getBaseMarker(), svgShapeToSVG(). Each shape cleanly separates the
 // fillable silhouette (path) from stroke-only detail lines (accent) - avoids the
 // "everything turns into a black blob" issue from guessing which parts to fill.
-function getPlaneIcon(a) {
-  const color = altColor(a.alt_baro);
+const EXTERNAL_COLOR = '#9575cd';
+
+function getPlaneIcon(a, colorOverride) {
+  const color = colorOverride || altColor(a.alt_baro);
   const type = (a.t || '').toUpperCase() || null;
   const [shapeName, scale] = getBaseMarker(a.category || null, type, null, null, a.type || null, a.alt_baro, false);
   const shape = shapes[shapeName] || shapes['unknown'];
@@ -478,6 +521,59 @@ function showDetail(hex) {
   }
 }
 
+function withinRadius(a) {
+  if (!radiusKm || a.lat == null) return true;
+  return haversine(SITE_LAT, SITE_LON, a.lat, a.lon) <= radiusKm;
+}
+
+async function fetchExternal() {
+  if (!externalEnabled) { externalAircraft = []; return; }
+  const radiusNm = Math.round(radiusKm > 0 ? radiusKm / 1.852 : 250);
+  try {
+    const res = await fetch(`/external/lat/${SITE_LAT}/lon/${SITE_LON}/dist/${radiusNm}`);
+    const data = await res.json();
+    externalAircraft = data.ac || [];
+  } catch (e) {
+    externalAircraft = [];
+  }
+}
+
+function buildOrUpdateMarker(a, isExternal) {
+  const color = isExternal ? EXTERNAL_COLOR : altColor(a.alt_baro);
+  const { svg, w, h } = getPlaneIcon(a, isExternal ? EXTERNAL_COLOR : null);
+  const extraClass = (isExternal ? ' external-marker' : '') + (a.hex === selectedHex ? ' selected-glow' : '');
+  const icon = L.divIcon({
+    className: '',
+    html: `<div class="plane-icon${extraClass}" style="transform: rotate(${getTrack(a) || 0}deg)">${svg}</div>`,
+    iconSize: [w, h],
+    iconAnchor: [w / 2, h / 2]
+  });
+
+  if (markers[a.hex]) {
+    markers[a.hex].setLatLng([a.lat, a.lon]);
+    markers[a.hex].setIcon(icon);
+  } else {
+    const m = L.marker([a.lat, a.lon], { icon }).addTo(map);
+    m.on('click', () => selectPlane(a.hex));
+    markers[a.hex] = m;
+  }
+
+  if (isExternal) return;
+
+  if (!trailPoints[a.hex]) trailPoints[a.hex] = [];
+  const pts = trailPoints[a.hex];
+  const last = pts[pts.length - 1];
+  if (!last || last[0] !== a.lat || last[1] !== a.lon) pts.push([a.lat, a.lon]);
+  if (pts.length > 100) pts.shift();
+  if (trails[a.hex]) {
+    trails[a.hex].setLatLngs(pts);
+  } else {
+    const line = L.polyline(pts, { color, weight: 2, opacity: 0.55 });
+    if (showTrails) line.addTo(map);
+    trails[a.hex] = line;
+  }
+}
+
 async function refresh() {
   let data;
   try {
@@ -488,45 +584,31 @@ async function refresh() {
     return;
   }
 
+  if (externalEnabled) await fetchExternal();
+
   const seen = new Set();
   const withPos = [];
+  const localHexes = new Set();
   window.currentAircraft = {};
 
   for (const a of data.aircraft) {
+    localHexes.add(a.hex);
+    if (a.lat == null || a.lon == null || !withinRadius(a)) continue;
     window.currentAircraft[a.hex] = a;
-    if (a.lat == null || a.lon == null) continue;
     seen.add(a.hex);
+    a._external = false;
     withPos.push(a);
+    buildOrUpdateMarker(a, false);
+  }
 
-    const color = altColor(a.alt_baro);
-    const { svg, w, h } = getPlaneIcon(a);
-    const icon = L.divIcon({
-      className: '',
-      html: `<div class="plane-icon${a.hex === selectedHex ? ' selected-glow' : ''}" style="transform: rotate(${getTrack(a) || 0}deg)">${svg}</div>`,
-      iconSize: [w, h],
-      iconAnchor: [w / 2, h / 2]
-    });
-
-    if (markers[a.hex]) {
-      markers[a.hex].setLatLng([a.lat, a.lon]);
-      markers[a.hex].setIcon(icon);
-    } else {
-      const m = L.marker([a.lat, a.lon], { icon }).addTo(map);
-      m.on('click', () => selectPlane(a.hex));
-      markers[a.hex] = m;
-    }
-
-    if (!trailPoints[a.hex]) trailPoints[a.hex] = [];
-    const pts = trailPoints[a.hex];
-    const last = pts[pts.length - 1];
-    if (!last || last[0] !== a.lat || last[1] !== a.lon) pts.push([a.lat, a.lon]);
-    if (pts.length > 100) pts.shift();
-    if (trails[a.hex]) {
-      trails[a.hex].setLatLngs(pts);
-    } else {
-      const line = L.polyline(pts, { color, weight: 2, opacity: 0.55 });
-      if (showTrails) line.addTo(map);
-      trails[a.hex] = line;
+  if (externalEnabled) {
+    for (const a of externalAircraft) {
+      if (localHexes.has(a.hex) || a.lat == null || !withinRadius(a)) continue;
+      window.currentAircraft[a.hex] = a;
+      seen.add(a.hex);
+      a._external = true;
+      withPos.push(a);
+      buildOrUpdateMarker(a, true);
     }
   }
 
@@ -556,7 +638,7 @@ function renderList(withPos) {
     row.dataset.hex = a.hex;
     row.innerHTML = `
       <div>
-        <div class="callsign">${(a.flight || a.hex || '—').trim()}</div>
+        <div class="callsign">${(a.flight || a.hex || '—').trim()}${a._external ? '<span class="external-tag">extern</span>' : ''}</div>
         <div class="type">${a.t || 'Typ unbekannt'}</div>
       </div>
       <div class="metrics">
@@ -575,6 +657,8 @@ if (sidebarCollapsed) {
 }
 updateUnitButtons();
 updateTrailButtons();
+updateExternalButtons();
+updateRadiusUI();
 renderLegend();
 refresh();
 setInterval(refresh, 2000);
