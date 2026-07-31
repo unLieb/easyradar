@@ -356,7 +356,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.23.3';
+const APP_VERSION = '0.23.4';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -641,18 +641,22 @@ const ALT_BANDS = [
   { color: '#ff5722', maxFt: null }
 ];
 
+function roundMeters(m) {
+  return Math.round(m / 500) * 500;
+}
+
 function renderLegend() {
   const rows = ALT_BANDS.map((b, i) => {
     const prevFt = i === 0 ? 0 : ALT_BANDS[i - 1].maxFt;
     let label;
     if (b.maxFt == null) {
-      label = unitSystem === 'metric' ? `> ${Math.round(prevFt * 0.3048).toLocaleString('de-DE')} m` : `> ${prevFt.toLocaleString('de-DE')} ft`;
+      label = unitSystem === 'metric' ? `> ${roundMeters(prevFt * 0.3048).toLocaleString('de-DE')} m` : `> ${prevFt.toLocaleString('de-DE')} ft`;
     } else if (i === 0) {
-      label = unitSystem === 'metric' ? `< ${Math.round(b.maxFt * 0.3048).toLocaleString('de-DE')} m` : `< ${b.maxFt.toLocaleString('de-DE')} ft`;
+      label = unitSystem === 'metric' ? `< ${roundMeters(b.maxFt * 0.3048).toLocaleString('de-DE')} m` : `< ${b.maxFt.toLocaleString('de-DE')} ft`;
     } else {
       label = unitSystem === 'metric'
-        ? `${Math.round(prevFt * 0.3048).toLocaleString('de-DE')}–${Math.round(b.maxFt * 0.3048).toLocaleString('de-DE')} m`
-        : `${prevFt.toLocaleString('de-DE')}–${b.maxFt.toLocaleString('de-DE')} ft`;
+        ? `${roundMeters(prevFt * 0.3048).toLocaleString('de-DE')} – ${roundMeters(b.maxFt * 0.3048).toLocaleString('de-DE')} m`
+        : `${prevFt.toLocaleString('de-DE')} – ${b.maxFt.toLocaleString('de-DE')} ft`;
     }
     return `<div class="legend-row"><span class="swatch" style="background:${b.color}"></span>${label}</div>`;
   }).join('');
