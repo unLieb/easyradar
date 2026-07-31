@@ -185,7 +185,7 @@
     #sidebar header { padding-left: 56px; }
 
     #collapse-btn { position: fixed; top: 12px; left: 12px; width: 36px; height: 36px; border-radius: 50%; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.18); z-index: 950; }
-    #sidebar.collapsed ~ #collapse-btn, #app.collapsed #collapse-btn { left: 12px; }
+    #sidebar.collapsed ~ #collapse-btn, #app.collapsed #collapse-btn { top: 132px; left: 12px; }
 
     #detail-header .close { width: 36px; height: 36px; font-size: 18px; }
     .plane-row { padding: 13px 16px; }
@@ -194,6 +194,7 @@
     #status-bar-wrap { top: 58px; left: 16px !important; right: 16px; }
     #status-bar { white-space: normal; flex-wrap: wrap; row-gap: 6px; box-sizing: border-box; max-width: calc(100vw - 32px); justify-content: center; }
     #settings-panel, #stats-panel { left: 16px !important; right: 16px; width: auto; max-width: calc(100vw - 32px); box-sizing: border-box; }
+    .leaflet-control-zoom { display: none; }
   }
 
   .plane-tooltip { background: var(--card); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.15); color: var(--text); font-size: 12px; font-weight: 600; padding: 3px 8px; }
@@ -401,7 +402,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.26.3';
+const APP_VERSION = '0.26.4';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
