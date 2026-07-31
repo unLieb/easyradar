@@ -325,7 +325,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.21.2';
+const APP_VERSION = '0.21.3';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -562,10 +562,11 @@ function renderLegend() {
     }
     return `<div class="legend-row"><span class="swatch" style="background:${b.color}"></span>${label}</div>`;
   }).join('');
+  const milRow = `<div class="legend-row" style="margin-top:4px; border-top:1px solid var(--border); padding-top:4px;"><span class="swatch" style="background:${NATO_OLIVE}"></span>Militär</div>`;
   const externalRow = externalEnabled
     ? `<div class="legend-row" style="margin-top:4px; border-top:1px solid var(--border); padding-top:4px;"><span class="swatch" style="background:${EXTERNAL_COLOR}"></span>Externe Quelle (adsb.fi)</div>`
     : '';
-  document.getElementById('legend').innerHTML = `<div class="legend-title">Flughöhe</div>${rows}${externalRow}`;
+  document.getElementById('legend').innerHTML = `<div class="legend-title">Flughöhe</div>${rows}${milRow}${externalRow}`;
 }
 
 function setUnits(sys) {
@@ -628,7 +629,7 @@ function airportIcon(type) {
   const h = Math.round(size * 1.3);
   return L.divIcon({
     className: '',
-    html: `<svg width="${size}" height="${h}" viewBox="0 0 20 26"><rect x="8" y="12" width="4" height="12" fill="#e65100"/><rect x="3" y="4" width="14" height="9" rx="1.5" fill="#e65100" stroke="#ffffff" stroke-width="1"/><rect x="5" y="6.5" width="10" height="2.5" fill="#ffffff"/></svg>`,
+    html: `<svg width="${size}" height="${h}" viewBox="0 0 20 26"><rect x="8" y="12" width="4" height="12" fill="${NATO_OLIVE}"/><rect x="3" y="4" width="14" height="9" rx="1.5" fill="${NATO_OLIVE}" stroke="#ffffff" stroke-width="1"/><rect x="5" y="6.5" width="10" height="2.5" fill="#ffffff"/></svg>`,
     iconSize: [size, h],
     iconAnchor: [size / 2, h]
   });
@@ -751,9 +752,15 @@ function altColor(altFt) {
 // fillable silhouette (path) from stroke-only detail lines (accent) - avoids the
 // "everything turns into a black blob" issue from guessing which parts to fill.
 const EXTERNAL_COLOR = '#9575cd';
+const NATO_OLIVE = '#5b6b2f';
+
+function planeColor(a, isExternal) {
+  if (classifyAircraft(a) === 'militaer') return NATO_OLIVE;
+  return isExternal ? EXTERNAL_COLOR : altColor(a.alt_baro);
+}
 
 function getPlaneIcon(a, colorOverride) {
-  const color = colorOverride || altColor(a.alt_baro);
+  const color = colorOverride;
   const type = (a.t || '').toUpperCase() || null;
   const [shapeName, scale] = getBaseMarker(a.category || null, type, null, null, a.type || null, a.alt_baro, false);
   const shape = shapes[shapeName] || shapes['unknown'];
@@ -1049,8 +1056,8 @@ async function fetchExternal() {
 }
 
 function buildOrUpdateMarker(a, isExternal) {
-  const color = isExternal ? EXTERNAL_COLOR : altColor(a.alt_baro);
-  const { svg, w, h } = getPlaneIcon(a, isExternal ? EXTERNAL_COLOR : null);
+  const color = planeColor(a, isExternal);
+  const { svg, w, h } = getPlaneIcon(a, color);
   const extraClass = (isExternal ? ' external-marker' : '') + (a.hex === selectedHex ? ' selected-glow' : '');
   const icon = L.divIcon({
     className: '',
