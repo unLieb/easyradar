@@ -43,7 +43,7 @@
   #favorites-chip.active { background: #f9a825; border-color: #f9a825; color: #fff; }
 
   #panel-list { flex: 1; overflow-y: auto; }
-  .plane-row .flag { margin-right: 5px; font-size: 13px; }
+  .plane-row .flag-icon { width: 16px; height: auto; margin-right: 6px; border-radius: 2px; vertical-align: middle; box-shadow: 0 0 0 1px rgba(0,0,0,0.08); }
   .plane-row .star { cursor: pointer; margin-right: 4px; color: var(--border); }
   .plane-row .star.on { color: #f9a825; }
   .plane-row { padding: 10px 18px; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.15s; }
@@ -322,7 +322,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.21.0';
+const APP_VERSION = '0.21.1';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -1286,7 +1286,7 @@ function renderList(withPos) {
     const flag = flagForHex(a.hex);
     row.innerHTML = `
       <div>
-        <div class="callsign">${flag ? `<span class="flag">${flag}</span>` : ''}${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${(a.flight || a.hex || '—').trim()}${a._external ? '<span class="external-tag">extern</span>' : ''}</div>
+        <div class="callsign">${flag}${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${(a.flight || a.hex || '—').trim()}${a._external ? '<span class="external-tag">extern</span>' : ''}</div>
         <div class="type">${a.t || 'Typ unbekannt'}</div>
       </div>
       <div class="metrics">

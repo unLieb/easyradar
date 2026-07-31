@@ -221,15 +221,13 @@ function countryCodeForHex(hex) {
   return null;
 }
 
-function flagEmojiForCountryCode(cc) {
-  if (!cc) return '';
-  return String.fromCodePoint(...[...cc.toUpperCase()].map(c => 127397 + c.charCodeAt(0)));
-}
-
+// Emoji flags render inconsistently across OSes (Windows in particular ships
+// no color flag glyphs), so we use bundled SVG icons instead.
 const flagCache = {};
 function flagForHex(hex) {
   if (hex in flagCache) return flagCache[hex];
-  const flag = flagEmojiForCountryCode(countryCodeForHex(hex));
-  flagCache[hex] = flag;
-  return flag;
+  const cc = countryCodeForHex(hex);
+  const html = cc ? `<img class="flag-icon" src="flags/${cc}.svg" alt="${cc.toUpperCase()}">` : '';
+  flagCache[hex] = html;
+  return html;
 }
