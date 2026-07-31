@@ -266,6 +266,9 @@
       <div class="section-title">Häufigste Rufzeichen</div>
       <div id="s-topcallsigns"></div>
 
+      <div class="section-title">Häufigste Fluggesellschaft</div>
+      <div id="s-topairlines"></div>
+
       <div class="section-title">Empfang nach Richtung</div>
       <div id="s-directions"></div>
 
@@ -327,7 +330,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.22.0';
+const APP_VERSION = '0.22.1';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -957,6 +960,30 @@ function fmtSource(a) {
   return type || '—';
 }
 
+const airlineNameCache = {};
+
+async function resolveAirlineName(code) {
+  if (airlineNameCache[code] !== undefined) return airlineNameCache[code];
+  try {
+    const res = await fetch(`https://api.adsbdb.com/v0/airline/${code}`);
+    if (!res.ok) throw new Error('not found');
+    const data = await res.json();
+    const entry = data.response && data.response[0];
+    airlineNameCache[code] = entry ? entry.name : null;
+  } catch (e) {
+    airlineNameCache[code] = null;
+  }
+  return airlineNameCache[code];
+}
+
+async function renderAirlineList(codes) {
+  const container = document.getElementById('s-topairlines');
+  if (!container) return;
+  if (!codes || !codes.length) { container.innerHTML = barListHtml([]); return; }
+  const resolved = await Promise.all(codes.map(async ([code, c]) => [(await resolveAirlineName(code)) || code, c]));
+  container.innerHTML = barListHtml(resolved);
+}
+
 const operatorCache = {};
 
 async function loadOperator(reg, hex) {
@@ -1179,6 +1206,7 @@ async function fetchAndRenderDbStats() {
 
     document.getElementById('s-toptypes').innerHTML = barListHtml(d.topTypes);
     document.getElementById('s-topcallsigns').innerHTML = barListHtml(d.topCallsigns);
+    if (d.topAirlineCodes) renderAirlineList(d.topAirlineCodes);
 
     if (d.directions) renderDirectionChart(d.directions);
 
