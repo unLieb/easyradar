@@ -148,6 +148,9 @@
     #legend { max-width: calc(100vw - 32px); box-sizing: border-box; }
     #settings-panel, #stats-panel { left: 16px !important; right: 16px; width: auto; max-width: calc(100vw - 32px); box-sizing: border-box; }
   }
+
+  .plane-tooltip { background: var(--card); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.15); color: var(--text); font-size: 12px; font-weight: 600; padding: 3px 8px; }
+  .plane-tooltip::before { border-top-color: var(--card); }
 </style>
 </head>
 <body>
@@ -322,7 +325,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.21.1';
+const APP_VERSION = '0.21.2';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -1056,12 +1059,15 @@ function buildOrUpdateMarker(a, isExternal) {
     iconAnchor: [w / 2, h / 2]
   });
 
+  const label = (a.flight || '').trim() || a.hex;
   if (markers[a.hex]) {
     markers[a.hex].setLatLng([a.lat, a.lon]);
     markers[a.hex].setIcon(icon);
+    markers[a.hex].setTooltipContent(label);
   } else {
     const m = L.marker([a.lat, a.lon], { icon }).addTo(map);
     m.on('click', () => selectPlane(a.hex));
+    m.bindTooltip(label, { direction: 'top', offset: [0, -h / 2], className: 'plane-tooltip' });
     markers[a.hex] = m;
   }
 
