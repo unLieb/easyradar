@@ -148,6 +148,15 @@
   .achievement .ach-sub { font-size: 11px; color: var(--text-muted); }
   .achievement.locked { opacity: 0.4; filter: grayscale(1); }
 
+  .ach-category { border-top: 1px solid var(--border); }
+  .ach-category:first-child { border-top: none; }
+  .ach-category-header { width: 100%; display: flex; justify-content: space-between; align-items: center; background: none; border: none; padding: 9px 0; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text); }
+  .ach-category-header .ach-progress { font-size: 11px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+  .ach-category-header .ach-caret { display: inline-block; transition: transform 0.15s ease; }
+  .ach-category-header.open .ach-caret { transform: rotate(90deg); }
+  .ach-category-body { display: none; padding: 0 0 6px 4px; }
+  .ach-category-body.open { display: block; }
+
   .achievement-toast {
     position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-16px);
     background: var(--card); border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.22);
@@ -388,7 +397,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.25.0';
+const APP_VERSION = '0.26.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -1388,13 +1397,114 @@ function barListHtml(entries) {
   </div>`).join('');
 }
 
+const ACHIEVEMENT_CATEGORIES = [
+  { id: 'flugzeuge', icon: '✈️', title: 'Flugzeuge' },
+  { id: 'airlines', icon: '🌍', title: 'Airlines' },
+  { id: 'empfang', icon: '📡', title: 'Empfang' },
+  { id: 'tagesrekorde', icon: '📈', title: 'Tagesrekorde' },
+  { id: 'nachrichten', icon: '📬', title: 'Nachrichten' },
+  { id: 'flughoehe', icon: '🛫', title: 'Flughöhe' },
+  { id: 'niedrigueberflug', icon: '📉', title: 'Niedrigster Überflug' },
+  { id: 'laender', icon: '🌎', title: 'Länder' },
+  { id: 'selten', icon: '⭐', title: 'Seltene Flugzeuge' },
+  { id: 'zeit', icon: '🕒', title: 'Zeit' },
+  { id: 'jubilaeen', icon: '🎂', title: 'Jubiläen' }
+];
+
 const ACHIEVEMENTS_CATALOG = [
-  { id: 'first_a380', icon: '✈️', title: 'Erster A380' },
-  { id: 'first_concorde', icon: '🛩️', title: 'Concorde' },
-  { id: 'first_helicopter', icon: '🚁', title: 'Erster Hubschrauber' },
-  { id: 'first_military', icon: '🪖', title: 'Militärflugzeug' },
-  { id: 'daily_1000', icon: '🛫', title: '1000 Flugzeuge an einem Tag' },
-  { id: 'range_400km', icon: '🌍', title: 'Über 400 km Reichweite' }
+  { id: 'first_a380', cat: 'flugzeuge', icon: '🛩', title: 'Erster A380' },
+  { id: 'first_helicopter', cat: 'flugzeuge', icon: '🚁', title: 'Erster Hubschrauber' },
+  { id: 'first_concorde', cat: 'flugzeuge', icon: '✈️', title: 'Erste Concorde' },
+  { id: 'first_military', cat: 'flugzeuge', icon: '🪖', title: 'Militärflugzeug' },
+  { id: 'first_business', cat: 'flugzeuge', icon: '🛬', title: 'Erstes Geschäftsflugzeug' },
+  { id: 'first_seaplane', cat: 'flugzeuge', icon: '🛩', title: 'Erstes Wasserflugzeug' },
+  { id: 'first_rescue_heli', cat: 'flugzeuge', icon: '🚑', title: 'Erster Rettungshubschrauber' },
+  { id: 'first_firefighter', cat: 'flugzeuge', icon: '🚒', title: 'Erstes Löschflugzeug' },
+  { id: 'first_osprey', cat: 'flugzeuge', icon: '🛸', title: 'Erster Osprey (V-22)' },
+  { id: 'first_chinook', cat: 'flugzeuge', icon: '🚁', title: 'Chinook entdeckt' },
+
+  { id: 'first_lufthansa', cat: 'airlines', icon: '🌍', title: 'Erste Lufthansa' },
+  { id: 'first_ryanair', cat: 'airlines', icon: '🌍', title: 'Erste Ryanair' },
+  { id: 'first_emirates', cat: 'airlines', icon: '🌍', title: 'Erste Emirates' },
+  { id: 'first_singapore', cat: 'airlines', icon: '🌍', title: 'Erste Singapore Airlines' },
+  { id: 'first_qantas', cat: 'airlines', icon: '🌍', title: 'Erste Qantas' },
+  { id: 'airlines_100', cat: 'airlines', icon: '🌍', title: '100 verschiedene Airlines' },
+  { id: 'airlines_250', cat: 'airlines', icon: '🌍', title: '250 verschiedene Airlines' },
+  { id: 'airlines_500', cat: 'airlines', icon: '🌍', title: '500 verschiedene Airlines' },
+
+  { id: 'range_100km', cat: 'empfang', icon: '📡', title: 'Erste 100 km' },
+  { id: 'range_150km', cat: 'empfang', icon: '📡', title: 'Erste 150 km' },
+  { id: 'range_200km', cat: 'empfang', icon: '📡', title: 'Erste 200 km' },
+  { id: 'range_250km', cat: 'empfang', icon: '📡', title: 'Erste 250 km' },
+  { id: 'range_300km', cat: 'empfang', icon: '📡', title: 'Erste 300 km' },
+  { id: 'range_400km', cat: 'empfang', icon: '📡', title: 'Erste 400 km' },
+
+  { id: 'daily_100', cat: 'tagesrekorde', icon: '📈', title: '100 Flugzeuge an einem Tag' },
+  { id: 'daily_500', cat: 'tagesrekorde', icon: '📈', title: '500 Flugzeuge an einem Tag' },
+  { id: 'daily_1000', cat: 'tagesrekorde', icon: '📈', title: '1000 Flugzeuge an einem Tag' },
+  { id: 'daily_2500', cat: 'tagesrekorde', icon: '📈', title: '2500 Flugzeuge an einem Tag' },
+  { id: 'daily_5000', cat: 'tagesrekorde', icon: '📈', title: '5000 Flugzeuge an einem Tag' },
+
+  { id: 'msg_100000', cat: 'nachrichten', icon: '📬', title: '100.000 ADS-B-Nachrichten' },
+  { id: 'msg_1000000', cat: 'nachrichten', icon: '📬', title: '1 Million Nachrichten' },
+  { id: 'msg_10000000', cat: 'nachrichten', icon: '📬', title: '10 Millionen Nachrichten' },
+  { id: 'msg_100000000', cat: 'nachrichten', icon: '📬', title: '100 Millionen Nachrichten' },
+
+  { id: 'altitude_fl300', cat: 'flughoehe', icon: '🛫', title: 'Flug über FL300' },
+  { id: 'altitude_fl400', cat: 'flughoehe', icon: '🛫', title: 'FL400 erreicht' },
+  { id: 'altitude_fl450', cat: 'flughoehe', icon: '🛫', title: 'FL450 erreicht' },
+
+  { id: 'lowalt_1000m', cat: 'niedrigueberflug', icon: '📉', title: 'Unter 1000 m' },
+  { id: 'lowalt_500m', cat: 'niedrigueberflug', icon: '📉', title: 'Unter 500 m' },
+  { id: 'lowalt_250m', cat: 'niedrigueberflug', icon: '📉', title: 'Unter 250 m' },
+  { id: 'lowalt_100m', cat: 'niedrigueberflug', icon: '📉', title: 'Unter 100 m' },
+
+  { id: 'country_de', cat: 'laender', icon: '🇩🇪', title: 'Erstes Flugzeug aus Deutschland' },
+  { id: 'country_us', cat: 'laender', icon: '🇺🇸', title: 'Erstes Flugzeug aus den USA' },
+  { id: 'country_gb', cat: 'laender', icon: '🇬🇧', title: 'Erstes Flugzeug aus Großbritannien' },
+  { id: 'country_fr', cat: 'laender', icon: '🇫🇷', title: 'Erstes Flugzeug aus Frankreich' },
+  { id: 'country_it', cat: 'laender', icon: '🇮🇹', title: 'Erstes Flugzeug aus Italien' },
+  { id: 'country_es', cat: 'laender', icon: '🇪🇸', title: 'Erstes Flugzeug aus Spanien' },
+  { id: 'country_nl', cat: 'laender', icon: '🇳🇱', title: 'Erstes Flugzeug aus den Niederlanden' },
+  { id: 'country_pl', cat: 'laender', icon: '🇵🇱', title: 'Erstes Flugzeug aus Polen' },
+  { id: 'country_ch', cat: 'laender', icon: '🇨🇭', title: 'Erstes Flugzeug aus der Schweiz' },
+  { id: 'country_at', cat: 'laender', icon: '🇦🇹', title: 'Erstes Flugzeug aus Österreich' },
+  { id: 'country_ru', cat: 'laender', icon: '🇷🇺', title: 'Erstes Flugzeug aus Russland' },
+  { id: 'country_cn', cat: 'laender', icon: '🇨🇳', title: 'Erstes Flugzeug aus China' },
+  { id: 'country_jp', cat: 'laender', icon: '🇯🇵', title: 'Erstes Flugzeug aus Japan' },
+  { id: 'country_ae', cat: 'laender', icon: '🇦🇪', title: 'Erstes Flugzeug aus den VAE' },
+  { id: 'country_tr', cat: 'laender', icon: '🇹🇷', title: 'Erstes Flugzeug aus der Türkei' },
+  { id: 'countries_50', cat: 'laender', icon: '🌎', title: '50 Länder entdeckt' },
+
+  { id: 'rare_a340', cat: 'selten', icon: '⭐', title: 'A340' },
+  { id: 'rare_antonov', cat: 'selten', icon: '⭐', title: 'Antonov entdeckt' },
+  { id: 'rare_beluga', cat: 'selten', icon: '⭐', title: 'Beluga' },
+  { id: 'rare_dreamlifter', cat: 'selten', icon: '⭐', title: 'Dreamlifter' },
+  { id: 'rare_vc25', cat: 'selten', icon: '⭐', title: 'VC-25 (Air Force One)' },
+  { id: 'rare_e3sentry', cat: 'selten', icon: '⭐', title: 'E-3 Sentry (AWACS)' },
+  { id: 'rare_u2', cat: 'selten', icon: '⭐', title: 'U-2' },
+  { id: 'rare_sr71', cat: 'selten', icon: '⭐', title: 'SR-71 (historisch)' },
+  { id: 'rare_b2spirit', cat: 'selten', icon: '⭐', title: 'B-2 Spirit' },
+  { id: 'rare_b52', cat: 'selten', icon: '⭐', title: 'B-52' },
+  { id: 'rare_c17', cat: 'selten', icon: '⭐', title: 'C-17' },
+  { id: 'rare_f35', cat: 'selten', icon: '⭐', title: 'F-35' },
+  { id: 'rare_eurofighter', cat: 'selten', icon: '⭐', title: 'Eurofighter' },
+  { id: 'rare_fa18', cat: 'selten', icon: '⭐', title: 'F/A-18' },
+  { id: 'rare_p8', cat: 'selten', icon: '⭐', title: 'P-8 Poseidon' },
+  { id: 'rare_kc46', cat: 'selten', icon: '⭐', title: 'KC-46' },
+  { id: 'rare_kc135', cat: 'selten', icon: '⭐', title: 'KC-135' },
+  { id: 'rare_e6mercury', cat: 'selten', icon: '⭐', title: 'E-6 Mercury' },
+  { id: 'rare_nasa', cat: 'selten', icon: '⭐', title: 'NASA-Flugzeug' },
+
+  { id: 'night_watchman', cat: 'zeit', icon: '🕒', title: 'Nachtwächter (02–04 Uhr)' },
+  { id: 'early_bird', cat: 'zeit', icon: '🌅', title: 'Frühaufsteher (vor Sonnenaufgang)' },
+  { id: 'night_owl', cat: 'zeit', icon: '🌙', title: 'Nachteule (100 Nachtflüge)' },
+
+  { id: 'anniversary_1', cat: 'jubilaeen', icon: '🎂', title: '1 Tag Radar online' },
+  { id: 'anniversary_7', cat: 'jubilaeen', icon: '🎂', title: '7 Tage Radar online' },
+  { id: 'anniversary_30', cat: 'jubilaeen', icon: '🎂', title: '30 Tage Radar online' },
+  { id: 'anniversary_100', cat: 'jubilaeen', icon: '🎂', title: '100 Tage Radar online' },
+  { id: 'anniversary_365', cat: 'jubilaeen', icon: '🎂', title: '365 Tage Radar online' }
 ];
 const RECORD_LABELS = {
   max_alt: 'Höchste Flughöhe', max_dist: 'Weiteste Entfernung',
@@ -1423,14 +1533,37 @@ function showAchievementToast(icon, title, sub) {
   setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 4500);
 }
 
+let achOpenCategories = new Set(JSON.parse(localStorage.getItem('achOpenCategories') || '[]'));
+
+function toggleAchCategory(catId) {
+  if (achOpenCategories.has(catId)) achOpenCategories.delete(catId); else achOpenCategories.add(catId);
+  localStorage.setItem('achOpenCategories', JSON.stringify([...achOpenCategories]));
+  const body = document.getElementById(`ach-cat-${catId}`);
+  if (body) body.classList.toggle('open', achOpenCategories.has(catId));
+  const header = document.getElementById(`ach-hdr-${catId}`);
+  if (header) header.classList.toggle('open', achOpenCategories.has(catId));
+}
+
 function renderAchievements(unlockedList) {
   const unlockedMap = {};
   unlockedList.forEach(u => { unlockedMap[u.id] = u; });
-  document.getElementById('s-achievements').innerHTML = ACHIEVEMENTS_CATALOG.map(a => {
-    const u = unlockedMap[a.id];
-    const cls = u ? 'achievement unlocked' : 'achievement locked';
-    const sub = u ? new Date(u.unlockedAt * 1000).toLocaleDateString('de-DE') : 'Noch nicht freigeschaltet';
-    return `<div class="${cls}"><span class="ach-icon">${a.icon}</span><div><div class="ach-title">${a.title}</div><div class="ach-sub">${sub}</div></div></div>`;
+  document.getElementById('s-achievements').innerHTML = ACHIEVEMENT_CATEGORIES.map(cat => {
+    const items = ACHIEVEMENTS_CATALOG.filter(a => a.cat === cat.id);
+    const unlockedCount = items.filter(a => unlockedMap[a.id]).length;
+    const isOpen = achOpenCategories.has(cat.id);
+    const itemsHtml = items.map(a => {
+      const u = unlockedMap[a.id];
+      const cls = u ? 'achievement unlocked' : 'achievement locked';
+      const sub = u ? new Date(u.unlockedAt * 1000).toLocaleDateString('de-DE') : 'Noch nicht freigeschaltet';
+      return `<div class="${cls}"><span class="ach-icon">${a.icon}</span><div><div class="ach-title">${a.title}</div><div class="ach-sub">${sub}</div></div></div>`;
+    }).join('');
+    return `<div class="ach-category">
+      <button class="ach-category-header${isOpen ? ' open' : ''}" id="ach-hdr-${cat.id}" onclick="toggleAchCategory('${cat.id}')">
+        <span>${cat.icon} ${cat.title}</span>
+        <span class="ach-progress">${unlockedCount}/${items.length} <span class="ach-caret">▸</span></span>
+      </button>
+      <div class="ach-category-body${isOpen ? ' open' : ''}" id="ach-cat-${cat.id}">${itemsHtml}</div>
+    </div>`;
   }).join('');
 }
 
