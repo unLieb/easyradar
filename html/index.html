@@ -141,6 +141,23 @@
   #stats-panel .stat-list-row .name { color: var(--text); }
   #stats-panel .stat-list-row .count { color: var(--text-muted); font-weight: 600; flex-shrink: 0; }
   #d-timeline .stat-list-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 4px 0; gap: 8px; }
+
+  .achievement { display: flex; align-items: center; gap: 10px; padding: 7px 0; }
+  .achievement .ach-icon { font-size: 22px; width: 28px; text-align: center; flex-shrink: 0; }
+  .achievement .ach-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .achievement .ach-sub { font-size: 11px; color: var(--text-muted); }
+  .achievement.locked { opacity: 0.4; filter: grayscale(1); }
+
+  .achievement-toast {
+    position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-16px);
+    background: var(--card); border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.22);
+    padding: 12px 20px; display: flex; align-items: center; gap: 12px; z-index: 3000;
+    opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; pointer-events: none; max-width: 320px;
+  }
+  .achievement-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .achievement-toast .ach-icon { font-size: 26px; flex-shrink: 0; }
+  .achievement-toast .toast-title { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .achievement-toast .toast-sub { font-size: 14px; font-weight: 700; color: var(--text); }
   #d-timeline .stat-list-row .name { color: var(--text); }
   #d-timeline .stat-list-row .count { color: var(--text-muted); font-weight: 600; flex-shrink: 0; text-align: right; }
   #stats-panel .bar-track { flex: 1; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
@@ -298,6 +315,9 @@
       <div class="section-title">Empfang nach Richtung</div>
       <div id="s-directions"></div>
 
+      <div class="section-title">Achievements</div>
+      <div id="s-achievements"></div>
+
       <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">Rekorde/Top-Listen dauerhaft gespeichert</div>
     </div>
 
@@ -368,7 +388,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.24.2';
+const APP_VERSION = '0.25.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -1368,6 +1388,87 @@ function barListHtml(entries) {
   </div>`).join('');
 }
 
+const ACHIEVEMENTS_CATALOG = [
+  { id: 'first_a380', icon: '✈️', title: 'Erster A380' },
+  { id: 'first_concorde', icon: '🛩️', title: 'Concorde' },
+  { id: 'first_helicopter', icon: '🚁', title: 'Erster Hubschrauber' },
+  { id: 'first_military', icon: '🪖', title: 'Militärflugzeug' },
+  { id: 'daily_1000', icon: '🛫', title: '1000 Flugzeuge an einem Tag' },
+  { id: 'range_400km', icon: '🌍', title: 'Über 400 km Reichweite' }
+];
+const RECORD_LABELS = {
+  max_alt: 'Höchste Flughöhe', max_dist: 'Weiteste Entfernung',
+  max_speed: 'Höchste Geschwindigkeit', min_alt: 'Niedrigster Überflug'
+};
+function fmtRecordValue(cat, v) {
+  if (cat === 'max_dist') return fmtDist(v);
+  if (cat === 'max_speed') return fmtSpeed(v);
+  return fmtAlt(v);
+}
+
+// "First load" flags: on a brand-new browser (empty localStorage), everything the
+// backend already unlocked shouldn't all toast at once - only genuinely new events
+// (after this first sync) should notify.
+let knownAchievementIds = new Set(JSON.parse(localStorage.getItem('knownAchievementIds') || 'null') || []);
+let achievementsFirstLoad = localStorage.getItem('knownAchievementIds') === null;
+let knownRecordBrokenAt = JSON.parse(localStorage.getItem('knownRecordBrokenAt') || 'null') || {};
+let recordsFirstLoad = localStorage.getItem('knownRecordBrokenAt') === null;
+
+function showAchievementToast(icon, title, sub) {
+  const el = document.createElement('div');
+  el.className = 'achievement-toast';
+  el.innerHTML = `<span class="ach-icon">${icon}</span><div><div class="toast-title">${title}</div><div class="toast-sub">${sub}</div></div>`;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 4500);
+}
+
+function renderAchievements(unlockedList) {
+  const unlockedMap = {};
+  unlockedList.forEach(u => { unlockedMap[u.id] = u; });
+  document.getElementById('s-achievements').innerHTML = ACHIEVEMENTS_CATALOG.map(a => {
+    const u = unlockedMap[a.id];
+    const cls = u ? 'achievement unlocked' : 'achievement locked';
+    const sub = u ? new Date(u.unlockedAt * 1000).toLocaleDateString('de-DE') : 'Noch nicht freigeschaltet';
+    return `<div class="${cls}"><span class="ach-icon">${a.icon}</span><div><div class="ach-title">${a.title}</div><div class="ach-sub">${sub}</div></div></div>`;
+  }).join('');
+}
+
+async function fetchAndRenderAchievements() {
+  try {
+    const res = await fetch('/stats-api/achievements', { cache: 'no-store' });
+    const d = await res.json();
+    const unlocked = d.unlocked || [];
+    const records = d.records || {};
+
+    for (const u of unlocked) {
+      if (!knownAchievementIds.has(u.id)) {
+        knownAchievementIds.add(u.id);
+        if (!achievementsFirstLoad) {
+          const meta = ACHIEVEMENTS_CATALOG.find(a => a.id === u.id);
+          if (meta) showAchievementToast(meta.icon, 'Achievement freigeschaltet!', meta.title);
+        }
+      }
+    }
+    achievementsFirstLoad = false;
+    localStorage.setItem('knownAchievementIds', JSON.stringify([...knownAchievementIds]));
+
+    for (const cat in records) {
+      const rec = records[cat];
+      if (rec.brokenAt && knownRecordBrokenAt[cat] !== rec.brokenAt) {
+        if (!recordsFirstLoad) {
+          showAchievementToast('🏆', 'Neuer persönlicher Rekord', `${RECORD_LABELS[cat] || cat}: ${fmtRecordValue(cat, rec.value)}`);
+        }
+        knownRecordBrokenAt[cat] = rec.brokenAt;
+      }
+    }
+    recordsFirstLoad = false;
+    localStorage.setItem('knownRecordBrokenAt', JSON.stringify(knownRecordBrokenAt));
+
+    renderAchievements(unlocked);
+  } catch (e) { /* achievements optional, ignore failures */ }
+}
+
 async function fetchAndRenderDbStats() {
   try {
     const res = await fetch(`/stats-api/summary?range=${statsRange}`, { cache: 'no-store' });
@@ -1400,6 +1501,8 @@ async function fetchAndRenderDbStats() {
       updateRangeOutline();
     }
   } catch (e) { /* db stats optional, ignore failures */ }
+
+  fetchAndRenderAchievements();
 }
 
 function renderDirectionChart(directions) {
