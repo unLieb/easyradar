@@ -207,6 +207,9 @@
           <div class="row"><span class="label">Transponder</span><span class="value" id="d-squawk">—</span></div>
           <div class="row"><span class="label">ADS-B Version</span><span class="value" id="d-version">—</span></div>
           <div class="row"><span class="label">Quelle</span><span class="value" id="d-source">—</span></div>
+
+          <div class="section-title">Verlauf</div>
+          <div id="d-timeline" style="padding: 0 18px;"></div>
         </div>
       </div>
     </div>
@@ -925,7 +928,53 @@ function showDetail(hex) {
     loadPhoto(hex);
     loadRoute(hex, a.flight);
     loadOperator(a.r, hex);
+    geocodeTimeline = [];
+    lastGeocodedPoint = null;
+    renderTimeline();
   }
+  maybeGeocodeTimeline(a);
+}
+
+let geocodeTimeline = [];
+let lastGeocodedPoint = null;
+let lastGeocodeCallTime = 0;
+
+function renderTimeline() {
+  const el = document.getElementById('d-timeline');
+  if (!el) return;
+  if (!geocodeTimeline.length) {
+    el.innerHTML = '<div style="font-size:12px; color:var(--text-muted); padding:4px 0;">Sammle Wegpunkte…</div>';
+    return;
+  }
+  el.innerHTML = geocodeTimeline.slice().reverse().map(p => {
+    const minsAgo = Math.max(0, Math.round((Date.now() - p.time) / 60000));
+    const when = minsAgo < 1 ? 'gerade eben' : `vor ${minsAgo} Minute${minsAgo === 1 ? '' : 'n'}`;
+    return `<div class="stat-list-row"><span class="name">${when}</span><span class="count">über ${p.place}</span></div>`;
+  }).join('');
+}
+
+async function maybeGeocodeTimeline(a) {
+  if (!a || a.lat == null) return;
+  const now = Date.now();
+  if (lastGeocodedPoint) {
+    const d = haversine(lastGeocodedPoint.lat, lastGeocodedPoint.lon, a.lat, a.lon);
+    if (d < 8) return;
+  }
+  if (now - lastGeocodeCallTime < 20000) return;
+  lastGeocodeCallTime = now;
+  const geocodedHex = a.hex;
+  lastGeocodedPoint = { lat: a.lat, lon: a.lon };
+  try {
+    const res = await fetch(`/geocode/?format=jsonv2&lat=${a.lat}&lon=${a.lon}&zoom=10`);
+    const data = await res.json();
+    const addr = data.address || {};
+    const place = addr.city || addr.town || addr.village || addr.municipality || data.name;
+    if (place && selectedHex === geocodedHex) {
+      geocodeTimeline.push({ time: now, place });
+      if (geocodeTimeline.length > 15) geocodeTimeline.shift();
+      renderTimeline();
+    }
+  } catch (e) { /* geocoding optional, ignore failures */ }
 }
 
 function withinRadius(a) {
