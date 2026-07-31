@@ -363,7 +363,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.24.0';
+const APP_VERSION = '0.24.1';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -469,6 +469,25 @@ function destPoint(lat, lon, bearingDeg, distKm) {
   return [lat2 * 180 / Math.PI, lon2 * 180 / Math.PI];
 }
 
+// Chaikin corner-cutting on the closed loop: replaces each vertex pair with two
+// points 1/4 and 3/4 along the segment between them, rounding every corner a bit.
+// A few iterations turn the raw per-bucket polygon into a smooth, professional-
+// looking contour instead of the jagged "raw data" look.
+function chaikinSmoothClosed(points, iterations) {
+  let pts = points;
+  for (let iter = 0; iter < iterations; iter++) {
+    const next = [];
+    const n = pts.length;
+    for (let i = 0; i < n; i++) {
+      const p0 = pts[i], p1 = pts[(i + 1) % n];
+      next.push([p0[0] * 0.75 + p1[0] * 0.25, p0[1] * 0.75 + p1[1] * 0.25]);
+      next.push([p0[0] * 0.25 + p1[0] * 0.75, p0[1] * 0.25 + p1[1] * 0.75]);
+    }
+    pts = next;
+  }
+  return pts;
+}
+
 function updateRangeOutline() {
   if (rangeOutlineLayer) { map.removeLayer(rangeOutlineLayer); rangeOutlineLayer = null; }
   if (!showRangeOutline || !rangeOutlineData) return;
@@ -481,7 +500,8 @@ function updateRangeOutline() {
     points.push(destPoint(SITE_LAT, SITE_LON, brg, dist));
   }
   if (points.length < 3) return;
-  rangeOutlineLayer = L.polygon(points, { color: '#00bfa5', weight: 2, fill: false, opacity: 0.85 }).addTo(map);
+  const smoothed = chaikinSmoothClosed(points, 3);
+  rangeOutlineLayer = L.polygon(smoothed, { color: '#00bfa5', weight: 2, fill: false, opacity: 0.85, smoothFactor: 1 }).addTo(map);
 }
 
 function updateRangeOutlineButtons() {
