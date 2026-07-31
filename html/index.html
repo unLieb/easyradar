@@ -414,7 +414,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.28.1';
+const APP_VERSION = '0.28.2';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -1686,41 +1686,41 @@ function renderDirectionChart(directions) {
     return;
   }
 
-  const cx = 130, cy = 115, hubR = 22, maxBarLen = 48, gap = 14;
+  const cx = 135, cy = 122, hubR = 24, maxBarLen = 54, gap = 12;
   const colors = { N: '#1a73e8', E: '#4caf50', S: '#ff9800', W: '#9575cd' };
 
   let bars = '', labels = '';
   dirs.forEach(d => {
     const val = directions[d];
     if (val == null) return;
-    const barLen = Math.max(16, (val / maxVal) * maxBarLen);
+    const barLen = Math.max(18, (val / maxVal) * maxBarLen);
     let x1, y1, x2, y2, letterX, letterY, valueX, valueY;
     if (d === 'N') {
       x1 = cx; y1 = cy - hubR; x2 = cx; y2 = cy - hubR - barLen;
-      letterX = valueX = cx; letterY = y2 - gap - 12; valueY = letterY + 15;
+      letterX = valueX = cx; letterY = y2 - gap - 12; valueY = letterY + 17;
     } else if (d === 'S') {
       x1 = cx; y1 = cy + hubR; x2 = cx; y2 = cy + hubR + barLen;
-      letterX = valueX = cx; letterY = y2 + gap; valueY = letterY + 15;
+      letterX = valueX = cx; letterY = y2 + gap + 12; valueY = letterY + 17;
     } else if (d === 'E') {
       x1 = cx + hubR; y1 = cy; x2 = cx + hubR + barLen; y2 = cy;
-      letterX = valueX = x2 + gap + 14; letterY = cy - 5; valueY = cy + 11;
+      letterX = valueX = x2 + gap + 16; letterY = cy - 6; valueY = cy + 13;
     } else {
       x1 = cx - hubR; y1 = cy; x2 = cx - hubR - barLen; y2 = cy;
-      letterX = valueX = x2 - gap - 14; letterY = cy - 5; valueY = cy + 11;
+      letterX = valueX = x2 - gap - 16; letterY = cy - 6; valueY = cy + 13;
     }
-    bars += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${colors[d]}" stroke-width="6" stroke-linecap="round"/>`;
-    labels += `<text x="${letterX}" y="${letterY}" text-anchor="middle" font-size="13" font-weight="700" fill="var(--text)">${d}</text>`;
-    labels += `<text x="${valueX}" y="${valueY}" text-anchor="middle" font-size="11" fill="var(--text-muted)">${fmtDist(val)}</text>`;
+    bars += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${colors[d]}" stroke-width="7" stroke-linecap="round"/>`;
+    labels += `<text x="${letterX}" y="${letterY}" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text)">${d}</text>`;
+    labels += `<text x="${valueX}" y="${valueY}" text-anchor="middle" font-size="13" fill="var(--text-muted)">${fmtDist(val)}</text>`;
   });
 
-  const svg = `<svg width="100%" viewBox="0 0 260 230">
+  const svg = `<svg width="100%" viewBox="0 0 270 254">
     ${bars}
     <circle cx="${cx}" cy="${cy}" r="${hubR}" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
-    <text x="${cx}" y="${cy + 6}" text-anchor="middle" font-size="17">📡</text>
+    <text x="${cx}" y="${cy + 7}" text-anchor="middle" font-size="19">📡</text>
     ${labels}
   </svg>`;
 
-  container.innerHTML = `<div style="display:flex; justify-content:center; padding:4px 0;">${svg}</div>`;
+  container.innerHTML = `<div style="display:flex; justify-content:center; padding:4px 0; margin:0 -14px;">${svg}</div>`;
 }
 
 async function refresh() {
