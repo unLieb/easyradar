@@ -49,6 +49,8 @@
   .plane-row { padding: 10px 18px; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.15s; }
   .plane-row:hover { background: #f0f4f8; }
   .plane-row .callsign { font-weight: 600; font-size: 14px; }
+  .plane-row .callsign.callsign-mil { color: #5b6b2f; }
+  .plane-row .callsign.callsign-einsatz { color: #d32f2f; }
   .plane-row .type { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
   .plane-row .metrics { text-align: right; font-size: 12px; color: var(--text-muted); }
   .plane-row .metrics .alt { font-weight: 600; color: var(--text); font-size: 13px; }
@@ -325,7 +327,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.21.4';
+const APP_VERSION = '0.22.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -439,10 +441,17 @@ let showFavoritesOnly = false;
 const MIL_TYPES = ['F16', 'F15', 'F18', 'F22', 'F35', 'C130', 'C160', 'C17', 'A400', 'KC135', 'KC46', 'KC2', 'E3', 'P8', 'P3', 'AH64', 'CH47', 'UH1', 'H47', 'H60', 'H64', 'TOR', 'EUFI', 'RFAL', 'MIRA', 'TIGR', 'NH90', 'U2'];
 const BIZ_TYPES = ['LJ', 'C25', 'C56', 'C68', 'C700', 'C750', 'GLF', 'GL5', 'GLEX', 'FA7', 'F2TH', 'F900', 'CL30', 'CL35', 'E50', 'E55', 'EA50', 'PC24', 'H25', 'BE40', 'ASTR'];
 const PROP_TYPES = ['C1', 'C2', 'C4', 'P28', 'PA', 'DA40', 'DA42', 'SR2', 'M20', 'BE33', 'BE35', 'BE36', 'BE58', 'TBM', 'PC12', 'B190', 'SW4', 'C208', 'DHC6', 'P180', 'P1', 'PC6', 'PC9', 'SF25', 'GYRO'];
+// Police/rescue aircraft don't share a type code (same helicopter models are flown
+// privately too), so detection is heuristic via well-known callsign conventions
+// rather than aircraft type - won't catch everything (e.g. police craft squawking
+// a bare registration as callsign).
+const EINSATZ_CALLSIGN_PREFIXES = ['CHRISTOPH', 'RESCUE', 'REGA', 'POLIZEI', 'POLICE', 'BPOL'];
 
 function classifyAircraft(a) {
   const cat = a.category || '';
   const t = (a.t || '').toUpperCase();
+  const flight = (a.flight || '').trim().toUpperCase();
+  if (EINSATZ_CALLSIGN_PREFIXES.some(p => flight.startsWith(p))) return 'einsatz';
   if (a.dbFlags && (a.dbFlags & 1)) return 'militaer';
   if (cat === 'A7') return 'helikopter';
   if (MIL_TYPES.some(p => t.startsWith(p))) return 'militaer';
@@ -1304,9 +1313,11 @@ function renderList(withPos) {
     row.className = 'plane-row';
     row.dataset.hex = a.hex;
     const flag = flagForHex(a.hex);
+    const cls = classifyAircraft(a);
+    const callsignClass = cls === 'militaer' ? ' callsign-mil' : (cls === 'einsatz' ? ' callsign-einsatz' : '');
     row.innerHTML = `
       <div>
-        <div class="callsign">${flag}${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${(a.flight || a.hex || '—').trim()}${a._external ? '<span class="external-tag">extern</span>' : ''}</div>
+        <div class="callsign${callsignClass}">${flag}${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${(a.flight || a.hex || '—').trim()}${a._external ? '<span class="external-tag">extern</span>' : ''}</div>
         <div class="type">${a.t || 'Typ unbekannt'}</div>
       </div>
       <div class="metrics">
