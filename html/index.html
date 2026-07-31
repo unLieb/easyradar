@@ -22,10 +22,10 @@
   #page { display: flex; flex-direction: column; height: 100vh; height: 100dvh; width: 100vw; overflow: hidden; }
   #app { flex: 1; display: flex; position: relative; overflow: hidden; height: 100%; }
 
-  #sidebar { width: 340px; min-width: 340px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 500; transition: margin-left 0.2s ease; }
+  #sidebar { width: 340px; min-width: 340px; background: var(--card); box-shadow: 4px 0 24px rgba(0,0,0,0.06); display: flex; flex-direction: column; z-index: 500; transition: margin-left 0.2s ease; }
   #sidebar.collapsed { margin-left: -340px; }
 
-  #collapse-btn { position: absolute; top: 12px; left: 340px; width: 22px; height: 40px; background: var(--card); border: 1px solid var(--border); border-left: none; border-radius: 0 8px 8px 0; box-shadow: 2px 0 6px rgba(0,0,0,0.06); cursor: pointer; z-index: 600; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: left 0.2s ease; }
+  #collapse-btn { position: absolute; top: 12px; left: 340px; width: 22px; height: 40px; background: var(--card); border: 1px solid var(--border); border-left: none; border-radius: 0 12px 12px 0; box-shadow: 3px 0 12px rgba(0,0,0,0.08); cursor: pointer; z-index: 600; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: left 0.2s ease; }
   #sidebar.collapsed ~ #collapse-btn, #app.collapsed #collapse-btn { left: 0; }
 
   #sidebar header { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); }
@@ -47,7 +47,7 @@
   .plane-row .flag-icon { width: 16px; height: auto; margin-right: 6px; border-radius: 2px; vertical-align: middle; box-shadow: 0 0 0 1px rgba(0,0,0,0.08); }
   .plane-row .star { cursor: pointer; margin-right: 4px; color: var(--border); }
   .plane-row .star.on { color: #f9a825; }
-  .plane-row { padding: 10px 18px; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.15s; }
+  .plane-row { padding: 12px 16px; margin: 2px 8px; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.15s; }
   .plane-row:hover { background: #f0f4f8; }
   .plane-row .callsign { font-weight: 600; font-size: 14px; }
   .plane-row .callsign.callsign-mil { color: #5b6b2f; }
@@ -156,6 +156,10 @@
   .ach-category-header.open .ach-caret { transform: rotate(90deg); }
   .ach-category-body { display: none; padding: 0 0 6px 4px; }
   .ach-category-body.open { display: block; }
+  .ach-group-title { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 12px 0 2px; }
+  #s-achievements > .ach-group-title:first-child { margin-top: 0; }
+  .ach-cat-progress-track { height: 4px; background: var(--bg); border-radius: 2px; overflow: hidden; margin-bottom: 4px; }
+  .ach-cat-progress-fill { height: 100%; background: var(--blue); border-radius: 2px; transition: width 0.3s ease; }
 
   .achievement-toast {
     position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-16px);
@@ -184,7 +188,7 @@
     #sidebar.collapsed ~ #collapse-btn, #app.collapsed #collapse-btn { left: 12px; }
 
     #detail-header .close { width: 36px; height: 36px; font-size: 18px; }
-    .plane-row { padding: 13px 18px; }
+    .plane-row { padding: 13px 16px; }
     #map-controls-bottom { left: 16px !important; right: 16px; flex-wrap: wrap; row-gap: 8px; }
     #legend { max-width: calc(100vw - 32px); box-sizing: border-box; }
     #status-bar-wrap { left: 16px !important; right: 16px; }
@@ -324,7 +328,7 @@
       <div class="section-title">Empfang nach Richtung</div>
       <div id="s-directions"></div>
 
-      <div class="section-title">Achievements</div>
+      <div class="section-title">Meilensteine</div>
       <div id="s-achievements"></div>
 
       <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">Rekorde/Top-Listen dauerhaft gespeichert</div>
@@ -397,7 +401,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.26.0';
+const APP_VERSION = '0.26.1';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -1397,22 +1401,26 @@ function barListHtml(entries) {
   </div>`).join('');
 }
 
+const ACHIEVEMENT_GROUPS = {
+  sammlung: 'Sammlungen',
+  leistung: 'Leistungsbereiche',
+  besonderes: 'Besonderes'
+};
 const ACHIEVEMENT_CATEGORIES = [
-  { id: 'flugzeuge', icon: '✈️', title: 'Flugzeuge' },
-  { id: 'airlines', icon: '🌍', title: 'Airlines' },
-  { id: 'empfang', icon: '📡', title: 'Empfang' },
-  { id: 'tagesrekorde', icon: '📈', title: 'Tagesrekorde' },
-  { id: 'nachrichten', icon: '📬', title: 'Nachrichten' },
-  { id: 'flughoehe', icon: '🛫', title: 'Flughöhe' },
-  { id: 'niedrigueberflug', icon: '📉', title: 'Niedrigster Überflug' },
-  { id: 'laender', icon: '🌎', title: 'Länder' },
-  { id: 'selten', icon: '⭐', title: 'Seltene Flugzeuge' },
-  { id: 'zeit', icon: '🕒', title: 'Zeit' },
-  { id: 'jubilaeen', icon: '🎂', title: 'Jubiläen' }
+  { id: 'flugzeuge', icon: '✈️', title: 'Flugzeuge', group: 'sammlung' },
+  { id: 'selten', icon: '⭐', title: 'Seltene Flugzeuge', group: 'sammlung' },
+  { id: 'airlines', icon: '🌍', title: 'Airlines', group: 'sammlung' },
+  { id: 'laender', icon: '🌎', title: 'Länder', group: 'sammlung' },
+  { id: 'empfang', icon: '📡', title: 'Empfang', group: 'leistung' },
+  { id: 'nachrichten', icon: '📬', title: 'Nachrichten', group: 'leistung' },
+  { id: 'tagesrekorde', icon: '📈', title: 'Tagesrekorde', group: 'leistung' },
+  { id: 'flughoehe', icon: '🛫', title: 'Flughöhe', group: 'leistung' },
+  { id: 'niedrigueberflug', icon: '📉', title: 'Niedrigster Überflug', group: 'leistung' },
+  { id: 'zeit', icon: '🕒', title: 'Zeit', group: 'besonderes' },
+  { id: 'jubilaeen', icon: '🎂', title: 'Jubiläen', group: 'besonderes' }
 ];
 
 const ACHIEVEMENTS_CATALOG = [
-  { id: 'first_a380', cat: 'flugzeuge', icon: '🛩', title: 'Erster A380' },
   { id: 'first_helicopter', cat: 'flugzeuge', icon: '🚁', title: 'Erster Hubschrauber' },
   { id: 'first_concorde', cat: 'flugzeuge', icon: '✈️', title: 'Erste Concorde' },
   { id: 'first_military', cat: 'flugzeuge', icon: '🪖', title: 'Militärflugzeug' },
@@ -1420,8 +1428,6 @@ const ACHIEVEMENTS_CATALOG = [
   { id: 'first_seaplane', cat: 'flugzeuge', icon: '🛩', title: 'Erstes Wasserflugzeug' },
   { id: 'first_rescue_heli', cat: 'flugzeuge', icon: '🚑', title: 'Erster Rettungshubschrauber' },
   { id: 'first_firefighter', cat: 'flugzeuge', icon: '🚒', title: 'Erstes Löschflugzeug' },
-  { id: 'first_osprey', cat: 'flugzeuge', icon: '🛸', title: 'Erster Osprey (V-22)' },
-  { id: 'first_chinook', cat: 'flugzeuge', icon: '🚁', title: 'Chinook entdeckt' },
 
   { id: 'first_lufthansa', cat: 'airlines', icon: '🌍', title: 'Erste Lufthansa' },
   { id: 'first_ryanair', cat: 'airlines', icon: '🌍', title: 'Erste Ryanair' },
@@ -1476,7 +1482,10 @@ const ACHIEVEMENTS_CATALOG = [
   { id: 'country_tr', cat: 'laender', icon: '🇹🇷', title: 'Erstes Flugzeug aus der Türkei' },
   { id: 'countries_50', cat: 'laender', icon: '🌎', title: '50 Länder entdeckt' },
 
+  { id: 'first_a380', cat: 'selten', icon: '⭐', title: 'A380' },
   { id: 'rare_a340', cat: 'selten', icon: '⭐', title: 'A340' },
+  { id: 'first_osprey', cat: 'selten', icon: '⭐', title: 'Osprey (V-22)' },
+  { id: 'first_chinook', cat: 'selten', icon: '⭐', title: 'Chinook' },
   { id: 'rare_antonov', cat: 'selten', icon: '⭐', title: 'Antonov entdeckt' },
   { id: 'rare_beluga', cat: 'selten', icon: '⭐', title: 'Beluga' },
   { id: 'rare_dreamlifter', cat: 'selten', icon: '⭐', title: 'Dreamlifter' },
@@ -1547,9 +1556,11 @@ function toggleAchCategory(catId) {
 function renderAchievements(unlockedList) {
   const unlockedMap = {};
   unlockedList.forEach(u => { unlockedMap[u.id] = u; });
+  let lastGroup = null;
   document.getElementById('s-achievements').innerHTML = ACHIEVEMENT_CATEGORIES.map(cat => {
     const items = ACHIEVEMENTS_CATALOG.filter(a => a.cat === cat.id);
     const unlockedCount = items.filter(a => unlockedMap[a.id]).length;
+    const pct = items.length ? Math.round((unlockedCount / items.length) * 100) : 0;
     const isOpen = achOpenCategories.has(cat.id);
     const itemsHtml = items.map(a => {
       const u = unlockedMap[a.id];
@@ -1557,11 +1568,14 @@ function renderAchievements(unlockedList) {
       const sub = u ? new Date(u.unlockedAt * 1000).toLocaleDateString('de-DE') : 'Noch nicht freigeschaltet';
       return `<div class="${cls}"><span class="ach-icon">${a.icon}</span><div><div class="ach-title">${a.title}</div><div class="ach-sub">${sub}</div></div></div>`;
     }).join('');
-    return `<div class="ach-category">
+    const groupHeaderHtml = cat.group !== lastGroup ? `<div class="ach-group-title">${ACHIEVEMENT_GROUPS[cat.group]}</div>` : '';
+    lastGroup = cat.group;
+    return `${groupHeaderHtml}<div class="ach-category">
       <button class="ach-category-header${isOpen ? ' open' : ''}" id="ach-hdr-${cat.id}" onclick="toggleAchCategory('${cat.id}')">
         <span>${cat.icon} ${cat.title}</span>
         <span class="ach-progress">${unlockedCount}/${items.length} <span class="ach-caret">▸</span></span>
       </button>
+      <div class="ach-cat-progress-track"><div class="ach-cat-progress-fill" style="width:${pct}%"></div></div>
       <div class="ach-category-body${isOpen ? ' open' : ''}" id="ach-cat-${cat.id}">${itemsHtml}</div>
     </div>`;
   }).join('');
@@ -1579,7 +1593,7 @@ async function fetchAndRenderAchievements() {
         knownAchievementIds.add(u.id);
         if (!achievementsFirstLoad) {
           const meta = ACHIEVEMENTS_CATALOG.find(a => a.id === u.id);
-          if (meta) showAchievementToast(meta.icon, 'Achievement freigeschaltet!', meta.title);
+          if (meta) showAchievementToast(meta.icon, 'Meilenstein freigeschaltet!', meta.title);
         }
       }
     }
