@@ -252,6 +252,7 @@
 
       <div class="section-title">Rekorde</div>
       <div class="stat-row"><span class="label">Flugzeuge</span><span class="value" id="s-uniquecount">—</span></div>
+      <div class="stat-row"><span class="label">davon Militär</span><span class="value" id="s-militarycount" style="color:#5b6b2f">—</span></div>
       <div class="stat-row" id="s-msgstoday-row"><span class="label">Nachrichten</span><span class="value" id="s-msgstoday">—</span></div>
       <div class="stat-row"><span class="label">Ø Reichweite</span><span class="value" id="s-avgdist">—</span></div>
       <div class="stat-row"><span class="label">Ø Flughöhe</span><span class="value" id="s-avgalt">—</span></div>
@@ -330,7 +331,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.22.1';
+const APP_VERSION = '0.22.2';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -1191,6 +1192,7 @@ async function fetchAndRenderDbStats() {
     const d = await res.json();
 
     document.getElementById('s-uniquecount').textContent = d.uniqueCount != null ? d.uniqueCount : '—';
+    document.getElementById('s-militarycount').textContent = d.militaryCount != null ? d.militaryCount : '—';
     document.getElementById('s-msgstoday-row').style.display = d.messagesToday != null ? 'flex' : 'none';
     document.getElementById('s-msgstoday').textContent = d.messagesToday != null ? d.messagesToday.toLocaleString('de-DE') : '—';
     document.getElementById('s-avgdist').textContent = d.avgDist != null ? fmtDist(d.avgDist) : '—';
