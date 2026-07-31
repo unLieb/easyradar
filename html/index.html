@@ -116,7 +116,7 @@
   #legend { background: var(--card); border-radius: 14px; box-shadow: 0 6px 24px rgba(0,0,0,0.10); padding: 10px 14px; font-size: 11px; color: var(--text-muted); }
   #legend .legend-title { font-weight: 600; color: var(--text); margin-bottom: 4px; }
   #legend .legend-row { display: flex; align-items: center; gap: 6px; margin: 3px 0; white-space: nowrap; }
-  #legend .swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  #legend .swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
   #settings-btn-float, #stats-btn-float { width: 40px; height: 40px; border-radius: 50%; background: var(--card); border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.12); cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   #settings-btn-float:hover, #settings-btn-float.active, #stats-btn-float:hover, #stats-btn-float.active { color: var(--blue); }
@@ -356,7 +356,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.23.2';
+const APP_VERSION = '0.23.3';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
