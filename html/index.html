@@ -203,7 +203,7 @@
     #legend { max-width: calc(100vw - 32px); box-sizing: border-box; }
     #status-bar-wrap { left: 16px !important; right: 16px; }
     #status-bar { white-space: normal; flex-wrap: wrap; row-gap: 6px; box-sizing: border-box; max-width: calc(100vw - 32px); justify-content: center; }
-    #app:not(.collapsed) #status-bar-wrap { display: none; }
+    #app:not(.collapsed) #status-bar-wrap, #app:not(.collapsed) #map-controls-bottom { display: none; }
     #settings-panel, #stats-panel { left: 16px !important; right: 16px; width: auto; max-width: calc(100vw - 32px); box-sizing: border-box; }
     .leaflet-control-zoom { display: none; }
   }
@@ -414,7 +414,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.27.1';
+const APP_VERSION = '0.27.2';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
