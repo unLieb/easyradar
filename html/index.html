@@ -342,6 +342,11 @@
         <button id="range-outline-on" onclick="setRangeOutline(true)">An</button>
         <button id="range-outline-off" onclick="setRangeOutline(false)">Aus</button>
       </div>
+      <div class="label" style="margin-top:12px">Empfangskontur als Fläche füllen</div>
+      <div class="segmented">
+        <button id="range-outline-fill-on" onclick="setRangeOutlineFill(true)">An</button>
+        <button id="range-outline-fill-off" onclick="setRangeOutlineFill(false)">Aus</button>
+      </div>
 
       <div class="section-title">Datenquellen</div>
       <div class="label">Externe Quelle (adsb.fi)</div>
@@ -363,7 +368,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.24.1';
+const APP_VERSION = '0.24.2';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -459,6 +464,7 @@ let rangeOutlineLayer = null;
 let showRangeOutline = localStorage.getItem('showRangeOutline') === 'true';
 let rangeOutlineData = null;
 let rangeOutlineBucketDeg = 5;
+let showRangeOutlineFill = localStorage.getItem('showRangeOutlineFill') === 'true';
 
 function destPoint(lat, lon, bearingDeg, distKm) {
   const R = 6371;
@@ -501,7 +507,22 @@ function updateRangeOutline() {
   }
   if (points.length < 3) return;
   const smoothed = chaikinSmoothClosed(points, 3);
-  rangeOutlineLayer = L.polygon(smoothed, { color: '#00bfa5', weight: 2, fill: false, opacity: 0.85, smoothFactor: 1 }).addTo(map);
+  rangeOutlineLayer = L.polygon(smoothed, {
+    color: '#00bfa5', weight: 2.5, opacity: 0.35, smoothFactor: 1,
+    fill: showRangeOutlineFill, fillColor: '#00bfa5', fillOpacity: showRangeOutlineFill ? 0.1 : 0
+  }).addTo(map);
+}
+
+function updateRangeOutlineFillButtons() {
+  document.getElementById('range-outline-fill-on').classList.toggle('active', showRangeOutlineFill);
+  document.getElementById('range-outline-fill-off').classList.toggle('active', !showRangeOutlineFill);
+}
+
+function setRangeOutlineFill(on) {
+  showRangeOutlineFill = on;
+  localStorage.setItem('showRangeOutlineFill', on);
+  updateRangeOutlineFillButtons();
+  updateRangeOutline();
 }
 
 function updateRangeOutlineButtons() {
@@ -1538,6 +1559,7 @@ updateRadiusUI();
 updateRadiusRingButtons();
 updateRadiusRing();
 updateRangeOutlineButtons();
+updateRangeOutlineFillButtons();
 updateAirportButtons();
 if (showAirports) setAirports(true);
 updateStatsRangeButtons();
