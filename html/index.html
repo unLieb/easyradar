@@ -59,10 +59,11 @@
   #panel-detail.show { display: flex; }
   #panel-list.hidden { display: none; }
 
-  #detail-header { position: relative; }
+  #detail-header { position: sticky; top: 0; z-index: 5; background: var(--card); }
   #detail-header .close { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.85); border: none; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; color: var(--text); font-size: 15px; z-index: 2; }
-  #d-photo-wrap { min-height: 120px; background: #dde2e7; display: flex; align-items: center; justify-content: center; }
-  #d-photo-wrap img { width: 100%; display: block; }
+  #d-photo-wrap { height: 200px; background: #dde2e7; display: flex; align-items: center; justify-content: center; overflow: hidden; transition: height 0.2s ease; }
+  #d-photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #d-photo-wrap.shrink { height: 70px; }
   #d-photo-placeholder { font-size: 12px; color: var(--text-muted); padding: 40px 0; }
   #d-photo-credit { font-size: 10px; color: var(--text-muted); text-align: right; padding: 3px 12px; }
   #d-photo-credit a { color: var(--text-muted); }
@@ -70,7 +71,7 @@
   #d-titleblock { padding: 4px 18px 12px; display: flex; justify-content: space-between; align-items: flex-start; }
   #d-callsign { font-size: 18px; font-weight: 600; margin: 0; }
   #d-type { font-size: 12px; color: var(--text-muted); }
-  #d-fav-btn { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--border); line-height: 1; padding: 0; margin-top: 2px; }
+  #d-fav-btn { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text-muted); line-height: 1; padding: 0; margin-top: 2px; }
   #d-fav-btn.on { color: #f9a825; }
 
   #d-route { padding: 10px 18px; margin: 0 18px 4px; border-radius: 12px; background: var(--bg); display: flex; align-items: center; justify-content: center; gap: 10px; }
@@ -100,6 +101,10 @@
   #map-controls-bottom { position: absolute; left: 356px; bottom: 16px; display: flex; align-items: center; gap: 12px; z-index: 500; transition: left 0.2s ease; }
   #app.collapsed #map-controls-bottom { left: 16px; }
 
+  #status-bar { position: absolute; top: 16px; left: 356px; background: var(--card); border-radius: 14px; box-shadow: 0 6px 24px rgba(0,0,0,0.10); padding: 8px 16px; font-size: 12px; color: var(--text); display: flex; align-items: center; gap: 16px; z-index: 500; white-space: nowrap; transition: left 0.2s ease; }
+  #app.collapsed #status-bar { left: 16px; }
+  #status-bar .status-item { display: flex; align-items: center; gap: 4px; }
+
   #legend { background: var(--card); border-radius: 14px; box-shadow: 0 6px 24px rgba(0,0,0,0.10); padding: 10px 14px; font-size: 11px; color: var(--text-muted); }
   #legend .legend-title { font-weight: 600; color: var(--text); margin-bottom: 4px; }
   #legend .legend-row { display: flex; align-items: center; gap: 6px; margin: 3px 0; white-space: nowrap; }
@@ -121,7 +126,7 @@
   #stats-panel { display: none; position: absolute; bottom: 64px; left: 356px; background: var(--card); border-radius: 18px; box-shadow: 0 12px 40px rgba(0,0,0,0.14); padding: 20px 22px; width: 280px; max-height: 70vh; overflow-y: auto; z-index: 950; transition: left 0.2s ease; }
   #app.collapsed #stats-panel { left: 16px; }
   #stats-panel.show { display: block; }
-  #stats-panel .stat-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; }
+  #stats-panel .stat-row { display: flex; justify-content: space-between; font-size: 13px; padding: 9px 0; }
   #stats-panel .stat-row .label { color: var(--text-muted); }
   #stats-panel .stat-row .value { font-weight: 600; text-align: right; }
   #stats-panel .stat-list-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 4px 0; gap: 8px; }
@@ -148,6 +153,7 @@
     .plane-row { padding: 13px 18px; }
     #map-controls-bottom { left: 16px !important; right: 16px; flex-wrap: wrap; row-gap: 8px; }
     #legend { max-width: calc(100vw - 32px); box-sizing: border-box; }
+    #status-bar { left: 16px !important; right: 16px; white-space: normal; flex-wrap: wrap; row-gap: 6px; box-sizing: border-box; max-width: calc(100vw - 32px); }
     #settings-panel, #stats-panel { left: 16px !important; right: 16px; width: auto; max-width: calc(100vw - 32px); box-sizing: border-box; }
   }
 
@@ -191,7 +197,7 @@
             <h2 id="d-callsign">—</h2>
             <div id="d-type">—</div>
           </div>
-          <button id="d-fav-btn" onclick="toggleFavorite(selectedHex)" aria-label="Favorit">★</button>
+          <button id="d-fav-btn" onclick="toggleFavorite(selectedHex)" aria-label="Favorit">☆</button>
         </div>
         <div class="detail-rows">
           <div class="section-title">Flug</div>
@@ -226,6 +232,14 @@
     <button id="collapse-btn" onclick="toggleSidebar()">&#9664;</button>
 
     <div id="map"></div>
+
+    <div id="status-bar">
+      <span class="status-item">📡 ADS-B <span id="status-dot">🟢</span> <span id="status-text">Online</span></span>
+      <span class="status-item">✈️ <span id="status-count">0</span> Flugzeuge</span>
+      <span class="status-item">📨 <span id="status-msgrate">—</span> msg/s</span>
+      <span class="status-item">📍 <span id="status-location">—</span></span>
+      <span class="status-item">🕒 Aktualisiert vor <span id="status-age">—</span></span>
+    </div>
 
     <div id="map-controls-bottom">
       <div id="legend"></div>
@@ -331,7 +345,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.22.2';
+const APP_VERSION = '0.23.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -343,6 +357,11 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r
 }).addTo(map);
 
 map.on('click', () => { if (selectedHex) closeDetail(); });
+
+document.getElementById('panel-detail').addEventListener('scroll', (e) => {
+  const wrap = document.getElementById('d-photo-wrap');
+  if (wrap) wrap.classList.toggle('shrink', e.target.scrollTop > 40);
+});
 
 const siteIcon = L.divIcon({
   className: '',
@@ -362,8 +381,8 @@ function updateRadiusRing() {
   [0.5, 1].forEach(f => {
     L.circle([SITE_LAT, SITE_LON], {
       radius: radiusKm * 1000 * f,
-      color: '#1a73e8', weight: f === 1 ? 2 : 1, dashArray: f === 1 ? null : '4 6',
-      fill: false, opacity: 0.6
+      color: '#1a73e8', weight: 1, dashArray: f === 1 ? null : '4 6',
+      fill: false, opacity: 0.4
     }).addTo(radiusRingLayer);
   });
   radiusRingLayer.addTo(map);
@@ -437,6 +456,36 @@ let externalEnabled = localStorage.getItem('externalEnabled') === 'true';
 let externalAircraft = [];
 
 let lastMsgTotal = null, lastMsgTime = null;
+let lastRefreshTime = null;
+let adsbOnline = true;
+
+function setAdsbOnline(on) {
+  if (adsbOnline === on) return;
+  adsbOnline = on;
+  document.getElementById('status-dot').textContent = on ? '🟢' : '🔴';
+  document.getElementById('status-text').textContent = on ? 'Online' : 'Offline';
+}
+
+function updateStatusAge() {
+  const el = document.getElementById('status-age');
+  if (!el || !lastRefreshTime) return;
+  const secs = (Date.now() - lastRefreshTime) / 1000;
+  el.textContent = secs.toFixed(1).replace('.', ',') + ' s';
+}
+setInterval(updateStatusAge, 200);
+
+async function resolveSiteLocation() {
+  const el = document.getElementById('status-location');
+  try {
+    const res = await fetch(`/geocode/?format=jsonv2&lat=${SITE_LAT}&lon=${SITE_LON}&zoom=10`);
+    const data = await res.json();
+    const addr = data.address || {};
+    el.textContent = addr.city || addr.town || addr.village || addr.municipality || data.name || '—';
+  } catch (e) {
+    el.textContent = '—';
+  }
+}
+resolveSiteLocation();
 let statsRange = localStorage.getItem('statsRange') || 'today';
 let activeFilter = 'all';
 let searchQuery = '';
@@ -518,7 +567,10 @@ function toggleFavorite(hex) {
 
 function updateFavoriteStarButton(hex) {
   const btn = document.getElementById('d-fav-btn');
-  if (btn) btn.classList.toggle('on', isFavorite(hex));
+  if (!btn) return;
+  const on = isFavorite(hex);
+  btn.classList.toggle('on', on);
+  btn.textContent = on ? '★' : '☆';
 }
 
 function toggleFavoritesOnly() {
@@ -1156,8 +1208,9 @@ async function fetchReceiverStats() {
     const now = Date.now();
     if (msgTotal != null && lastMsgTotal != null && lastMsgTime != null) {
       const dt = (now - lastMsgTime) / 1000;
-      const rate = dt > 0 ? (msgTotal - lastMsgTotal) / dt : 0;
-      document.getElementById('s-msgrate').textContent = Math.max(0, Math.round(rate)) + ' /s';
+      const rate = Math.max(0, Math.round(dt > 0 ? (msgTotal - lastMsgTotal) / dt : 0));
+      document.getElementById('s-msgrate').textContent = rate + ' /s';
+      document.getElementById('status-msgrate').textContent = rate;
     }
     lastMsgTotal = msgTotal;
     lastMsgTime = now;
@@ -1273,8 +1326,11 @@ async function refresh() {
   try {
     const res = await fetch('/data/aircraft.json', { cache: 'no-store' });
     data = await res.json();
+    setAdsbOnline(true);
+    lastRefreshTime = Date.now();
   } catch (e) {
     document.getElementById('count').textContent = 'Verbindung fehlgeschlagen';
+    setAdsbOnline(false);
     return;
   }
 
@@ -1336,6 +1392,7 @@ async function refresh() {
 
 function renderList(withPos) {
   document.getElementById('count').textContent = withPos.length + ' Flugzeuge sichtbar';
+  document.getElementById('status-count').textContent = withPos.length;
   const list = document.getElementById('panel-list');
   list.innerHTML = '';
   for (const a of withPos) {
