@@ -356,7 +356,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.23.4';
+const APP_VERSION = '0.23.5';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -529,6 +529,17 @@ const PROP_TYPES = ['C1', 'C2', 'C4', 'P28', 'PA', 'DA40', 'DA42', 'SR2', 'M20',
 // a bare registration as callsign).
 const EINSATZ_CALLSIGN_PREFIXES = ['CHRISTOPH', 'RESCUE', 'REGA', 'POLIZEI', 'POLICE', 'BPOL'];
 
+// A plain startsWith() lets a short military code like "C17" (C-17 Globemaster)
+// wrongly match unrelated civilian types that happen to extend it with more
+// digits, e.g. "C172" (Cessna 172). Military variant suffixes are letters
+// (e.g. "UH1H"), never digits, so only treat it as a match when the next
+// character (if any) isn't a digit.
+function matchesMilType(t, p) {
+  if (!t.startsWith(p)) return false;
+  if (t.length === p.length) return true;
+  return !/[0-9]/.test(t[p.length]);
+}
+
 function classifyAircraft(a) {
   const cat = a.category || '';
   const t = (a.t || '').toUpperCase();
@@ -536,7 +547,7 @@ function classifyAircraft(a) {
   if (EINSATZ_CALLSIGN_PREFIXES.some(p => flight.startsWith(p))) return 'einsatz';
   if (a.dbFlags && (a.dbFlags & 1)) return 'militaer';
   if (cat === 'A7') return 'helikopter';
-  if (MIL_TYPES.some(p => t.startsWith(p))) return 'militaer';
+  if (MIL_TYPES.some(p => matchesMilType(t, p))) return 'militaer';
   if (BIZ_TYPES.some(p => t.startsWith(p))) return 'business';
   if (PROP_TYPES.some(p => t.startsWith(p))) return 'propeller';
   if (cat === 'A1') return 'propeller';
