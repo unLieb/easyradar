@@ -401,7 +401,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.26.1';
+const APP_VERSION = '0.26.2';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -1422,7 +1422,6 @@ const ACHIEVEMENT_CATEGORIES = [
 
 const ACHIEVEMENTS_CATALOG = [
   { id: 'first_helicopter', cat: 'flugzeuge', icon: '🚁', title: 'Erster Hubschrauber' },
-  { id: 'first_concorde', cat: 'flugzeuge', icon: '✈️', title: 'Erste Concorde' },
   { id: 'first_military', cat: 'flugzeuge', icon: '🪖', title: 'Militärflugzeug' },
   { id: 'first_business', cat: 'flugzeuge', icon: '🛬', title: 'Erstes Geschäftsflugzeug' },
   { id: 'first_seaplane', cat: 'flugzeuge', icon: '🛩', title: 'Erstes Wasserflugzeug' },
@@ -1482,6 +1481,7 @@ const ACHIEVEMENTS_CATALOG = [
   { id: 'country_tr', cat: 'laender', icon: '🇹🇷', title: 'Erstes Flugzeug aus der Türkei' },
   { id: 'countries_50', cat: 'laender', icon: '🌎', title: '50 Länder entdeckt' },
 
+  { id: 'first_concorde', cat: 'selten', icon: '⭐', title: 'Concorde' },
   { id: 'first_a380', cat: 'selten', icon: '⭐', title: 'A380' },
   { id: 'rare_a340', cat: 'selten', icon: '⭐', title: 'A340' },
   { id: 'first_osprey', cat: 'selten', icon: '⭐', title: 'Osprey (V-22)' },
