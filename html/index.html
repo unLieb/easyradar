@@ -124,6 +124,9 @@
   #stats-panel .stat-list-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 4px 0; gap: 8px; }
   #stats-panel .stat-list-row .name { color: var(--text); }
   #stats-panel .stat-list-row .count { color: var(--text-muted); font-weight: 600; flex-shrink: 0; }
+  #d-timeline .stat-list-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 4px 0; gap: 8px; }
+  #d-timeline .stat-list-row .name { color: var(--text); }
+  #d-timeline .stat-list-row .count { color: var(--text-muted); font-weight: 600; flex-shrink: 0; text-align: right; }
   #stats-panel .bar-track { flex: 1; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
   #stats-panel .bar-fill { height: 100%; background: var(--blue); border-radius: 3px; }
   .segmented { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
@@ -312,7 +315,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.20.0';
+const APP_VERSION = '0.20.3';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -948,7 +951,7 @@ function renderTimeline() {
   }
   el.innerHTML = geocodeTimeline.slice().reverse().map(p => {
     const minsAgo = Math.max(0, Math.round((Date.now() - p.time) / 60000));
-    const when = minsAgo < 1 ? 'gerade eben' : `vor ${minsAgo} Minute${minsAgo === 1 ? '' : 'n'}`;
+    const when = minsAgo < 1 ? 'gerade' : `vor ${minsAgo} Minute${minsAgo === 1 ? '' : 'n'}`;
     return `<div class="stat-list-row"><span class="name">${when}</span><span class="count">über ${p.place}</span></div>`;
   }).join('');
 }
