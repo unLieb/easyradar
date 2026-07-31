@@ -201,6 +201,9 @@
       <div class="stat-section-title">Häufigste Rufzeichen</div>
       <div id="s-topcallsigns"></div>
 
+      <div class="stat-section-title">Empfang nach Richtung</div>
+      <div id="s-directions"></div>
+
       <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">Rekorde/Top-Listen dauerhaft gespeichert</div>
     </div>
 
@@ -232,7 +235,7 @@
         <button id="airports-on" onclick="setAirports(true)">An</button>
         <button id="airports-off" onclick="setAirports(false)">Aus</button>
       </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.18.3</div>
+      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.19.0</div>
     </div>
   </div>
 </div>
@@ -809,7 +812,57 @@ async function fetchAndRenderDbStats() {
     document.getElementById('s-topcallsigns').innerHTML = (d.topCallsigns && d.topCallsigns.length)
       ? d.topCallsigns.map(([c, n]) => `<div class="stat-list-row"><span class="name">${c}</span><span class="count">${n}</span></div>`).join('')
       : '<div class="stat-list-row"><span class="name">—</span></div>';
+
+    if (d.directions) renderDirectionChart(d.directions);
   } catch (e) { /* db stats optional, ignore failures */ }
+}
+
+function renderDirectionChart(directions) {
+  const container = document.getElementById('s-directions');
+  const dirs = ['N', 'E', 'S', 'W'];
+  const vals = dirs.map(d => directions[d]).filter(v => v != null);
+  const maxVal = vals.length ? Math.max(...vals) : 0;
+
+  if (maxVal <= 0) {
+    container.innerHTML = '<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:8px 0;">Noch keine Richtungsdaten</div>';
+    return;
+  }
+
+  const cx = 90, cy = 90, maxR = 62;
+  const bearingRange = { N: [-45, 45], E: [45, 135], S: [135, 225], W: [225, 315] };
+  const colors = { N: '#1a73e8', E: '#4caf50', S: '#ff9800', W: '#9575cd' };
+
+  function pt(brgDeg, r) {
+    const rad = brgDeg * Math.PI / 180;
+    return [cx + r * Math.sin(rad), cy - r * Math.cos(rad)];
+  }
+
+  let svg = `<svg width="100%" viewBox="0 0 180 180">`;
+  [0.25, 0.5, 0.75, 1].forEach(f => {
+    svg += `<circle cx="${cx}" cy="${cy}" r="${maxR * f}" fill="none" stroke="var(--border)" stroke-width="1"/>`;
+  });
+  dirs.forEach(d => {
+    const val = directions[d];
+    if (val == null) return;
+    const r = Math.max(6, (val / maxVal) * maxR);
+    const [a1, a2] = bearingRange[d];
+    const [x1, y1] = pt(a1, r);
+    const [x2, y2] = pt(a2, r);
+    svg += `<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} Z" fill="${colors[d]}" fill-opacity="0.55" stroke="${colors[d]}" stroke-width="1.5"/>`;
+  });
+  dirs.forEach(d => {
+    const mid = (bearingRange[d][0] + bearingRange[d][1]) / 2;
+    const [lx, ly] = pt(mid, maxR + 14);
+    svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="600" fill="var(--text)">${d}</text>`;
+  });
+  svg += `</svg>`;
+
+  const valueRows = dirs.map(d => {
+    const val = directions[d];
+    return `<div class="stat-list-row"><span class="name" style="color:${colors[d]}">${d}</span><span class="count">${val != null ? fmtDist(val) : '—'}</span></div>`;
+  }).join('');
+
+  container.innerHTML = `<div style="display:flex; justify-content:center; margin-bottom:6px;">${svg}</div>${valueRows}`;
 }
 
 async function refresh() {
