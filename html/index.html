@@ -43,6 +43,7 @@
   #favorites-chip.active { background: #f9a825; border-color: #f9a825; color: #fff; }
 
   #panel-list { flex: 1; overflow-y: auto; }
+  .plane-row .flag { margin-right: 5px; font-size: 13px; }
   .plane-row .star { cursor: pointer; margin-right: 4px; color: var(--border); }
   .plane-row .star.on { color: #f9a825; }
   .plane-row { padding: 10px 18px; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.15s; }
@@ -297,6 +298,11 @@
         <button id="radius-ring-on" onclick="setRadiusRing(true)">An</button>
         <button id="radius-ring-off" onclick="setRadiusRing(false)">Aus</button>
       </div>
+      <div class="label" style="margin-top:12px">Empfangskontur auf Karte anzeigen</div>
+      <div class="segmented">
+        <button id="range-outline-on" onclick="setRangeOutline(true)">An</button>
+        <button id="range-outline-off" onclick="setRangeOutline(false)">Aus</button>
+      </div>
 
       <div class="section-title">Datenquellen</div>
       <div class="label">Externe Quelle (adsb.fi)</div>
@@ -310,12 +316,13 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="tar1090-shapes.js"></script>
+<script src="countries.js"></script>
 <script>
 // tar1090-shapes.js's getBaseMarker() references these tar1090 UI-setting globals
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.20.3';
+const APP_VERSION = '0.21.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -363,6 +370,47 @@ function setRadiusRing(on) {
   localStorage.setItem('showRadiusRing', on);
   updateRadiusRingButtons();
   updateRadiusRing();
+}
+
+let rangeOutlineLayer = null;
+let showRangeOutline = localStorage.getItem('showRangeOutline') === 'true';
+let rangeOutlineData = null;
+let rangeOutlineBucketDeg = 5;
+
+function destPoint(lat, lon, bearingDeg, distKm) {
+  const R = 6371;
+  const brg = bearingDeg * Math.PI / 180;
+  const lat1 = lat * Math.PI / 180, lon1 = lon * Math.PI / 180;
+  const lat2 = Math.asin(Math.sin(lat1) * Math.cos(distKm / R) + Math.cos(lat1) * Math.sin(distKm / R) * Math.cos(brg));
+  const lon2 = lon1 + Math.atan2(Math.sin(brg) * Math.sin(distKm / R) * Math.cos(lat1), Math.cos(distKm / R) - Math.sin(lat1) * Math.sin(lat2));
+  return [lat2 * 180 / Math.PI, lon2 * 180 / Math.PI];
+}
+
+function updateRangeOutline() {
+  if (rangeOutlineLayer) { map.removeLayer(rangeOutlineLayer); rangeOutlineLayer = null; }
+  if (!showRangeOutline || !rangeOutlineData) return;
+  const numBuckets = 360 / rangeOutlineBucketDeg;
+  const points = [];
+  for (let b = 0; b < numBuckets; b++) {
+    const dist = rangeOutlineData[b];
+    if (dist == null) continue;
+    const brg = b * rangeOutlineBucketDeg + rangeOutlineBucketDeg / 2;
+    points.push(destPoint(SITE_LAT, SITE_LON, brg, dist));
+  }
+  if (points.length < 3) return;
+  rangeOutlineLayer = L.polygon(points, { color: '#00bfa5', weight: 2, fill: false, opacity: 0.85 }).addTo(map);
+}
+
+function updateRangeOutlineButtons() {
+  document.getElementById('range-outline-on').classList.toggle('active', showRangeOutline);
+  document.getElementById('range-outline-off').classList.toggle('active', !showRangeOutline);
+}
+
+function setRangeOutline(on) {
+  showRangeOutline = on;
+  localStorage.setItem('showRangeOutline', on);
+  updateRangeOutlineButtons();
+  updateRangeOutline();
 }
 
 const markers = {};
@@ -1104,6 +1152,12 @@ async function fetchAndRenderDbStats() {
     document.getElementById('s-topcallsigns').innerHTML = barListHtml(d.topCallsigns);
 
     if (d.directions) renderDirectionChart(d.directions);
+
+    if (d.rangeOutline) {
+      rangeOutlineData = d.rangeOutline;
+      rangeOutlineBucketDeg = d.rangeBucketDeg || 5;
+      updateRangeOutline();
+    }
   } catch (e) { /* db stats optional, ignore failures */ }
 }
 
@@ -1229,9 +1283,10 @@ function renderList(withPos) {
     const row = document.createElement('div');
     row.className = 'plane-row';
     row.dataset.hex = a.hex;
+    const flag = flagForHex(a.hex);
     row.innerHTML = `
       <div>
-        <div class="callsign">${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${(a.flight || a.hex || '—').trim()}${a._external ? '<span class="external-tag">extern</span>' : ''}</div>
+        <div class="callsign">${flag ? `<span class="flag">${flag}</span>` : ''}${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${(a.flight || a.hex || '—').trim()}${a._external ? '<span class="external-tag">extern</span>' : ''}</div>
         <div class="type">${a.t || 'Typ unbekannt'}</div>
       </div>
       <div class="metrics">
@@ -1255,6 +1310,7 @@ updateExternalButtons();
 updateRadiusUI();
 updateRadiusRingButtons();
 updateRadiusRing();
+updateRangeOutlineButtons();
 updateAirportButtons();
 if (showAirports) setAirports(true);
 updateStatsRangeButtons();
