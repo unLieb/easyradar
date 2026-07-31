@@ -191,7 +191,7 @@
     .plane-row { padding: 13px 16px; }
     #map-controls-bottom { left: 16px !important; right: 16px; flex-wrap: wrap; row-gap: 8px; }
     #legend { max-width: calc(100vw - 32px); box-sizing: border-box; }
-    #status-bar-wrap { left: 16px !important; right: 16px; }
+    #status-bar-wrap { top: 58px; left: 16px !important; right: 16px; }
     #status-bar { white-space: normal; flex-wrap: wrap; row-gap: 6px; box-sizing: border-box; max-width: calc(100vw - 32px); justify-content: center; }
     #settings-panel, #stats-panel { left: 16px !important; right: 16px; width: auto; max-width: calc(100vw - 32px); box-sizing: border-box; }
   }
@@ -401,7 +401,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.26.2';
+const APP_VERSION = '0.26.3';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
