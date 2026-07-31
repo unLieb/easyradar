@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>unLieb Radar</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css" />
 <style>
   :root {
     --blue: #1a73e8;
@@ -88,7 +89,6 @@
   .detail-rows .section-title:first-child { margin-top: 8px; }
 
   #map { flex: 1; height: 100%; }
-  .map-tiles-dark { filter: brightness(0.82); }
 
   .selected-glow { filter: drop-shadow(0 0 3px #1a73e8) drop-shadow(0 0 8px #1a73e8) drop-shadow(0 0 14px #1a73e8); animation: glow-pulse 1.6s ease-in-out infinite; }
   @keyframes glow-pulse {
@@ -303,7 +303,12 @@
 
     <div id="settings-panel">
       <div class="section-title">Anzeige</div>
-      <div class="label">Einheiten</div>
+      <div class="label">Kartendesign</div>
+      <div class="segmented">
+        <button id="maptheme-light" onclick="setMapTheme('light')">Hell</button>
+        <button id="maptheme-dark" onclick="setMapTheme('dark')">Dunkel</button>
+      </div>
+      <div class="label" style="margin-top:12px">Einheiten</div>
       <div class="segmented">
         <button id="unit-metric" onclick="setUnits('metric')">Metrisch</button>
         <button id="unit-imperial" onclick="setUnits('imperial')">Imperial</button>
@@ -349,6 +354,8 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.3/leaflet-maplibre-gl.js"></script>
 <script src="tar1090-shapes.js"></script>
 <script src="countries.js"></script>
 <script>
@@ -356,16 +363,53 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.23.5';
+const APP_VERSION = '0.24.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
 L.control.zoom({ position: 'topright' }).addTo(map);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OpenStreetMap &copy; CARTO',
-  maxZoom: 19,
-  className: 'map-tiles-dark'
-}).addTo(map);
+
+// Vector basemap (MapLibre GL via the leaflet bridge) instead of raster tiles: lets
+// us fix CARTO's default style, which hardcodes English names for country/state/big-city
+// labels regardless of locale - that's why e.g. "Sachsen-Anhalt" showed as "Saxony-Anhalt"
+// while other states with no name_en tag stayed German. We override those layers to
+// prefer name_de. Vector tiles also give a real Dark Matter dark style instead of a
+// brightness-filter hack on the light tiles.
+const MAP_STYLES = {
+  light: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
+  dark: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+};
+const GERMAN_LABEL_LAYERS = [
+  'waterway_label', 'place_country_2', 'place_country_1', 'place_state', 'place_continent',
+  'place_city_dot_r7', 'place_city_dot_r4', 'place_city_dot_r2', 'place_city_dot_z7', 'place_capital_dot_z7'
+];
+let mapTheme = localStorage.getItem('mapTheme') === 'dark' ? 'dark' : 'light';
+
+const vectorBasemap = L.maplibreGL({ style: MAP_STYLES[mapTheme] }).addTo(map);
+
+function applyGermanLabels() {
+  const mlMap = vectorBasemap.getMaplibreMap();
+  GERMAN_LABEL_LAYERS.forEach(id => {
+    if (mlMap.getLayer(id)) {
+      try { mlMap.setLayoutProperty(id, 'text-field', ['coalesce', ['get', 'name_de'], ['get', 'name']]); } catch (e) {}
+    }
+  });
+}
+vectorBasemap.getMaplibreMap().on('load', applyGermanLabels);
+
+function updateMapThemeButtons() {
+  document.getElementById('maptheme-light').classList.toggle('active', mapTheme === 'light');
+  document.getElementById('maptheme-dark').classList.toggle('active', mapTheme === 'dark');
+}
+
+function setMapTheme(theme) {
+  mapTheme = theme;
+  localStorage.setItem('mapTheme', theme);
+  updateMapThemeButtons();
+  const mlMap = vectorBasemap.getMaplibreMap();
+  mlMap.setStyle(MAP_STYLES[theme]);
+  mlMap.once('styledata', applyGermanLabels);
+}
 
 map.on('click', () => { if (selectedHex) closeDetail(); });
 
@@ -1465,6 +1509,7 @@ if (sidebarCollapsed) {
   document.getElementById('app').classList.add('collapsed');
   document.getElementById('collapse-btn').innerHTML = '&#9654;';
 }
+updateMapThemeButtons();
 updateUnitButtons();
 updateTrailButtons();
 updateTrailsShowAllButtons();
