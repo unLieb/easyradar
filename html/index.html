@@ -22,8 +22,8 @@
   #page { display: flex; flex-direction: column; height: 100vh; height: 100dvh; width: 100vw; overflow: hidden; }
   #app { flex: 1; display: flex; position: relative; overflow: hidden; height: 100%; }
 
-  #sidebar { width: 340px; min-width: 340px; background: var(--card); box-shadow: 4px 0 24px rgba(0,0,0,0.06); display: flex; flex-direction: column; z-index: 500; transition: margin-left 0.2s ease; }
-  #sidebar.collapsed { margin-left: -340px; }
+  #sidebar { position: absolute; top: 0; left: 0; height: 100%; width: 340px; min-width: 340px; background: var(--card); box-shadow: 4px 0 24px rgba(0,0,0,0.06); display: flex; flex-direction: column; z-index: 500; transition: transform 0.2s ease; }
+  #sidebar.collapsed { transform: translateX(-340px); }
 
   #collapse-btn { position: absolute; top: 50%; transform: translateY(-50%); left: 340px; width: 22px; height: 44px; background: var(--card); border: 1px solid var(--border); border-left: none; border-radius: 0 12px 12px 0; box-shadow: 3px 0 12px rgba(0,0,0,0.08); cursor: pointer; z-index: 600; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: left 0.2s ease; }
   #sidebar.collapsed ~ #collapse-btn, #app.collapsed #collapse-btn { left: 0; }
@@ -184,17 +184,18 @@
     #sidebar { position: fixed; top: 0; left: 0; width: 100%; min-width: 0; height: 100%; margin-left: 0; transform: translateX(0); transition: transform 0.2s ease; }
     #sidebar.collapsed { margin-left: 0; transform: translateX(-100%); }
 
-    #collapse-btn { position: fixed; top: 12px; right: 14px; left: auto; width: 36px; height: 36px; border-radius: 50%; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.18); z-index: 950; }
-    #sidebar.collapsed ~ #collapse-btn, #app.collapsed #collapse-btn { display: none; }
+    #collapse-btn { display: none; }
 
     #sidebar-peek { display: none; }
     #app.collapsed #sidebar-peek {
       display: flex; align-items: center; justify-content: center;
-      position: fixed; top: 0; left: 0; bottom: 0; width: 22px;
+      position: fixed; top: 50%; transform: translateY(-50%); left: 0; height: 80px; width: 22px;
       background: var(--card); border-radius: 0 14px 14px 0;
       box-shadow: 3px 0 12px rgba(0,0,0,0.1); z-index: 950; cursor: pointer;
     }
     #sidebar-peek .peek-handle { color: var(--text-muted); font-size: 13px; }
+
+    #sidebar header { cursor: pointer; }
 
     #detail-header .close { width: 36px; height: 36px; font-size: 18px; }
     .plane-row { padding: 13px 16px; }
@@ -215,7 +216,7 @@
 <div id="page">
   <div id="app">
     <div id="sidebar">
-      <header>
+      <header onclick="closeSidebarOnMobile()">
         <h1>unLieb Radar</h1>
         <div class="version" id="app-version"></div>
         <div class="count" id="count">Lade Flugzeuge…</div>
@@ -413,7 +414,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.27.0';
+const APP_VERSION = '0.27.1';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -466,6 +467,10 @@ map.on('click', () => { if (selectedHex) closeDetail(); });
 document.getElementById('panel-detail').addEventListener('scroll', (e) => {
   const wrap = document.getElementById('d-photo-wrap');
   if (wrap) wrap.classList.toggle('shrink', e.target.scrollTop > 40);
+});
+
+document.getElementById('panel-list').addEventListener('click', (e) => {
+  if (e.target.id === 'panel-list') closeSidebarOnMobile();
 });
 
 const siteIcon = L.divIcon({
@@ -754,6 +759,13 @@ function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('collapsed', sidebarCollapsed);
   document.getElementById('app').classList.toggle('collapsed', sidebarCollapsed);
   document.getElementById('collapse-btn').innerHTML = sidebarCollapsed ? '&#9654;' : '&#9664;';
+}
+
+// On mobile the sidebar covers the whole screen when open, so instead of a
+// fixed-position close button (which kept landing behind the browser's own UI
+// near the top edge), tapping the header or empty list space closes it.
+function closeSidebarOnMobile() {
+  if (window.innerWidth <= 768 && !sidebarCollapsed) toggleSidebar();
 }
 
 function toggleSettings() {
