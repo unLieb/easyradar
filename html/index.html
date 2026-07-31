@@ -414,7 +414,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.28.0';
+const APP_VERSION = '0.28.1';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -1686,7 +1686,7 @@ function renderDirectionChart(directions) {
     return;
   }
 
-  const cx = 100, cy = 100, hubR = 22, maxBarLen = 55, gap = 14;
+  const cx = 130, cy = 115, hubR = 22, maxBarLen = 48, gap = 14;
   const colors = { N: '#1a73e8', E: '#4caf50', S: '#ff9800', W: '#9575cd' };
 
   let bars = '', labels = '';
@@ -1713,7 +1713,7 @@ function renderDirectionChart(directions) {
     labels += `<text x="${valueX}" y="${valueY}" text-anchor="middle" font-size="11" fill="var(--text-muted)">${fmtDist(val)}</text>`;
   });
 
-  const svg = `<svg width="100%" viewBox="0 0 200 200">
+  const svg = `<svg width="100%" viewBox="0 0 260 230">
     ${bars}
     <circle cx="${cx}" cy="${cy}" r="${hubR}" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
     <text x="${cx}" y="${cy + 6}" text-anchor="middle" font-size="17">📡</text>
