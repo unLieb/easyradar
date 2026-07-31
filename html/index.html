@@ -29,6 +29,7 @@
 
   #sidebar header { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); }
   #sidebar header h1 { font-size: 18px; font-weight: 600; margin: 0; color: var(--blue); }
+  #sidebar header .version { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
   #sidebar header .count { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
 
   #panel-list { flex: 1; overflow-y: auto; }
@@ -55,17 +56,18 @@
   #d-callsign { font-size: 18px; font-weight: 600; margin: 0; }
   #d-type { font-size: 12px; color: var(--text-muted); }
 
-  #d-route { padding: 10px 18px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 10px; }
+  #d-route { padding: 10px 18px; margin: 0 18px 4px; border-radius: 12px; background: var(--bg); display: flex; align-items: center; justify-content: center; gap: 10px; }
   #d-route .airport { text-align: center; flex: 1; }
   #d-route .airport .code { font-size: 17px; font-weight: 600; }
   #d-route .airport .name { font-size: 10px; color: var(--text-muted); }
   #d-route .arrow { color: var(--text-muted); }
-  #d-airline { padding: 8px 18px 0; text-align: center; font-size: 13px; font-weight: 600; color: var(--text); }
 
-  .detail-rows { padding: 4px 18px 18px; }
-  .detail-rows .row { display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--border); font-size: 13px; }
+  .detail-rows { padding: 4px 0 18px; }
+  .detail-rows .row { display: flex; justify-content: space-between; padding: 8px 18px; border-top: 1px solid var(--border); font-size: 13px; }
   .detail-rows .row .label { color: var(--text-muted); }
   .detail-rows .row .value { font-weight: 600; }
+  .detail-rows .section-title { margin: 16px 0 4px; }
+  .detail-rows .section-title:first-child { margin-top: 8px; }
 
   #map { flex: 1; height: 100%; }
   .map-tiles-dark { filter: brightness(0.82); }
@@ -81,7 +83,7 @@
   #map-controls-bottom { position: absolute; left: 356px; bottom: 16px; display: flex; align-items: center; gap: 12px; z-index: 500; transition: left 0.2s ease; }
   #app.collapsed #map-controls-bottom { left: 16px; }
 
-  #legend { background: var(--card); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); padding: 8px 12px; font-size: 11px; color: var(--text-muted); }
+  #legend { background: var(--card); border-radius: 14px; box-shadow: 0 6px 24px rgba(0,0,0,0.10); padding: 10px 14px; font-size: 11px; color: var(--text-muted); }
   #legend .legend-title { font-weight: 600; color: var(--text); margin-bottom: 4px; }
   #legend .legend-row { display: flex; align-items: center; gap: 6px; margin: 3px 0; white-space: nowrap; }
   #legend .swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
@@ -91,22 +93,25 @@
 
   .plane-icon { transition: transform 0.4s linear; }
 
-  #settings-panel { display: none; position: absolute; bottom: 64px; left: 356px; background: var(--card); border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.22); padding: 14px 16px; width: 220px; z-index: 950; transition: left 0.2s ease; }
+  #settings-panel { display: none; position: absolute; bottom: 64px; left: 356px; background: var(--card); border-radius: 18px; box-shadow: 0 12px 40px rgba(0,0,0,0.14); padding: 20px 22px; width: 240px; z-index: 950; transition: left 0.2s ease; }
   #app.collapsed #settings-panel { left: 16px; }
   #settings-panel.show { display: block; }
   #settings-panel .label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+  .section-title { font-size: 11px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: .04em; margin: 18px 0 10px; padding: 0 18px; }
+  .section-title:first-child { margin-top: 0; }
+  #settings-panel .section-title, #stats-panel .section-title { padding: 0; }
 
-  #stats-panel { display: none; position: absolute; bottom: 64px; left: 356px; background: var(--card); border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.22); padding: 14px 16px; width: 260px; max-height: 70vh; overflow-y: auto; z-index: 950; transition: left 0.2s ease; }
+  #stats-panel { display: none; position: absolute; bottom: 64px; left: 356px; background: var(--card); border-radius: 18px; box-shadow: 0 12px 40px rgba(0,0,0,0.14); padding: 20px 22px; width: 280px; max-height: 70vh; overflow-y: auto; z-index: 950; transition: left 0.2s ease; }
   #app.collapsed #stats-panel { left: 16px; }
   #stats-panel.show { display: block; }
-  #stats-panel .stat-section-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .03em; margin: 12px 0 6px; }
-  #stats-panel .stat-section-title:first-child { margin-top: 0; }
-  #stats-panel .stat-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+  #stats-panel .stat-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; }
   #stats-panel .stat-row .label { color: var(--text-muted); }
   #stats-panel .stat-row .value { font-weight: 600; text-align: right; }
-  #stats-panel .stat-list-row { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; }
+  #stats-panel .stat-list-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 4px 0; gap: 8px; }
   #stats-panel .stat-list-row .name { color: var(--text); }
-  #stats-panel .stat-list-row .count { color: var(--text-muted); font-weight: 600; }
+  #stats-panel .stat-list-row .count { color: var(--text-muted); font-weight: 600; flex-shrink: 0; }
+  #stats-panel .bar-track { flex: 1; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+  #stats-panel .bar-fill { height: 100%; background: var(--blue); border-radius: 3px; }
   .segmented { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .segmented button { flex: 1; padding: 7px 0; font-size: 13px; border: none; background: var(--card); color: var(--text); cursor: pointer; }
   .segmented button.active { background: var(--blue); color: #fff; }
@@ -133,6 +138,7 @@
     <div id="sidebar">
       <header>
         <h1>unLieb Radar</h1>
+        <div class="version" id="app-version"></div>
         <div class="count" id="count">Lade Flugzeuge…</div>
       </header>
 
@@ -148,17 +154,29 @@
           <h2 id="d-callsign">—</h2>
           <div id="d-type">—</div>
         </div>
-        <div id="d-airline" style="display:none"></div>
-        <div id="d-route" style="display:none"></div>
         <div class="detail-rows">
+          <div class="section-title">Flug</div>
+          <div class="row"><span class="label">ICAO-Typ</span><span class="value" id="d-icaotype">—</span></div>
+          <div id="d-airline-row" class="row" style="display:none"><span class="label">Airline</span><span class="value" id="d-airline">—</span></div>
+          <div class="row"><span class="label">Betreiber</span><span class="value" id="d-operator">—</span></div>
+          <div class="row"><span class="label">Registrierung</span><span class="value" id="d-reg">—</span></div>
+
+          <div class="section-title" id="d-route-title" style="display:none">Route</div>
+          <div id="d-route" style="display:none"></div>
+
+          <div class="section-title">Position</div>
           <div class="row"><span class="label">Höhe</span><span class="value" id="d-alt">—</span></div>
           <div class="row"><span class="label">Außentemperatur</span><span class="value" id="d-temp">—</span></div>
           <div class="row"><span class="label">Steig-/Sinkrate</span><span class="value" id="d-vrate">—</span></div>
           <div class="row"><span class="label">Geschwindigkeit</span><span class="value" id="d-speed">—</span></div>
           <div class="row"><span class="label">Kurs</span><span class="value" id="d-track">—</span></div>
-          <div class="row"><span class="label">Kennung</span><span class="value" id="d-reg">—</span></div>
-          <div class="row"><span class="label">Transponder</span><span class="value" id="d-squawk">—</span></div>
           <div class="row"><span class="label">Entfernung</span><span class="value" id="d-dist">—</span></div>
+
+          <div class="section-title">Technik</div>
+          <div class="row"><span class="label">Hex-Code</span><span class="value" id="d-hex">—</span></div>
+          <div class="row"><span class="label">Transponder</span><span class="value" id="d-squawk">—</span></div>
+          <div class="row"><span class="label">ADS-B Version</span><span class="value" id="d-version">—</span></div>
+          <div class="row"><span class="label">Quelle</span><span class="value" id="d-source">—</span></div>
         </div>
       </div>
     </div>
@@ -178,40 +196,46 @@
     </div>
 
     <div id="stats-panel">
-      <div class="stat-section-title">Empfänger</div>
+      <div class="section-title">Empfänger</div>
       <div class="stat-row"><span class="label">Nachrichten/s</span><span class="value" id="s-msgrate">—</span></div>
       <div class="stat-row"><span class="label">Verstärkung (Gain)</span><span class="value" id="s-gain">—</span></div>
       <div class="stat-row"><span class="label">Max. Reichweite</span><span class="value" id="s-maxrange">—</span></div>
       <div class="stat-row"><span class="label">MLAT-Anteil (aktuell)</span><span class="value" id="s-mlat">—</span></div>
 
-      <div class="stat-section-title">Zeitraum</div>
+      <div class="section-title">Zeitraum</div>
       <div class="segmented">
         <button id="stats-range-today" onclick="setStatsRange('today')">Heute</button>
         <button id="stats-range-alltime" onclick="setStatsRange('alltime')">Insgesamt</button>
       </div>
 
-      <div class="stat-section-title">Rekorde</div>
+      <div class="section-title">Rekorde</div>
       <div class="stat-row"><span class="label">Flugzeuge</span><span class="value" id="s-uniquecount">—</span></div>
       <div class="stat-row"><span class="label">Höchste Flughöhe</span><span class="value" id="s-maxalt">—</span></div>
       <div class="stat-row"><span class="label">Weiteste Entfernung</span><span class="value" id="s-maxdist">—</span></div>
 
-      <div class="stat-section-title">Top Flugzeugtypen</div>
+      <div class="section-title">Top Flugzeugtypen</div>
       <div id="s-toptypes"></div>
 
-      <div class="stat-section-title">Häufigste Rufzeichen</div>
+      <div class="section-title">Häufigste Rufzeichen</div>
       <div id="s-topcallsigns"></div>
 
-      <div class="stat-section-title">Empfang nach Richtung</div>
+      <div class="section-title">Empfang nach Richtung</div>
       <div id="s-directions"></div>
 
       <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">Rekorde/Top-Listen dauerhaft gespeichert</div>
     </div>
 
     <div id="settings-panel">
+      <div class="section-title">Anzeige</div>
       <div class="label">Einheiten</div>
       <div class="segmented">
         <button id="unit-metric" onclick="setUnits('metric')">Metrisch</button>
         <button id="unit-imperial" onclick="setUnits('imperial')">Imperial</button>
+      </div>
+      <div class="label" style="margin-top:12px">Flughäfen</div>
+      <div class="segmented">
+        <button id="airports-on" onclick="setAirports(true)">An</button>
+        <button id="airports-off" onclick="setAirports(false)">Aus</button>
       </div>
       <div class="label" style="margin-top:12px">Flugverlauf</div>
       <div class="segmented">
@@ -223,19 +247,22 @@
         <button id="trails-all-on" onclick="setTrailsShowAll(true)">An</button>
         <button id="trails-all-off" onclick="setTrailsShowAll(false)">Aus</button>
       </div>
-      <div class="label" style="margin-top:12px">Empfangsradius (<span id="radius-unit-label">km</span>, 0 = kein Limit)</div>
+
+      <div class="section-title">Empfang</div>
+      <div class="label">Empfangsradius (<span id="radius-unit-label">km</span>, 0 = kein Limit)</div>
       <input type="number" id="radius-input" min="0" step="10" style="width:100%; padding:6px 8px; border:1px solid var(--border); border-radius:8px; font-size:13px; box-sizing:border-box;" onchange="setRadius(this.value)">
-      <div class="label" style="margin-top:12px">Externe Quelle (adsb.fi)</div>
+      <div class="label" style="margin-top:12px">Empfangsradius auf Karte anzeigen</div>
+      <div class="segmented">
+        <button id="radius-ring-on" onclick="setRadiusRing(true)">An</button>
+        <button id="radius-ring-off" onclick="setRadiusRing(false)">Aus</button>
+      </div>
+
+      <div class="section-title">Datenquellen</div>
+      <div class="label">Externe Quelle (adsb.fi)</div>
       <div class="segmented">
         <button id="external-on" onclick="setExternal(true)">An</button>
         <button id="external-off" onclick="setExternal(false)">Aus</button>
       </div>
-      <div class="label" style="margin-top:12px">Flughäfen</div>
-      <div class="segmented">
-        <button id="airports-on" onclick="setAirports(true)">An</button>
-        <button id="airports-off" onclick="setAirports(false)">Aus</button>
-      </div>
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">unLieb Radar v0.19.0</div>
     </div>
   </div>
 </div>
@@ -247,6 +274,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
+const APP_VERSION = '0.20.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -259,7 +287,42 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r
 
 map.on('click', () => { if (selectedHex) closeDetail(); });
 
-L.circleMarker([SITE_LAT, SITE_LON], { radius: 5, color: '#1a73e8', fillColor: '#1a73e8', fillOpacity: 1 }).addTo(map);
+const siteIcon = L.divIcon({
+  className: '',
+  html: `<svg width="26" height="26" viewBox="0 0 24 24"><line x1="12" y1="23" x2="12" y2="9" stroke="#1a73e8" stroke-width="2.5" stroke-linecap="round"/><path d="M5,9 Q12,1 19,9" fill="none" stroke="#1a73e8" stroke-width="2.5" stroke-linecap="round"/><circle cx="12" cy="9" r="2" fill="#1a73e8"/></svg>`,
+  iconSize: [26, 26],
+  iconAnchor: [13, 23]
+});
+L.marker([SITE_LAT, SITE_LON], { icon: siteIcon }).addTo(map);
+
+let radiusRingLayer = null;
+let showRadiusRing = localStorage.getItem('showRadiusRing') === 'true';
+
+function updateRadiusRing() {
+  if (radiusRingLayer) { map.removeLayer(radiusRingLayer); radiusRingLayer = null; }
+  if (!showRadiusRing || !radiusKm || radiusKm <= 0) return;
+  radiusRingLayer = L.layerGroup();
+  [0.5, 1].forEach(f => {
+    L.circle([SITE_LAT, SITE_LON], {
+      radius: radiusKm * 1000 * f,
+      color: '#1a73e8', weight: f === 1 ? 2 : 1, dashArray: f === 1 ? null : '4 6',
+      fill: false, opacity: 0.6
+    }).addTo(radiusRingLayer);
+  });
+  radiusRingLayer.addTo(map);
+}
+
+function updateRadiusRingButtons() {
+  document.getElementById('radius-ring-on').classList.toggle('active', showRadiusRing);
+  document.getElementById('radius-ring-off').classList.toggle('active', !showRadiusRing);
+}
+
+function setRadiusRing(on) {
+  showRadiusRing = on;
+  localStorage.setItem('showRadiusRing', on);
+  updateRadiusRingButtons();
+  updateRadiusRing();
+}
 
 const markers = {};
 const trails = {};
@@ -474,6 +537,7 @@ function setRadius(value) {
   const n = parseFloat(value) || 0;
   radiusKm = n > 0 ? (unitSystem === 'metric' ? n : n * 1.852) : 0;
   localStorage.setItem('radiusKm', radiusKm);
+  updateRadiusRing();
 }
 
 function updateExternalButtons() {
@@ -614,14 +678,17 @@ async function loadPhoto(hex) {
 
 function renderRoute(route) {
   const el = document.getElementById('d-route');
+  const titleEl = document.getElementById('d-route-title');
+  const airlineRow = document.getElementById('d-airline-row');
   const airlineEl = document.getElementById('d-airline');
-  if (!route) { el.style.display = 'none'; airlineEl.style.display = 'none'; return; }
+  if (!route) { el.style.display = 'none'; titleEl.style.display = 'none'; airlineRow.style.display = 'none'; return; }
   el.style.display = 'flex';
+  titleEl.style.display = 'block';
   if (route.airline && route.airline.name) {
-    airlineEl.style.display = 'block';
+    airlineRow.style.display = 'flex';
     airlineEl.textContent = route.airline.name;
   } else {
-    airlineEl.style.display = 'none';
+    airlineRow.style.display = 'none';
   }
   const o = route.origin, d = route.destination;
   el.innerHTML = `<div class="airport"><div class="code">${o.icao_code || o.iata_code || '?'}</div><div class="name">${o.name || ''}</div></div>
@@ -632,11 +699,13 @@ function renderRoute(route) {
 async function loadRoute(hex, flight) {
   const cs = (flight || '').trim();
   const el = document.getElementById('d-route');
-  const airlineEl = document.getElementById('d-airline');
-  if (!cs) { el.style.display = 'none'; airlineEl.style.display = 'none'; return; }
+  const titleEl = document.getElementById('d-route-title');
+  const airlineRow = document.getElementById('d-airline-row');
+  if (!cs) { el.style.display = 'none'; titleEl.style.display = 'none'; airlineRow.style.display = 'none'; return; }
   if (routeCache[cs] !== undefined) { renderRoute(routeCache[cs]); return; }
   el.style.display = 'none';
-  airlineEl.style.display = 'none';
+  titleEl.style.display = 'none';
+  airlineRow.style.display = 'none';
   try {
     const res = await fetch(`https://api.adsbdb.com/v0/callsign/${cs}`);
     if (!res.ok) throw new Error('unbekannt');
@@ -682,24 +751,63 @@ function closeDetail() {
 
 let lastDetailHex = null;
 
+function fmtSource(a) {
+  if (a.mlat && a.mlat.length > 0) return 'MLAT';
+  if (a._external) return 'Extern (adsb.fi)';
+  const type = a.type || '';
+  if (type.indexOf('tisb') !== -1) return 'TIS-B';
+  if (type.indexOf('adsb') !== -1) return 'ADS-B';
+  if (type === 'mode_s') return 'Mode S';
+  return type || '—';
+}
+
+const operatorCache = {};
+
+async function loadOperator(reg, hex) {
+  const target = document.getElementById('d-operator');
+  if (!reg) { target.textContent = '—'; return; }
+  if (operatorCache[reg] !== undefined) {
+    target.textContent = operatorCache[reg] || '—';
+    return;
+  }
+  target.textContent = 'Lade…';
+  try {
+    const res = await fetch(`https://api.adsbdb.com/v0/aircraft/${encodeURIComponent(reg)}`);
+    if (!res.ok) throw new Error('not found');
+    const data = await res.json();
+    const ac = data.response && data.response.aircraft;
+    const operator = ac ? ac.registered_owner : null;
+    operatorCache[reg] = operator;
+    if (selectedHex === hex) target.textContent = operator || '—';
+  } catch (e) {
+    operatorCache[reg] = null;
+    if (selectedHex === hex) target.textContent = '—';
+  }
+}
+
 function showDetail(hex) {
   const a = window.currentAircraft && window.currentAircraft[hex];
   if (!a) return;
   document.getElementById('d-callsign').textContent = (a.flight || a.hex || '—').trim();
   document.getElementById('d-type').textContent = a.desc || a.t || 'Typ unbekannt';
+  document.getElementById('d-icaotype').textContent = a.t || '—';
+  document.getElementById('d-reg').textContent = a.r || '—';
   document.getElementById('d-alt').textContent = fmtAlt(a.alt_baro);
   document.getElementById('d-temp').textContent = fmtTemp(a);
   document.getElementById('d-vrate').textContent = fmtVRate(a.baro_rate != null ? a.baro_rate : a.geom_rate);
   document.getElementById('d-speed').textContent = fmtSpeed(a.gs);
   document.getElementById('d-track').textContent = fmtTrack(getTrack(a));
-  document.getElementById('d-reg').textContent = a.r || '—';
   document.getElementById('d-squawk').textContent = a.squawk || '—';
   document.getElementById('d-dist').textContent = a.lat ? fmtDist(haversine(SITE_LAT, SITE_LON, a.lat, a.lon)) : '—';
+  document.getElementById('d-hex').textContent = (a.hex || '—').toUpperCase();
+  document.getElementById('d-version').textContent = a.version != null ? String(a.version) : '—';
+  document.getElementById('d-source').textContent = fmtSource(a);
 
   if (hex !== lastDetailHex) {
     lastDetailHex = hex;
     loadPhoto(hex);
     loadRoute(hex, a.flight);
+    loadOperator(a.r, hex);
   }
 }
 
@@ -794,6 +902,16 @@ function setStatsRange(range) {
   fetchAndRenderDbStats();
 }
 
+function barListHtml(entries) {
+  if (!entries || !entries.length) return '<div class="stat-list-row"><span class="name">—</span></div>';
+  const maxCount = Math.max(...entries.map(([, c]) => c));
+  return entries.map(([name, c]) => `<div class="stat-list-row">
+    <span class="name" style="min-width:56px">${name}</span>
+    <span class="bar-track"><span class="bar-fill" style="width:${Math.max(6, Math.round(c / maxCount * 100))}%"></span></span>
+    <span class="count">${c}</span>
+  </div>`).join('');
+}
+
 async function fetchAndRenderDbStats() {
   try {
     const res = await fetch(`/stats-api/summary?range=${statsRange}`, { cache: 'no-store' });
@@ -805,13 +923,8 @@ async function fetchAndRenderDbStats() {
     document.getElementById('s-maxdist').textContent = d.maxDist
       ? `${fmtDist(d.maxDist.value)} (${d.maxDist.callsign || '?'})` : '—';
 
-    document.getElementById('s-toptypes').innerHTML = (d.topTypes && d.topTypes.length)
-      ? d.topTypes.map(([t, c]) => `<div class="stat-list-row"><span class="name">${t}</span><span class="count">${c}</span></div>`).join('')
-      : '<div class="stat-list-row"><span class="name">—</span></div>';
-
-    document.getElementById('s-topcallsigns').innerHTML = (d.topCallsigns && d.topCallsigns.length)
-      ? d.topCallsigns.map(([c, n]) => `<div class="stat-list-row"><span class="name">${c}</span><span class="count">${n}</span></div>`).join('')
-      : '<div class="stat-list-row"><span class="name">—</span></div>';
+    document.getElementById('s-toptypes').innerHTML = barListHtml(d.topTypes);
+    document.getElementById('s-topcallsigns').innerHTML = barListHtml(d.topCallsigns);
 
     if (d.directions) renderDirectionChart(d.directions);
   } catch (e) { /* db stats optional, ignore failures */ }
@@ -959,9 +1072,12 @@ updateTrailButtons();
 updateTrailsShowAllButtons();
 updateExternalButtons();
 updateRadiusUI();
+updateRadiusRingButtons();
+updateRadiusRing();
 updateAirportButtons();
 if (showAirports) setAirports(true);
 updateStatsRangeButtons();
+document.getElementById('app-version').textContent = 'v' + APP_VERSION;
 renderLegend();
 refresh();
 setInterval(refresh, 2000);
