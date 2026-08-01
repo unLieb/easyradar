@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>unLieb Radar</title>
+<title>unLieb RADAR</title>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -34,7 +34,8 @@
   #sidebar.collapsed ~ #collapse-btn, #app.collapsed #collapse-btn { left: 0; }
   #sidebar-peek { display: none; }
 
-  #sidebar header { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); }
+  #sidebar header { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; }
+  #sidebar header .brand-logo { width: 44px; height: 44px; flex-shrink: 0; }
   #sidebar header h1 { font-size: 18px; font-weight: 600; margin: 0; color: var(--blue); }
   #sidebar header .version { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
   #sidebar header .count { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
@@ -222,9 +223,12 @@
   <div id="app">
     <div id="sidebar">
       <header onclick="closeSidebarOnMobile()">
-        <h1>unLieb Radar</h1>
-        <div class="version" id="app-version"></div>
-        <div class="count" id="count">Lade Flugzeuge…</div>
+        <img src="logo.png" alt="" class="brand-logo">
+        <div class="brand-text">
+          <h1>unLieb RADAR</h1>
+          <div class="version" id="app-version"></div>
+          <div class="count" id="count">Lade Flugzeuge…</div>
+        </div>
       </header>
 
       <div id="search-bar">
@@ -426,7 +430,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.29.2';
+const APP_VERSION = '0.29.3';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
