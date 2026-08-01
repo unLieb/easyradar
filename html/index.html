@@ -63,9 +63,8 @@
 
   #detail-header { position: sticky; top: 0; z-index: 5; background: var(--card); }
   #detail-header .close { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.85); border: none; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; color: var(--text); font-size: 15px; z-index: 2; }
-  #d-photo-wrap { height: 200px; background: #dde2e7; display: flex; align-items: center; justify-content: center; overflow: hidden; transition: height 0.2s ease; }
+  #d-photo-wrap { height: 200px; background: #dde2e7; display: flex; align-items: center; justify-content: center; overflow: hidden; }
   #d-photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  #d-photo-wrap.shrink { height: 70px; }
   #d-photo-placeholder { font-size: 12px; color: var(--text-muted); padding: 40px 0; }
   #d-photo-credit { font-size: 10px; color: var(--text-muted); text-align: right; padding: 3px 12px; }
   #d-photo-credit a { color: var(--text-muted); }
@@ -421,7 +420,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.29.0';
+const APP_VERSION = '0.29.1';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -470,11 +469,6 @@ function setMapTheme(theme) {
 }
 
 map.on('click', () => { if (selectedHex) closeDetail(); });
-
-document.getElementById('panel-detail').addEventListener('scroll', (e) => {
-  const wrap = document.getElementById('d-photo-wrap');
-  if (wrap) wrap.classList.toggle('shrink', e.target.scrollTop > 40);
-});
 
 document.getElementById('panel-list').addEventListener('click', (e) => {
   if (e.target.id === 'panel-list') closeSidebarOnMobile();
