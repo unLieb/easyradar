@@ -399,6 +399,11 @@
         <button id="radius-ring-on" onclick="setRadiusRing(true)">An</button>
         <button id="radius-ring-off" onclick="setRadiusRing(false)">Aus</button>
       </div>
+      <div class="label" style="margin-top:12px">Rotierende Radar-Nadel (Empfangsradius muss gesetzt sein)</div>
+      <div class="segmented">
+        <button id="radar-sweep-on" onclick="setRadarSweep(true)">An</button>
+        <button id="radar-sweep-off" onclick="setRadarSweep(false)">Aus</button>
+      </div>
       <div class="label" style="margin-top:12px">Empfangskontur auf Karte anzeigen</div>
       <div class="segmented">
         <button id="range-outline-on" onclick="setRangeOutline(true)">An</button>
@@ -430,7 +435,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.29.5';
+const APP_VERSION = '0.30.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -993,6 +998,54 @@ function setRadius(value) {
   radiusKm = n > 0 ? (unitSystem === 'metric' ? n : n * 1.852) : 0;
   localStorage.setItem('radiusKm', radiusKm);
   updateRadiusRing();
+  startRadarSweep();
+}
+
+// Rotating radar sweep needle, length = configured reception radius. Drawn as
+// several trailing lines at decreasing opacity behind the leading edge, to get
+// the classic fading-wedge look of a real radar display cheaply (no SVG
+// gradients needed, just a handful of plain polylines).
+let showRadarSweep = localStorage.getItem('showRadarSweep') === 'true';
+let radarSweepAngle = 0;
+let radarSweepLayer = null;
+let radarSweepTimer = null;
+
+function updateRadarSweepButtons() {
+  document.getElementById('radar-sweep-on').classList.toggle('active', showRadarSweep);
+  document.getElementById('radar-sweep-off').classList.toggle('active', !showRadarSweep);
+}
+
+function stopRadarSweep() {
+  if (radarSweepTimer) { clearInterval(radarSweepTimer); radarSweepTimer = null; }
+  if (radarSweepLayer) { map.removeLayer(radarSweepLayer); radarSweepLayer = null; }
+}
+
+function drawRadarSweep() {
+  if (radarSweepLayer) map.removeLayer(radarSweepLayer);
+  radarSweepAngle = (radarSweepAngle + 4) % 360;
+  const group = L.layerGroup();
+  const trailSteps = 24;
+  for (let i = 0; i < trailSteps; i++) {
+    const a = (radarSweepAngle - i * 2.5 + 360) % 360;
+    const opacity = 0.55 * (1 - i / trailSteps);
+    const [lat, lon] = destPoint(SITE_LAT, SITE_LON, a, radiusKm);
+    L.polyline([[SITE_LAT, SITE_LON], [lat, lon]], { color: '#00e676', weight: i === 0 ? 2.5 : 1.5, opacity }).addTo(group);
+  }
+  group.addTo(map);
+  radarSweepLayer = group;
+}
+
+function startRadarSweep() {
+  stopRadarSweep();
+  if (!showRadarSweep || !radiusKm || radiusKm <= 0) return;
+  radarSweepTimer = setInterval(drawRadarSweep, 60);
+}
+
+function setRadarSweep(on) {
+  showRadarSweep = on;
+  localStorage.setItem('showRadarSweep', on);
+  updateRadarSweepButtons();
+  startRadarSweep();
 }
 
 function updateExternalButtons() {
@@ -1899,6 +1952,8 @@ updateExternalButtons();
 updateRadiusUI();
 updateRadiusRingButtons();
 updateRadiusRing();
+updateRadarSweepButtons();
+startRadarSweep();
 updateRangeOutlineButtons();
 updateRangeOutlineFillButtons();
 updateAirportButtons();
