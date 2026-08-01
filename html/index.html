@@ -375,6 +375,13 @@
         <button id="trails-all-off" onclick="setTrailsShowAll(false)">Aus</button>
       </div>
 
+      <div class="section-title">Benachrichtigungen</div>
+      <div class="label">Browser-Benachrichtigungen bei neuen Meilensteinen und Militärflugzeugen</div>
+      <div class="segmented">
+        <button id="notif-on" onclick="setNotifications(true)">An</button>
+        <button id="notif-off" onclick="setNotifications(false)">Aus</button>
+      </div>
+
       <div class="section-title">Empfang</div>
       <div class="label">Empfangsradius (<span id="radius-unit-label">km</span>, 0 = kein Limit)</div>
       <input type="number" id="radius-input" min="0" step="10" style="width:100%; padding:6px 8px; border:1px solid var(--border); border-radius:8px; font-size:13px; box-sizing:border-box;" onchange="setRadius(this.value)">
@@ -414,7 +421,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.28.2';
+const APP_VERSION = '0.29.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -1556,6 +1563,45 @@ let achievementsFirstLoad = localStorage.getItem('knownAchievementIds') === null
 let knownRecordBrokenAt = JSON.parse(localStorage.getItem('knownRecordBrokenAt') || 'null') || {};
 let recordsFirstLoad = localStorage.getItem('knownRecordBrokenAt') === null;
 
+// Uses the plain Notification API (not full Web Push), so it only fires while
+// this tab/browser is actually running - no service worker or server-side push
+// infrastructure needed. Covers "I have the radar open in the background".
+let notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
+let notifiedMilitaryHexes = new Set();
+
+function showBrowserNotification(title, body) {
+  if (!notificationsEnabled || typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+  try { new Notification(title, { body }); } catch (e) { /* ignore */ }
+}
+
+function updateNotificationButtons() {
+  document.getElementById('notif-on').classList.toggle('active', notificationsEnabled);
+  document.getElementById('notif-off').classList.toggle('active', !notificationsEnabled);
+}
+
+function setNotifications(on) {
+  if (typeof Notification === 'undefined') { updateNotificationButtons(); return; }
+  if (on && Notification.permission !== 'granted') {
+    Notification.requestPermission().then(perm => {
+      notificationsEnabled = perm === 'granted';
+      localStorage.setItem('notificationsEnabled', notificationsEnabled);
+      updateNotificationButtons();
+    });
+    return;
+  }
+  notificationsEnabled = on;
+  localStorage.setItem('notificationsEnabled', on);
+  updateNotificationButtons();
+}
+
+function checkMilitaryNotification(a) {
+  if (notifiedMilitaryHexes.has(a.hex)) return;
+  if (classifyAircraft(a) !== 'militaer') return;
+  notifiedMilitaryHexes.add(a.hex);
+  const label = (a.flight || a.hex || '').trim();
+  showBrowserNotification('🪖 Militärflugzeug entdeckt', `${label}${a.t ? ' · ' + a.t : ''}`.trim());
+}
+
 function showAchievementToast(icon, title, sub) {
   const el = document.createElement('div');
   el.className = 'achievement-toast';
@@ -1616,7 +1662,10 @@ async function fetchAndRenderAchievements() {
         knownAchievementIds.add(u.id);
         if (!achievementsFirstLoad) {
           const meta = ACHIEVEMENTS_CATALOG.find(a => a.id === u.id);
-          if (meta) showAchievementToast(meta.icon, 'Meilenstein freigeschaltet!', meta.title);
+          if (meta) {
+            showAchievementToast(meta.icon, 'Meilenstein freigeschaltet!', meta.title);
+            showBrowserNotification('🎯 Meilenstein freigeschaltet!', meta.title);
+          }
         }
       }
     }
@@ -1748,6 +1797,7 @@ async function refresh() {
     localHexes.add(a.hex);
     if (a.lat == null || a.lon == null || !withinRadius(a)) continue;
     window.currentAircraft[a.hex] = a;
+    checkMilitaryNotification(a);
     a._external = false;
     if (matchesFilterAndSearch(a) || a.hex === selectedHex) {
       seen.add(a.hex);
@@ -1760,6 +1810,7 @@ async function refresh() {
     for (const a of externalAircraft) {
       if (localHexes.has(a.hex) || a.lat == null || !withinRadius(a)) continue;
       window.currentAircraft[a.hex] = a;
+      checkMilitaryNotification(a);
       a._external = true;
       if (matchesFilterAndSearch(a) || a.hex === selectedHex) {
         seen.add(a.hex);
@@ -1824,6 +1875,7 @@ if (sidebarCollapsed) {
   document.getElementById('collapse-btn').innerHTML = '&#9654;';
 }
 updateMapThemeButtons();
+updateNotificationButtons();
 updateUnitButtons();
 updateTrailButtons();
 updateTrailsShowAllButtons();
