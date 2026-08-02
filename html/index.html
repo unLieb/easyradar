@@ -185,6 +185,9 @@
   .segmented { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .segmented button { flex: 1; padding: 7px 0; font-size: 13px; border: none; background: var(--card); color: var(--text); cursor: pointer; }
   .segmented button.active { background: var(--blue); color: #fff; }
+  .settings-sub { margin: 12px 0 0 6px; padding-left: 12px; border-left: 2px solid var(--border); }
+  .settings-sub .label:first-child { margin-top: 0 !important; }
+  #settings-panel .label[title] { cursor: help; text-decoration: underline dotted var(--border); text-underline-offset: 3px; }
 
   @media (max-width: 768px) {
     #sidebar { position: fixed; top: 0; left: 0; width: 100%; min-width: 0; height: 100%; margin-left: 0; transform: translateX(0); transition: transform 0.2s ease; }
@@ -357,7 +360,7 @@
     </div>
 
     <div id="settings-panel">
-      <div class="section-title">Anzeige</div>
+      <div class="section-title">🖥️ Anzeige</div>
       <div class="label">Kartendesign</div>
       <div class="segmented">
         <button id="maptheme-light" onclick="setMapTheme('light')">Hell</button>
@@ -378,45 +381,51 @@
         <button id="trails-on" onclick="setTrails(true)">An</button>
         <button id="trails-off" onclick="setTrails(false)">Aus</button>
       </div>
-      <div class="label" style="margin-top:12px">Alle Flugverläufe anzeigen (statt nur ausgewähltes Flugzeug)</div>
-      <div class="segmented">
-        <button id="trails-all-on" onclick="setTrailsShowAll(true)">An</button>
-        <button id="trails-all-off" onclick="setTrailsShowAll(false)">Aus</button>
+      <div class="settings-sub" id="trails-all-wrap">
+        <div class="label" title="Zeigt den bisherigen Flugweg aller Flugzeuge statt nur des gerade ausgewählten.">Alle Flugverläufe anzeigen (statt nur ausgewähltes Flugzeug)</div>
+        <div class="segmented">
+          <button id="trails-all-on" onclick="setTrailsShowAll(true)">An</button>
+          <button id="trails-all-off" onclick="setTrailsShowAll(false)">Aus</button>
+        </div>
       </div>
 
-      <div class="section-title">Benachrichtigungen</div>
+      <div class="section-title">🔔 Benachrichtigungen</div>
       <div class="label">Browser-Benachrichtigungen bei neuen Meilensteinen und Militärflugzeugen</div>
       <div class="segmented">
         <button id="notif-on" onclick="setNotifications(true)">An</button>
         <button id="notif-off" onclick="setNotifications(false)">Aus</button>
       </div>
 
-      <div class="section-title">Empfang</div>
+      <div class="section-title">📡 Empfang</div>
       <div class="label">Empfangsradius (<span id="radius-unit-label">km</span>, 0 = kein Limit)</div>
       <input type="number" id="radius-input" min="0" step="10" style="width:100%; padding:6px 8px; border:1px solid var(--border); border-radius:8px; font-size:13px; box-sizing:border-box;" onchange="setRadius(this.value)">
-      <div class="label" style="margin-top:12px">Empfangsradius auf Karte anzeigen</div>
-      <div class="segmented">
-        <button id="radius-ring-on" onclick="setRadiusRing(true)">An</button>
-        <button id="radius-ring-off" onclick="setRadiusRing(false)">Aus</button>
+      <div class="settings-sub" id="radius-dependent-wrap">
+        <div class="label">Empfangsradius auf Karte anzeigen</div>
+        <div class="segmented">
+          <button id="radius-ring-on" onclick="setRadiusRing(true)">An</button>
+          <button id="radius-ring-off" onclick="setRadiusRing(false)">Aus</button>
+        </div>
+        <div class="label" style="margin-top:12px" title="Rotierende Linie um deinen Standort, deren Länge dem eingestellten Empfangsradius entspricht - reine Optik, keine echte Messung.">Rotierende Radar-Nadel</div>
+        <div class="segmented">
+          <button id="radar-sweep-on" onclick="setRadarSweep(true)">An</button>
+          <button id="radar-sweep-off" onclick="setRadarSweep(false)">Aus</button>
+        </div>
       </div>
-      <div class="label" style="margin-top:12px">Rotierende Radar-Nadel (Empfangsradius muss gesetzt sein)</div>
-      <div class="segmented">
-        <button id="radar-sweep-on" onclick="setRadarSweep(true)">An</button>
-        <button id="radar-sweep-off" onclick="setRadarSweep(false)">Aus</button>
-      </div>
-      <div class="label" style="margin-top:12px">Empfangskontur auf Karte anzeigen</div>
+      <div class="label" style="margin-top:12px" title="Zeigt, wie weit dein Empfänger tatsächlich in jede Richtung reicht - berechnet aus den bisher empfangenen Positionen, nicht aus dem Empfangsradius oben.">Empfangskontur auf Karte anzeigen</div>
       <div class="segmented">
         <button id="range-outline-on" onclick="setRangeOutline(true)">An</button>
         <button id="range-outline-off" onclick="setRangeOutline(false)">Aus</button>
       </div>
-      <div class="label" style="margin-top:12px">Empfangskontur als Fläche füllen</div>
-      <div class="segmented">
-        <button id="range-outline-fill-on" onclick="setRangeOutlineFill(true)">An</button>
-        <button id="range-outline-fill-off" onclick="setRangeOutlineFill(false)">Aus</button>
+      <div class="settings-sub" id="range-outline-dependent-wrap">
+        <div class="label">Empfangskontur als Fläche füllen</div>
+        <div class="segmented">
+          <button id="range-outline-fill-on" onclick="setRangeOutlineFill(true)">An</button>
+          <button id="range-outline-fill-off" onclick="setRangeOutlineFill(false)">Aus</button>
+        </div>
       </div>
 
-      <div class="section-title">Datenquellen</div>
-      <div class="label">Externe Quelle (adsb.fi)</div>
+      <div class="section-title">🛰 Datenquellen</div>
+      <div class="label" title="Blendet zusätzlich Flugzeuge außerhalb der Reichweite deiner eigenen Antenne ein, gemeldet vom kostenlosen Netzwerk adsb.fi.">Externe Quelle (adsb.fi)</div>
       <div class="segmented">
         <button id="external-on" onclick="setExternal(true)">An</button>
         <button id="external-off" onclick="setExternal(false)">Aus</button>
@@ -435,7 +444,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.30.0';
+const APP_VERSION = '0.30.1';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
@@ -606,6 +615,8 @@ function setRangeOutlineFill(on) {
 function updateRangeOutlineButtons() {
   document.getElementById('range-outline-on').classList.toggle('active', showRangeOutline);
   document.getElementById('range-outline-off').classList.toggle('active', !showRangeOutline);
+  const wrap = document.getElementById('range-outline-dependent-wrap');
+  if (wrap) wrap.style.display = showRangeOutline ? 'block' : 'none';
 }
 
 function setRangeOutline(on) {
@@ -860,6 +871,8 @@ function setUnits(sys) {
 function updateTrailButtons() {
   document.getElementById('trails-on').classList.toggle('active', showTrails);
   document.getElementById('trails-off').classList.toggle('active', !showTrails);
+  const wrap = document.getElementById('trails-all-wrap');
+  if (wrap) wrap.style.display = showTrails ? 'block' : 'none';
 }
 
 function setTrailVisibility(hex, visible) {
@@ -991,6 +1004,8 @@ function updateRadiusUI() {
   document.getElementById('radius-unit-label').textContent = unitSystem === 'metric' ? 'km' : 'nm';
   const displayVal = radiusKm > 0 ? (unitSystem === 'metric' ? Math.round(radiusKm) : Math.round(radiusKm / 1.852)) : '';
   document.getElementById('radius-input').value = displayVal;
+  const wrap = document.getElementById('radius-dependent-wrap');
+  if (wrap) wrap.style.display = radiusKm > 0 ? 'block' : 'none';
 }
 
 function setRadius(value) {
@@ -999,6 +1014,7 @@ function setRadius(value) {
   localStorage.setItem('radiusKm', radiusKm);
   updateRadiusRing();
   startRadarSweep();
+  updateRadiusUI();
 }
 
 // Rotating radar sweep needle, length = configured reception radius. Drawn as
