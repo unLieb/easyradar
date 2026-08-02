@@ -522,7 +522,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.36.1';
+const APP_VERSION = '0.36.2';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -2072,7 +2072,11 @@ function renderAchievements(unlockedList, cumMessages) {
   renderAchievementsView();
 }
 
+let achievementsFetchInFlight = false;
+
 async function fetchAndRenderAchievements() {
+  if (achievementsFetchInFlight) return;
+  achievementsFetchInFlight = true;
   try {
     const res = await fetch('/stats-api/achievements', { cache: 'no-store' });
     const d = await res.json();
@@ -2108,6 +2112,7 @@ async function fetchAndRenderAchievements() {
 
     renderAchievements(unlocked, d.messagesAccumulated || 0);
   } catch (e) { /* achievements optional, ignore failures */ }
+  finally { achievementsFetchInFlight = false; }
 }
 
 async function fetchAndRenderDbStats() {
@@ -2194,7 +2199,17 @@ function renderDirectionChart(directions) {
   container.innerHTML = `<div style="display:flex; justify-content:center; padding:4px 0; margin:0 -14px;">${svg}</div>`;
 }
 
+// Guards against overlapping calls: setInterval doesn't wait for a slow previous
+// tick to finish, and if refresh() (or fetchAndRenderAchievements below) is still
+// mid-flight when the next tick fires, two concurrent runs can both pass a
+// "already notified?" check before either has recorded it, firing duplicate
+// notifications for the same event.
+let refreshInFlight = false;
+
 async function refresh() {
+  if (refreshInFlight) return;
+  refreshInFlight = true;
+  try {
   let data;
   try {
     const res = await fetch('/data/aircraft.json', { cache: 'no-store' });
@@ -2263,6 +2278,9 @@ async function refresh() {
 
   if (selectedHex && seen.has(selectedHex)) { showDetail(selectedHex); }
   else if (selectedHex) closeDetail();
+  } finally {
+    refreshInFlight = false;
+  }
 }
 
 function renderList(withPos) {
