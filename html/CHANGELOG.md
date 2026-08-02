@@ -12,3 +12,10 @@ Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
 ## 0.38.1 – 2026-08-02
 - Schreibweise auf "easyRADAR" (ohne Leerzeichen) vereinheitlicht
+
+## 0.39.0 – 2026-08-02
+- Herkunftsland wird in der Flugzeug-Detailansicht jetzt zusätzlich zur Flagge ausgeschrieben
+- "Betreiber" erscheint nur noch, wenn er sich vom Airline-Namen unterscheidet
+
+## 0.40.0 – 2026-08-02
+- Seltene Flugzeuge (A380, Concorde, Militärtransporter, NASA-Flugzeuge u. a.) werden in der Flugzeugliste jetzt mit einem kleinen ⭐ markiert, statt erst im Nachhinein über den Meilenstein aufzufallen
