@@ -37,7 +37,8 @@
   #sidebar header { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; }
   #sidebar header .brand-logo { width: 44px; height: 44px; flex-shrink: 0; }
   #sidebar header h1 { font-size: 18px; font-weight: 600; margin: 0; color: var(--blue); }
-  #sidebar header .version { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+  #sidebar header .version { font-size: 10px; color: var(--text-muted); margin-top: 1px; text-decoration: none; display: inline-block; }
+  #sidebar header .version:hover { text-decoration: underline; }
   #sidebar header .count { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
 
   #search-bar { padding: 10px 18px 0; }
@@ -277,7 +278,7 @@
         <img src="logo.png" alt="" class="brand-logo">
         <div class="brand-text">
           <h1>unLieb RADAR</h1>
-          <div class="version" id="app-version"></div>
+          <a class="version" id="app-version" href="/CHANGELOG.md" target="_blank" rel="noopener" title="Änderungsprotokoll ansehen"></a>
           <div class="count" id="count">Lade Flugzeuge…</div>
         </div>
       </header>
@@ -522,7 +523,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.36.2';
+const APP_VERSION = '0.37.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
