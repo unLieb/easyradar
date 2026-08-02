@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>unLieb RADAR</title>
+<title>easy RADAR</title>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -277,7 +277,7 @@
       <header onclick="closeSidebarOnMobile()">
         <img src="logo.png" alt="" class="brand-logo">
         <div class="brand-text">
-          <h1>unLieb RADAR</h1>
+          <h1>easy RADAR</h1>
           <a class="version" id="app-version" href="/CHANGELOG.md" target="_blank" rel="noopener" title="Änderungsprotokoll ansehen"></a>
           <div class="count" id="count">Lade Flugzeuge…</div>
         </div>
@@ -352,6 +352,7 @@
         <span class="status-item">✈️ <span id="status-count">0</span> Flugzeuge</span>
         <span class="status-item">📨 <span id="status-msgrate">—</span> msg/s</span>
         <span class="status-item">📍 <span id="status-location">—</span></span>
+        <span class="status-item" id="status-station-wrap" style="display:none">🏷️ <span id="status-station">—</span></span>
         <span class="status-item">🕒 Aktualisiert vor <span id="status-age">—</span></span>
       </div>
     </div>
@@ -523,7 +524,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.37.0';
+const APP_VERSION = '0.38.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -2073,6 +2074,21 @@ function renderAchievements(unlockedList, cumMessages) {
   renderAchievementsView();
 }
 
+// Station name (e.g. the MLAT/aggregator callsign) comes from the operator's own
+// docker-compose STATION_NAME env var, not from anything hardcoded in the app -
+// on someone else's deployment this shows their own name instead. Fetched once,
+// since it never changes at runtime.
+async function loadStationName() {
+  try {
+    const res = await fetch('/stats-api/station', { cache: 'no-store' });
+    const d = await res.json();
+    if (d.name) {
+      document.getElementById('status-station').textContent = d.name;
+      document.getElementById('status-station-wrap').style.display = '';
+    }
+  } catch (e) { /* optional, ignore failures */ }
+}
+
 let achievementsFetchInFlight = false;
 
 async function fetchAndRenderAchievements() {
@@ -2341,6 +2357,7 @@ updatePhotosEnabledButtons();
 updateRefreshRateButtons();
 document.getElementById('app-version').textContent = 'v' + APP_VERSION;
 renderLegend();
+loadStationName();
 refresh();
 refreshTimer = setInterval(refresh, refreshRateMs);
 </script>
