@@ -187,7 +187,17 @@
   .segmented button.active { background: var(--blue); color: #fff; }
   .settings-sub { margin: 12px 0 0 6px; padding-left: 12px; border-left: 2px solid var(--border); }
   .settings-sub .label:first-child { margin-top: 0 !important; }
+  .settings-sub .toggle-row:first-child { margin-top: 0 !important; }
   #settings-panel .label[title] { cursor: help; text-decoration: underline dotted var(--border); text-underline-offset: 3px; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; cursor: pointer; }
+  .toggle-row[title] .label { cursor: help; text-decoration: underline dotted var(--border); text-underline-offset: 3px; }
+  .toggle-switch { position: relative; display: inline-block; width: 40px; height: 23px; flex-shrink: 0; }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 24px; transition: background 0.15s; }
+  .toggle-slider::before { content: ''; position: absolute; width: 17px; height: 17px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform 0.15s; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  .toggle-switch input:checked + .toggle-slider { background: var(--blue); }
+  .toggle-switch input:checked + .toggle-slider::before { transform: translateX(17px); }
+  body.no-animations *, body.no-animations *::before, body.no-animations *::after { animation: none !important; transition: none !important; }
 
   @media (max-width: 768px) {
     #sidebar { position: fixed; top: 0; left: 0; width: 100%; min-width: 0; height: 100%; margin-left: 0; transform: translateX(0); transition: transform 0.2s ease; }
@@ -371,65 +381,80 @@
         <button id="unit-metric" onclick="setUnits('metric')">Metrisch</button>
         <button id="unit-imperial" onclick="setUnits('imperial')">Imperial</button>
       </div>
-      <div class="label" style="margin-top:12px">Flughäfen</div>
+      <div class="label" style="margin-top:12px">Markergröße</div>
       <div class="segmented">
-        <button id="airports-on" onclick="setAirports(true)">An</button>
-        <button id="airports-off" onclick="setAirports(false)">Aus</button>
+        <button id="markersize-small" onclick="setMarkerSize('small')">Klein</button>
+        <button id="markersize-medium" onclick="setMarkerSize('medium')">Mittel</button>
+        <button id="markersize-large" onclick="setMarkerSize('large')">Groß</button>
       </div>
-      <div class="label" style="margin-top:12px">Flugverlauf</div>
-      <div class="segmented">
-        <button id="trails-on" onclick="setTrails(true)">An</button>
-        <button id="trails-off" onclick="setTrails(false)">Aus</button>
-      </div>
+      <label class="toggle-row" style="margin-top:12px" title="Merkt sich Kartenausschnitt und Zoomstufe zwischen Besuchen, statt beim Start immer auf den Empfänger zu zentrieren.">
+        <span class="label" style="margin:0">Beim Start letzte Kartenposition merken</span>
+        <span class="toggle-switch"><input type="checkbox" id="remember-view-toggle" onchange="setRememberView(this.checked)"><span class="toggle-slider"></span></span>
+      </label>
+      <label class="toggle-row" title="Deaktiviert die rotierende Radar-Nadel und andere Bewegungseffekte in der Oberfläche.">
+        <span class="label" style="margin:0">Animationen</span>
+        <span class="toggle-switch"><input type="checkbox" id="animations-toggle" onchange="setAnimations(this.checked)"><span class="toggle-slider"></span></span>
+      </label>
+      <label class="toggle-row" title="Aus spart Datenvolumen - es werden dann keine Flugzeugfotos von planespotters.net mehr geladen.">
+        <span class="label" style="margin:0">Flugzeugbilder</span>
+        <span class="toggle-switch"><input type="checkbox" id="photos-toggle" onchange="setPhotosEnabled(this.checked)"><span class="toggle-slider"></span></span>
+      </label>
+      <label class="toggle-row">
+        <span class="label" style="margin:0">Flughäfen</span>
+        <span class="toggle-switch"><input type="checkbox" id="airports-toggle" onchange="setAirports(this.checked)"><span class="toggle-slider"></span></span>
+      </label>
+      <label class="toggle-row">
+        <span class="label" style="margin:0">Flugverlauf</span>
+        <span class="toggle-switch"><input type="checkbox" id="trails-toggle" onchange="setTrails(this.checked)"><span class="toggle-slider"></span></span>
+      </label>
       <div class="settings-sub" id="trails-all-wrap">
-        <div class="label" title="Zeigt den bisherigen Flugweg aller Flugzeuge statt nur des gerade ausgewählten.">Alle Flugverläufe anzeigen (statt nur ausgewähltes Flugzeug)</div>
-        <div class="segmented">
-          <button id="trails-all-on" onclick="setTrailsShowAll(true)">An</button>
-          <button id="trails-all-off" onclick="setTrailsShowAll(false)">Aus</button>
-        </div>
+        <label class="toggle-row" title="Zeigt den bisherigen Flugweg aller Flugzeuge statt nur des gerade ausgewählten.">
+          <span class="label" style="margin:0">Alle Flugverläufe anzeigen</span>
+          <span class="toggle-switch"><input type="checkbox" id="trails-all-toggle" onchange="setTrailsShowAll(this.checked)"><span class="toggle-slider"></span></span>
+        </label>
       </div>
 
       <div class="section-title">🔔 Benachrichtigungen</div>
-      <div class="label">Browser-Benachrichtigungen bei neuen Meilensteinen und Militärflugzeugen</div>
-      <div class="segmented">
-        <button id="notif-on" onclick="setNotifications(true)">An</button>
-        <button id="notif-off" onclick="setNotifications(false)">Aus</button>
-      </div>
+      <label class="toggle-row">
+        <span class="label" style="margin:0">Browser-Benachrichtigungen bei neuen Meilensteinen und Militärflugzeugen</span>
+        <span class="toggle-switch"><input type="checkbox" id="notif-toggle" onchange="setNotifications(this.checked)"><span class="toggle-slider"></span></span>
+      </label>
 
       <div class="section-title">📡 Empfang</div>
       <div class="label">Empfangsradius (<span id="radius-unit-label">km</span>, 0 = kein Limit)</div>
       <input type="number" id="radius-input" min="0" step="10" style="width:100%; padding:6px 8px; border:1px solid var(--border); border-radius:8px; font-size:13px; box-sizing:border-box;" onchange="setRadius(this.value)">
       <div class="settings-sub" id="radius-dependent-wrap">
-        <div class="label">Empfangsradius auf Karte anzeigen</div>
-        <div class="segmented">
-          <button id="radius-ring-on" onclick="setRadiusRing(true)">An</button>
-          <button id="radius-ring-off" onclick="setRadiusRing(false)">Aus</button>
-        </div>
-        <div class="label" style="margin-top:12px" title="Rotierende Linie um deinen Standort, deren Länge dem eingestellten Empfangsradius entspricht - reine Optik, keine echte Messung.">Rotierende Radar-Nadel</div>
-        <div class="segmented">
-          <button id="radar-sweep-on" onclick="setRadarSweep(true)">An</button>
-          <button id="radar-sweep-off" onclick="setRadarSweep(false)">Aus</button>
-        </div>
+        <label class="toggle-row">
+          <span class="label" style="margin:0">Empfangsradius auf Karte anzeigen</span>
+          <span class="toggle-switch"><input type="checkbox" id="radius-ring-toggle" onchange="setRadiusRing(this.checked)"><span class="toggle-slider"></span></span>
+        </label>
+        <label class="toggle-row" title="Rotierende Linie um deinen Standort, deren Länge dem eingestellten Empfangsradius entspricht - reine Optik, keine echte Messung.">
+          <span class="label" style="margin:0">Rotierende Radar-Nadel</span>
+          <span class="toggle-switch"><input type="checkbox" id="radar-sweep-toggle" onchange="setRadarSweep(this.checked)"><span class="toggle-slider"></span></span>
+        </label>
       </div>
-      <div class="label" style="margin-top:12px" title="Zeigt, wie weit dein Empfänger tatsächlich in jede Richtung reicht - berechnet aus den bisher empfangenen Positionen, nicht aus dem Empfangsradius oben.">Empfangskontur auf Karte anzeigen</div>
-      <div class="segmented">
-        <button id="range-outline-on" onclick="setRangeOutline(true)">An</button>
-        <button id="range-outline-off" onclick="setRangeOutline(false)">Aus</button>
-      </div>
+      <label class="toggle-row" style="margin-top:12px" title="Zeigt, wie weit dein Empfänger tatsächlich in jede Richtung reicht - berechnet aus den bisher empfangenen Positionen, nicht aus dem Empfangsradius oben.">
+        <span class="label" style="margin:0">Empfangskontur auf Karte anzeigen</span>
+        <span class="toggle-switch"><input type="checkbox" id="range-outline-toggle" onchange="setRangeOutline(this.checked)"><span class="toggle-slider"></span></span>
+      </label>
       <div class="settings-sub" id="range-outline-dependent-wrap">
-        <div class="label">Empfangskontur als Fläche füllen</div>
-        <div class="segmented">
-          <button id="range-outline-fill-on" onclick="setRangeOutlineFill(true)">An</button>
-          <button id="range-outline-fill-off" onclick="setRangeOutlineFill(false)">Aus</button>
-        </div>
+        <label class="toggle-row">
+          <span class="label" style="margin:0">Empfangskontur als Fläche füllen</span>
+          <span class="toggle-switch"><input type="checkbox" id="range-outline-fill-toggle" onchange="setRangeOutlineFill(this.checked)"><span class="toggle-slider"></span></span>
+        </label>
+      </div>
+      <div class="label" style="margin-top:12px" title="Wie oft die Flugzeugliste vom Empfänger aktualisiert wird. Kürzer = aktueller, aber mehr CPU/Netzwerklast.">Aktualisierungsrate</div>
+      <div class="segmented">
+        <button id="refresh-1000" onclick="setRefreshRate(1000)">1 s</button>
+        <button id="refresh-2000" onclick="setRefreshRate(2000)">2 s</button>
+        <button id="refresh-5000" onclick="setRefreshRate(5000)">5 s</button>
       </div>
 
       <div class="section-title">🛰 Datenquellen</div>
-      <div class="label" title="Blendet zusätzlich Flugzeuge außerhalb der Reichweite deiner eigenen Antenne ein, gemeldet vom kostenlosen Netzwerk adsb.fi.">Externe Quelle (adsb.fi)</div>
-      <div class="segmented">
-        <button id="external-on" onclick="setExternal(true)">An</button>
-        <button id="external-off" onclick="setExternal(false)">Aus</button>
-      </div>
+      <label class="toggle-row" title="Blendet zusätzlich Flugzeuge außerhalb der Reichweite deiner eigenen Antenne ein, gemeldet vom kostenlosen Netzwerk adsb.fi.">
+        <span class="label" style="margin:0">Externe Quelle (adsb.fi)</span>
+        <span class="toggle-switch"><input type="checkbox" id="external-toggle" onchange="setExternal(this.checked)"><span class="toggle-slider"></span></span>
+      </label>
     </div>
   </div>
 </div>
@@ -444,11 +469,23 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.30.1';
+const APP_VERSION = '0.31.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
-const map = L.map('map', { zoomControl: false }).setView([SITE_LAT, SITE_LON], 8);
+let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
+if (localStorage.getItem('rememberView') === 'true') {
+  try {
+    const saved = JSON.parse(localStorage.getItem('lastMapView'));
+    if (saved) initialView = { center: [saved.lat, saved.lng], zoom: saved.zoom };
+  } catch (e) {}
+}
+const map = L.map('map', { zoomControl: false }).setView(initialView.center, initialView.zoom);
 L.control.zoom({ position: 'topright' }).addTo(map);
+map.on('moveend zoomend', () => {
+  if (!showRememberView) return;
+  const c = map.getCenter();
+  localStorage.setItem('lastMapView', JSON.stringify({ lat: c.lat, lng: c.lng, zoom: map.getZoom() }));
+});
 
 // Vector basemap (MapLibre GL via the leaflet bridge) instead of raster tiles: lets
 // us fix CARTO's default style, which hardcodes English names for country/state/big-city
@@ -536,8 +573,7 @@ function updateRadiusRing() {
 }
 
 function updateRadiusRingButtons() {
-  document.getElementById('radius-ring-on').classList.toggle('active', showRadiusRing);
-  document.getElementById('radius-ring-off').classList.toggle('active', !showRadiusRing);
+  document.getElementById('radius-ring-toggle').checked = showRadiusRing;
 }
 
 function setRadiusRing(on) {
@@ -601,8 +637,7 @@ function updateRangeOutline() {
 }
 
 function updateRangeOutlineFillButtons() {
-  document.getElementById('range-outline-fill-on').classList.toggle('active', showRangeOutlineFill);
-  document.getElementById('range-outline-fill-off').classList.toggle('active', !showRangeOutlineFill);
+  document.getElementById('range-outline-fill-toggle').checked = showRangeOutlineFill;
 }
 
 function setRangeOutlineFill(on) {
@@ -613,8 +648,7 @@ function setRangeOutlineFill(on) {
 }
 
 function updateRangeOutlineButtons() {
-  document.getElementById('range-outline-on').classList.toggle('active', showRangeOutline);
-  document.getElementById('range-outline-off').classList.toggle('active', !showRangeOutline);
+  document.getElementById('range-outline-toggle').checked = showRangeOutline;
   const wrap = document.getElementById('range-outline-dependent-wrap');
   if (wrap) wrap.style.display = showRangeOutline ? 'block' : 'none';
 }
@@ -639,6 +673,12 @@ let lastWithPos = [];
 let radiusKm = parseFloat(localStorage.getItem('radiusKm')) || 0;
 let externalEnabled = localStorage.getItem('externalEnabled') === 'true';
 let externalAircraft = [];
+let markerSize = localStorage.getItem('markerSize') || 'medium';
+let showRememberView = localStorage.getItem('rememberView') === 'true';
+let animationsEnabled = localStorage.getItem('animationsEnabled') !== 'false';
+let photosEnabled = localStorage.getItem('photosEnabled') !== 'false';
+let refreshRateMs = parseInt(localStorage.getItem('refreshRateMs')) || 2000;
+let refreshTimer = null;
 
 let lastMsgTotal = null, lastMsgTime = null;
 let lastRefreshTime = null;
@@ -869,8 +909,7 @@ function setUnits(sys) {
 }
 
 function updateTrailButtons() {
-  document.getElementById('trails-on').classList.toggle('active', showTrails);
-  document.getElementById('trails-off').classList.toggle('active', !showTrails);
+  document.getElementById('trails-toggle').checked = showTrails;
   const wrap = document.getElementById('trails-all-wrap');
   if (wrap) wrap.style.display = showTrails ? 'block' : 'none';
 }
@@ -900,8 +939,7 @@ function setTrails(on) {
 }
 
 function updateTrailsShowAllButtons() {
-  document.getElementById('trails-all-on').classList.toggle('active', trailsShowAll);
-  document.getElementById('trails-all-off').classList.toggle('active', !trailsShowAll);
+  document.getElementById('trails-all-toggle').checked = trailsShowAll;
 }
 
 function setTrailsShowAll(on) {
@@ -984,8 +1022,7 @@ async function loadAirports() {
 }
 
 function updateAirportButtons() {
-  document.getElementById('airports-on').classList.toggle('active', showAirports);
-  document.getElementById('airports-off').classList.toggle('active', !showAirports);
+  document.getElementById('airports-toggle').checked = showAirports;
 }
 
 async function setAirports(on) {
@@ -1027,8 +1064,7 @@ let radarSweepLayer = null;
 let radarSweepTimer = null;
 
 function updateRadarSweepButtons() {
-  document.getElementById('radar-sweep-on').classList.toggle('active', showRadarSweep);
-  document.getElementById('radar-sweep-off').classList.toggle('active', !showRadarSweep);
+  document.getElementById('radar-sweep-toggle').checked = showRadarSweep;
 }
 
 function stopRadarSweep() {
@@ -1053,7 +1089,7 @@ function drawRadarSweep() {
 
 function startRadarSweep() {
   stopRadarSweep();
-  if (!showRadarSweep || !radiusKm || radiusKm <= 0) return;
+  if (!showRadarSweep || !animationsEnabled || !radiusKm || radiusKm <= 0) return;
   radarSweepTimer = setInterval(drawRadarSweep, 60);
 }
 
@@ -1065,8 +1101,7 @@ function setRadarSweep(on) {
 }
 
 function updateExternalButtons() {
-  document.getElementById('external-on').classList.toggle('active', externalEnabled);
-  document.getElementById('external-off').classList.toggle('active', !externalEnabled);
+  document.getElementById('external-toggle').checked = externalEnabled;
 }
 
 function setExternal(on) {
@@ -1075,6 +1110,67 @@ function setExternal(on) {
   updateExternalButtons();
   renderLegend();
   if (!on) externalAircraft = [];
+}
+
+function updateMarkerSizeButtons() {
+  for (const s of ['small', 'medium', 'large']) {
+    document.getElementById('markersize-' + s).classList.toggle('active', markerSize === s);
+  }
+}
+
+function setMarkerSize(size) {
+  markerSize = size;
+  localStorage.setItem('markerSize', size);
+  updateMarkerSizeButtons();
+  refresh();
+}
+
+function updateRememberViewButtons() {
+  document.getElementById('remember-view-toggle').checked = showRememberView;
+}
+
+function setRememberView(on) {
+  showRememberView = on;
+  localStorage.setItem('rememberView', on);
+  if (!on) localStorage.removeItem('lastMapView');
+  updateRememberViewButtons();
+}
+
+function updateAnimationsButtons() {
+  document.getElementById('animations-toggle').checked = animationsEnabled;
+}
+
+function setAnimations(on) {
+  animationsEnabled = on;
+  localStorage.setItem('animationsEnabled', on);
+  document.body.classList.toggle('no-animations', !on);
+  updateAnimationsButtons();
+  startRadarSweep();
+}
+
+function updatePhotosEnabledButtons() {
+  document.getElementById('photos-toggle').checked = photosEnabled;
+}
+
+function setPhotosEnabled(on) {
+  photosEnabled = on;
+  localStorage.setItem('photosEnabled', on);
+  updatePhotosEnabledButtons();
+  if (selectedHex) loadPhoto(selectedHex);
+}
+
+function updateRefreshRateButtons() {
+  for (const ms of [1000, 2000, 5000]) {
+    document.getElementById('refresh-' + ms).classList.toggle('active', refreshRateMs === ms);
+  }
+}
+
+function setRefreshRate(ms) {
+  refreshRateMs = ms;
+  localStorage.setItem('refreshRateMs', ms);
+  updateRefreshRateButtons();
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(refresh, refreshRateMs);
 }
 
 document.addEventListener('click', (e) => {
@@ -1109,12 +1205,14 @@ function planeColor(a, isExternal) {
   return isExternal ? EXTERNAL_COLOR : altColor(a.alt_baro);
 }
 
+const MARKER_SIZE_FACTORS = { small: 0.75, medium: 1, large: 1.35 };
+
 function getPlaneIcon(a, colorOverride) {
   const color = colorOverride;
   const type = (a.t || '').toUpperCase() || null;
   const [shapeName, scale] = getBaseMarker(a.category || null, type, null, null, a.type || null, a.alt_baro, false);
   const shape = shapes[shapeName] || shapes['unknown'];
-  const renderScale = scale * 1.1;
+  const renderScale = scale * 1.1 * (MARKER_SIZE_FACTORS[markerSize] || 1);
   const svg = svgShapeToSVG(shape, color, '#ffffff', 1, renderScale);
   return { svg, w: shape.w * renderScale, h: shape.h * renderScale };
 }
@@ -1191,6 +1289,11 @@ function renderPhoto(photo) {
 }
 
 async function loadPhoto(hex) {
+  if (!photosEnabled) {
+    document.getElementById('d-photo-wrap').innerHTML = '<div id="d-photo-placeholder">Flugzeugbilder deaktiviert</div>';
+    document.getElementById('d-photo-credit').style.display = 'none';
+    return;
+  }
   if (photoCache[hex] !== undefined) { renderPhoto(photoCache[hex]); return; }
   document.getElementById('d-photo-wrap').innerHTML = '<div id="d-photo-placeholder">Lade Foto…</div>';
   document.getElementById('d-photo-credit').style.display = 'none';
@@ -1660,8 +1763,7 @@ function showBrowserNotification(title, body) {
 }
 
 function updateNotificationButtons() {
-  document.getElementById('notif-on').classList.toggle('active', notificationsEnabled);
-  document.getElementById('notif-off').classList.toggle('active', !notificationsEnabled);
+  document.getElementById('notif-toggle').checked = notificationsEnabled;
 }
 
 function setNotifications(on) {
@@ -1975,10 +2077,16 @@ updateRangeOutlineFillButtons();
 updateAirportButtons();
 if (showAirports) setAirports(true);
 updateStatsRangeButtons();
+updateMarkerSizeButtons();
+updateRememberViewButtons();
+updateAnimationsButtons();
+document.body.classList.toggle('no-animations', !animationsEnabled);
+updatePhotosEnabledButtons();
+updateRefreshRateButtons();
 document.getElementById('app-version').textContent = 'v' + APP_VERSION;
 renderLegend();
 refresh();
-setInterval(refresh, 2000);
+refreshTimer = setInterval(refresh, refreshRateMs);
 </script>
 </body>
 </html>
