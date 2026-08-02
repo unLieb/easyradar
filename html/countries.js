@@ -231,3 +231,51 @@ function flagForHex(hex) {
   flagCache[hex] = html;
   return html;
 }
+
+// German display names for every ISO 3166-1 alpha-2 code used in ICAO_COUNTRY_RANGES -
+// not everyone recognizes every flag, so the detail panel spells the country out too.
+const COUNTRY_NAMES = {
+  ad: 'Andorra', ae: 'Vereinigte Arabische Emirate', af: 'Afghanistan', ag: 'Antigua und Barbuda',
+  al: 'Albanien', am: 'Armenien', ao: 'Angola', ar: 'Argentinien', at: 'Österreich', au: 'Australien',
+  az: 'Aserbaidschan', ba: 'Bosnien und Herzegowina', bb: 'Barbados', bd: 'Bangladesch', be: 'Belgien',
+  bf: 'Burkina Faso', bg: 'Bulgarien', bh: 'Bahrain', bi: 'Burundi', bj: 'Benin', bm: 'Bermuda',
+  bn: 'Brunei', bo: 'Bolivien', br: 'Brasilien', bs: 'Bahamas', bt: 'Bhutan', bw: 'Botswana',
+  by: 'Belarus', bz: 'Belize', ca: 'Kanada', cd: 'Demokratische Republik Kongo',
+  cf: 'Zentralafrikanische Republik', cg: 'Republik Kongo', ch: 'Schweiz', ci: 'Elfenbeinküste',
+  cl: 'Chile', cm: 'Kamerun', cn: 'China', co: 'Kolumbien', cr: 'Costa Rica', cu: 'Kuba',
+  cv: 'Kap Verde', cy: 'Zypern', cz: 'Tschechien', de: 'Deutschland', dj: 'Dschibuti', dk: 'Dänemark',
+  dm: 'Dominica', do: 'Dominikanische Republik', dz: 'Algerien', ec: 'Ecuador', ee: 'Estland',
+  eg: 'Ägypten', er: 'Eritrea', es: 'Spanien', et: 'Äthiopien', fi: 'Finnland', fj: 'Fidschi',
+  fm: 'Mikronesien', fr: 'Frankreich', ga: 'Gabun', gb: 'Großbritannien', gd: 'Grenada',
+  ge: 'Georgien', gg: 'Guernsey', gh: 'Ghana', gm: 'Gambia', gn: 'Guinea', gq: 'Äquatorialguinea',
+  gr: 'Griechenland', gt: 'Guatemala', gw: 'Guinea-Bissau', gy: 'Guyana', hk: 'Hongkong',
+  hn: 'Honduras', hr: 'Kroatien', ht: 'Haiti', hu: 'Ungarn', id: 'Indonesien', ie: 'Irland',
+  il: 'Israel', im: 'Isle of Man', in: 'Indien', iq: 'Irak', ir: 'Iran', is: 'Island', it: 'Italien',
+  jm: 'Jamaika', jo: 'Jordanien', jp: 'Japan', ke: 'Kenia', kg: 'Kirgisistan', kh: 'Kambodscha',
+  ki: 'Kiribati', km: 'Komoren', kn: 'St. Kitts und Nevis', kp: 'Nordkorea', kr: 'Südkorea',
+  kw: 'Kuwait', ky: 'Cayman-Inseln', kz: 'Kasachstan', la: 'Laos', lb: 'Libanon', lc: 'St. Lucia',
+  lk: 'Sri Lanka', lr: 'Liberia', ls: 'Lesotho', lt: 'Litauen', lu: 'Luxemburg', lv: 'Lettland',
+  ly: 'Libyen', ma: 'Marokko', mc: 'Monaco', md: 'Moldau', me: 'Montenegro', mg: 'Madagaskar',
+  mh: 'Marshallinseln', mk: 'Nordmazedonien', ml: 'Mali', mm: 'Myanmar', mn: 'Mongolei',
+  mr: 'Mauretanien', mt: 'Malta', mu: 'Mauritius', mv: 'Malediven', mw: 'Malawi', mx: 'Mexiko',
+  my: 'Malaysia', mz: 'Mosambik', na: 'Namibia', ne: 'Niger', ng: 'Nigeria', ni: 'Nicaragua',
+  nl: 'Niederlande', no: 'Norwegen', np: 'Nepal', nr: 'Nauru', nz: 'Neuseeland', om: 'Oman',
+  pa: 'Panama', pe: 'Peru', pg: 'Papua-Neuguinea', ph: 'Philippinen', pk: 'Pakistan', pl: 'Polen',
+  pt: 'Portugal', pw: 'Palau', py: 'Paraguay', qa: 'Katar', ro: 'Rumänien', rs: 'Serbien',
+  ru: 'Russland', rw: 'Ruanda', sa: 'Saudi-Arabien', sb: 'Salomonen', sc: 'Seychellen', sd: 'Sudan',
+  se: 'Schweden', sg: 'Singapur', si: 'Slowenien', sk: 'Slowakei', sl: 'Sierra Leone',
+  sm: 'San Marino', sn: 'Senegal', so: 'Somalia', sr: 'Suriname', ss: 'Südsudan',
+  st: 'São Tomé und Príncipe', sv: 'El Salvador', sy: 'Syrien', sz: 'Eswatini',
+  tc: 'Turks- und Caicosinseln', td: 'Tschad', tg: 'Togo', th: 'Thailand', tj: 'Tadschikistan',
+  tl: 'Osttimor', tm: 'Turkmenistan', tn: 'Tunesien', to: 'Tonga', tr: 'Türkei',
+  tt: 'Trinidad und Tobago', tv: 'Tuvalu', tw: 'Taiwan', tz: 'Tansania', ua: 'Ukraine',
+  ug: 'Uganda', us: 'USA', uy: 'Uruguay', uz: 'Usbekistan', vc: 'St. Vincent und die Grenadinen',
+  ve: 'Venezuela', vn: 'Vietnam', vu: 'Vanuatu', ws: 'Samoa', ye: 'Jemen', za: 'Südafrika',
+  zm: 'Sambia', zw: 'Simbabwe'
+};
+
+function countryNameForHex(hex) {
+  const cc = countryCodeForHex(hex);
+  if (!cc) return null;
+  return COUNTRY_NAMES[cc] || cc.toUpperCase();
+}

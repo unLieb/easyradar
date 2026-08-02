@@ -52,7 +52,7 @@
   #favorites-chip.active { background: #f9a825; border-color: #f9a825; color: #fff; }
 
   #panel-list { flex: 1; overflow-y: auto; }
-  .plane-row .flag-icon { width: 16px; height: auto; margin-right: 6px; border-radius: 2px; vertical-align: middle; box-shadow: 0 0 0 1px rgba(0,0,0,0.08); }
+  .plane-row .flag-icon, .flag-icon { width: 16px; height: auto; margin-right: 6px; border-radius: 2px; vertical-align: middle; box-shadow: 0 0 0 1px rgba(0,0,0,0.08); }
   .plane-row .star { cursor: pointer; margin-right: 4px; color: var(--border); }
   .plane-row .star.on { color: #f9a825; }
   .plane-row { padding: 12px 16px; margin: 2px 8px; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.15s; }
@@ -315,8 +315,9 @@
           <div class="section-title">Flug</div>
           <div class="row"><span class="label">ICAO-Typ</span><span class="value" id="d-icaotype">—</span></div>
           <div id="d-airline-row" class="row" style="display:none"><span class="label">Airline</span><span class="value" id="d-airline">—</span></div>
-          <div class="row"><span class="label">Betreiber</span><span class="value" id="d-operator">—</span></div>
+          <div id="d-operator-row" class="row"><span class="label">Betreiber</span><span class="value" id="d-operator">—</span></div>
           <div class="row"><span class="label">Registrierung</span><span class="value" id="d-reg">—</span></div>
+          <div id="d-country-row" class="row" style="display:none"><span class="label">Herkunftsland</span><span class="value" id="d-country">—</span></div>
 
           <div class="section-title" id="d-route-title" style="display:none">Route</div>
           <div id="d-route" style="display:none"></div>
@@ -524,7 +525,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.38.1';
+const APP_VERSION = '0.39.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -1420,12 +1421,31 @@ async function loadPhoto(hex) {
   }
 }
 
+// Airline (from the callsign/route lookup) and Betreiber (from the aircraft's
+// registration record) are different data sources that just usually coincide for
+// normal scheduled flights - only worth showing both when they actually differ
+// (wet-lease, charter, leased airframes, ...).
+function updateOperatorRowVisibility() {
+  const operatorRow = document.getElementById('d-operator-row');
+  const airlineRow = document.getElementById('d-airline-row');
+  const operatorText = document.getElementById('d-operator').textContent.trim();
+  const airlineText = document.getElementById('d-airline').textContent.trim();
+  const airlineKnown = airlineRow.style.display !== 'none' && airlineText && airlineText !== '—';
+  const operatorKnown = operatorText && operatorText !== '—' && operatorText !== 'Lade…';
+  const sameAsAirline = airlineKnown && operatorKnown && operatorText.toLowerCase() === airlineText.toLowerCase();
+  operatorRow.style.display = sameAsAirline ? 'none' : 'flex';
+}
+
 function renderRoute(route) {
   const el = document.getElementById('d-route');
   const titleEl = document.getElementById('d-route-title');
   const airlineRow = document.getElementById('d-airline-row');
   const airlineEl = document.getElementById('d-airline');
-  if (!route) { el.style.display = 'none'; titleEl.style.display = 'none'; airlineRow.style.display = 'none'; return; }
+  if (!route) {
+    el.style.display = 'none'; titleEl.style.display = 'none'; airlineRow.style.display = 'none';
+    updateOperatorRowVisibility();
+    return;
+  }
   el.style.display = 'flex';
   titleEl.style.display = 'block';
   if (route.airline && route.airline.name) {
@@ -1434,6 +1454,7 @@ function renderRoute(route) {
   } else {
     airlineRow.style.display = 'none';
   }
+  updateOperatorRowVisibility();
   const o = route.origin, d = route.destination;
   el.innerHTML = `<div class="airport"><div class="code">${o.icao_code || o.iata_code || '?'}</div><div class="name">${o.name || ''}</div></div>
     <div class="arrow">→</div>
@@ -1445,7 +1466,11 @@ async function loadRoute(hex, flight) {
   const el = document.getElementById('d-route');
   const titleEl = document.getElementById('d-route-title');
   const airlineRow = document.getElementById('d-airline-row');
-  if (!cs) { el.style.display = 'none'; titleEl.style.display = 'none'; airlineRow.style.display = 'none'; return; }
+  if (!cs) {
+    el.style.display = 'none'; titleEl.style.display = 'none'; airlineRow.style.display = 'none';
+    updateOperatorRowVisibility();
+    return;
+  }
   if (routeCache[cs] !== undefined) { renderRoute(routeCache[cs]); return; }
   el.style.display = 'none';
   titleEl.style.display = 'none';
@@ -1460,7 +1485,7 @@ async function loadRoute(hex, flight) {
     if (selectedHex === hex && current && (current.flight || '').trim() === cs) renderRoute(route);
   } catch (e) {
     routeCache[cs] = null;
-    if (selectedHex === hex) el.style.display = 'none';
+    if (selectedHex === hex) { el.style.display = 'none'; updateOperatorRowVisibility(); }
   }
 }
 
@@ -1532,9 +1557,10 @@ const operatorCache = {};
 
 async function loadOperator(reg, hex) {
   const target = document.getElementById('d-operator');
-  if (!reg) { target.textContent = '—'; return; }
+  if (!reg) { target.textContent = '—'; updateOperatorRowVisibility(); return; }
   if (operatorCache[reg] !== undefined) {
     target.textContent = operatorCache[reg] || '—';
+    updateOperatorRowVisibility();
     return;
   }
   target.textContent = 'Lade…';
@@ -1545,10 +1571,10 @@ async function loadOperator(reg, hex) {
     const ac = data.response && data.response.aircraft;
     const operator = ac ? ac.registered_owner : null;
     operatorCache[reg] = operator;
-    if (selectedHex === hex) target.textContent = operator || '—';
+    if (selectedHex === hex) { target.textContent = operator || '—'; updateOperatorRowVisibility(); }
   } catch (e) {
     operatorCache[reg] = null;
-    if (selectedHex === hex) target.textContent = '—';
+    if (selectedHex === hex) { target.textContent = '—'; updateOperatorRowVisibility(); }
   }
 }
 
@@ -1559,6 +1585,14 @@ function showDetail(hex) {
   document.getElementById('d-type').textContent = a.desc || a.t || 'Typ unbekannt';
   document.getElementById('d-icaotype').textContent = a.t || '—';
   document.getElementById('d-reg').textContent = a.r || '—';
+  const countryName = countryNameForHex(a.hex);
+  const countryRow = document.getElementById('d-country-row');
+  if (countryName) {
+    document.getElementById('d-country').innerHTML = `${flagForHex(a.hex)} ${countryName}`;
+    countryRow.style.display = 'flex';
+  } else {
+    countryRow.style.display = 'none';
+  }
   document.getElementById('d-alt').textContent = fmtAlt(a.alt_baro);
   document.getElementById('d-temp').textContent = fmtTemp(a);
   document.getElementById('d-vrate').textContent = fmtVRate(a.baro_rate != null ? a.baro_rate : a.geom_rate);
