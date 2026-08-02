@@ -104,6 +104,7 @@
   }
   .external-marker { opacity: 0.72; }
   .external-tag { display: inline-block; font-size: 9px; font-weight: 600; color: #9575cd; border: 1px solid #9575cd; border-radius: 4px; padding: 0 4px; margin-left: 6px; vertical-align: middle; }
+  .rare-badge { display: inline-block; font-size: 11px; margin-left: 5px; vertical-align: middle; }
 
   #map-controls-bottom { position: absolute; left: 356px; bottom: 16px; display: flex; align-items: center; gap: 12px; z-index: 500; transition: left 0.2s ease; }
   #app.collapsed #map-controls-bottom { left: 16px; }
@@ -525,7 +526,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.39.0';
+const APP_VERSION = '0.40.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -808,6 +809,22 @@ function matchesMilType(t, p) {
   if (!t.startsWith(p)) return false;
   if (t.length === p.length) return true;
   return !/[0-9]/.test(t[p.length]);
+}
+
+// Mirrors the "Seltene Flugzeuge" achievement category's type/callsign matching
+// (stats-service.py TYPE_ACHIEVEMENTS/CALLSIGN_ACHIEVEMENTS, selten-tagged entries
+// only) so the sidebar can flag the same aircraft as rare right away, instead of
+// only finding out after the fact via the achievement toast.
+const RARE_TYPES = ['A388', 'CONC', 'V22', 'CH47', 'A340', 'AN12', 'AN24', 'AN26', 'AN28', 'AN30', 'AN32', 'AN72',
+                     'A124', 'A140', 'A148', 'A158', 'A225', 'A3ST', 'B74S', 'VC25', 'E3', 'U2', 'SR71', 'B2', 'B52',
+                     'C17', 'F35', 'EUFI', 'F18', 'P8', 'KC46', 'KC135', 'E6'];
+const RARE_CALLSIGN_PREFIXES = ['NASA'];
+
+function isRareAircraft(a) {
+  const t = (a.t || '').toUpperCase();
+  const flight = (a.flight || '').trim().toUpperCase();
+  if (RARE_TYPES.some(p => matchesMilType(t, p))) return true;
+  return RARE_CALLSIGN_PREFIXES.some(p => flight.startsWith(p));
 }
 
 function classifyAircraft(a) {
@@ -2348,7 +2365,7 @@ function renderList(withPos) {
     const callsignClass = cls === 'militaer' ? ' callsign-mil' : (cls === 'einsatz' ? ' callsign-einsatz' : '');
     row.innerHTML = `
       <div>
-        <div class="callsign${callsignClass}">${flag}${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${(a.flight || a.hex || '—').trim()}${a._external ? '<span class="external-tag">extern</span>' : ''}</div>
+        <div class="callsign${callsignClass}">${flag}${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${(a.flight || a.hex || '—').trim()}${isRareAircraft(a) ? '<span class="rare-badge" title="Seltenes Flugzeug">⭐</span>' : ''}${a._external ? '<span class="external-tag">extern</span>' : ''}</div>
         <div class="type">${a.t || 'Typ unbekannt'}</div>
       </div>
       <div class="metrics">
