@@ -376,10 +376,24 @@
         <button id="maptheme-light" onclick="setMapTheme('light')">Hell</button>
         <button id="maptheme-dark" onclick="setMapTheme('dark')">Dunkel</button>
       </div>
-      <div class="label" style="margin-top:12px">Einheiten</div>
+      <div class="label" style="margin-top:12px">Geschwindigkeit</div>
       <div class="segmented">
-        <button id="unit-metric" onclick="setUnits('metric')">Metrisch</button>
-        <button id="unit-imperial" onclick="setUnits('imperial')">Imperial</button>
+        <button id="speedunit-kmh" onclick="setSpeedUnit('kmh')">km/h</button>
+        <button id="speedunit-kt" onclick="setSpeedUnit('kt')">kn</button>
+        <button id="speedunit-mph" onclick="setSpeedUnit('mph')">mph</button>
+      </div>
+      <div class="label" style="margin-top:12px">Höhe</div>
+      <div class="segmented">
+        <button id="altunit-m" onclick="setAltUnit('m')">m</button>
+        <button id="altunit-ft" onclick="setAltUnit('ft')">ft</button>
+        <button id="altunit-km" onclick="setAltUnit('km')">km</button>
+        <button id="altunit-mi" onclick="setAltUnit('mi')">mi</button>
+      </div>
+      <div class="label" style="margin-top:12px">Reichweite</div>
+      <div class="segmented">
+        <button id="rangeunit-km" onclick="setRangeUnit('km')">km</button>
+        <button id="rangeunit-nm" onclick="setRangeUnit('nm')">nm</button>
+        <button id="rangeunit-mi" onclick="setRangeUnit('mi')">mi</button>
       </div>
       <div class="label" style="margin-top:12px">Markergröße</div>
       <div class="segmented">
@@ -469,7 +483,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.31.1';
+const APP_VERSION = '0.32.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -666,7 +680,10 @@ const trailPoints = {};
 const MAX_TRAIL_POINTS = 1800;
 let selectedHex = null;
 let sidebarCollapsed = window.innerWidth <= 768;
-let unitSystem = localStorage.getItem('unitSystem') || 'imperial';
+let speedUnit = localStorage.getItem('speedUnit') || 'kmh';
+let altUnit = localStorage.getItem('altUnit') || 'm';
+let rangeUnit = localStorage.getItem('rangeUnit') || 'km';
+const ALT_UNIT_IS_METRIC = { m: true, km: true, ft: false, mi: false };
 let showTrails = localStorage.getItem('showTrails') !== 'false';
 let trailsShowAll = localStorage.getItem('trailsShowAll') === 'true';
 let lastWithPos = [];
@@ -861,9 +878,20 @@ function toggleStats() {
   document.getElementById('stats-btn-float').classList.toggle('active');
 }
 
-function updateUnitButtons() {
-  document.getElementById('unit-metric').classList.toggle('active', unitSystem === 'metric');
-  document.getElementById('unit-imperial').classList.toggle('active', unitSystem === 'imperial');
+function updateSpeedUnitButtons() {
+  for (const u of ['kmh', 'kt', 'mph']) {
+    document.getElementById('speedunit-' + u).classList.toggle('active', speedUnit === u);
+  }
+}
+function updateAltUnitButtons() {
+  for (const u of ['m', 'ft', 'km', 'mi']) {
+    document.getElementById('altunit-' + u).classList.toggle('active', altUnit === u);
+  }
+}
+function updateRangeUnitButtons() {
+  for (const u of ['km', 'nm', 'mi']) {
+    document.getElementById('rangeunit-' + u).classList.toggle('active', rangeUnit === u);
+  }
 }
 
 const ALT_BANDS = [
@@ -877,18 +905,25 @@ function roundMeters(m) {
   return Math.round(m / 500) * 500;
 }
 
+function legendAltLabel(ft) {
+  switch (altUnit) {
+    case 'km': return (roundMeters(ft * 0.3048) / 1000).toLocaleString('de-DE') + ' km';
+    case 'ft': return ft.toLocaleString('de-DE') + ' ft';
+    case 'mi': return (ft / 5280).toFixed(1) + ' mi';
+    default: return roundMeters(ft * 0.3048).toLocaleString('de-DE') + ' m';
+  }
+}
+
 function renderLegend() {
   const rows = ALT_BANDS.map((b, i) => {
     const prevFt = i === 0 ? 0 : ALT_BANDS[i - 1].maxFt;
     let label;
     if (b.maxFt == null) {
-      label = unitSystem === 'metric' ? `> ${roundMeters(prevFt * 0.3048).toLocaleString('de-DE')} m` : `> ${prevFt.toLocaleString('de-DE')} ft`;
+      label = `> ${legendAltLabel(prevFt)}`;
     } else if (i === 0) {
-      label = unitSystem === 'metric' ? `< ${roundMeters(b.maxFt * 0.3048).toLocaleString('de-DE')} m` : `< ${b.maxFt.toLocaleString('de-DE')} ft`;
+      label = `< ${legendAltLabel(b.maxFt)}`;
     } else {
-      label = unitSystem === 'metric'
-        ? `${roundMeters(prevFt * 0.3048).toLocaleString('de-DE')} – ${roundMeters(b.maxFt * 0.3048).toLocaleString('de-DE')} m`
-        : `${prevFt.toLocaleString('de-DE')} – ${b.maxFt.toLocaleString('de-DE')} ft`;
+      label = `${legendAltLabel(prevFt)} – ${legendAltLabel(b.maxFt)}`;
     }
     return `<div class="legend-row"><span class="swatch" style="background:${b.color}"></span>${label}</div>`;
   }).join('');
@@ -898,14 +933,30 @@ function renderLegend() {
   document.getElementById('legend').innerHTML = `<div class="legend-title">Flughöhe</div>${rows}${externalRow}`;
 }
 
-function setUnits(sys) {
-  unitSystem = sys;
-  localStorage.setItem('unitSystem', sys);
-  updateUnitButtons();
+function refreshUnitDependentUI() {
   renderLegend();
   updateRadiusUI();
   renderList(lastWithPos);
   if (selectedHex) showDetail(selectedHex);
+}
+
+function setSpeedUnit(u) {
+  speedUnit = u;
+  localStorage.setItem('speedUnit', u);
+  updateSpeedUnitButtons();
+  refreshUnitDependentUI();
+}
+function setAltUnit(u) {
+  altUnit = u;
+  localStorage.setItem('altUnit', u);
+  updateAltUnitButtons();
+  refreshUnitDependentUI();
+}
+function setRangeUnit(u) {
+  rangeUnit = u;
+  localStorage.setItem('rangeUnit', u);
+  updateRangeUnitButtons();
+  refreshUnitDependentUI();
 }
 
 function updateTrailButtons() {
@@ -1038,8 +1089,13 @@ async function setAirports(on) {
 }
 
 function updateRadiusUI() {
-  document.getElementById('radius-unit-label').textContent = unitSystem === 'metric' ? 'km' : 'nm';
-  const displayVal = radiusKm > 0 ? (unitSystem === 'metric' ? Math.round(radiusKm) : Math.round(radiusKm / 1.852)) : '';
+  document.getElementById('radius-unit-label').textContent = rangeUnit;
+  let displayVal = '';
+  if (radiusKm > 0) {
+    if (rangeUnit === 'nm') displayVal = Math.round(radiusKm / 1.852);
+    else if (rangeUnit === 'mi') displayVal = Math.round(radiusKm / 1.60934);
+    else displayVal = Math.round(radiusKm);
+  }
   document.getElementById('radius-input').value = displayVal;
   const wrap = document.getElementById('radius-dependent-wrap');
   if (wrap) wrap.style.display = radiusKm > 0 ? 'block' : 'none';
@@ -1047,7 +1103,13 @@ function updateRadiusUI() {
 
 function setRadius(value) {
   const n = parseFloat(value) || 0;
-  radiusKm = n > 0 ? (unitSystem === 'metric' ? n : n * 1.852) : 0;
+  let km = 0;
+  if (n > 0) {
+    if (rangeUnit === 'nm') km = n * 1.852;
+    else if (rangeUnit === 'mi') km = n * 1.60934;
+    else km = n;
+  }
+  radiusKm = km;
   localStorage.setItem('radiusKm', radiusKm);
   updateRadiusRing();
   startRadarSweep();
@@ -1227,26 +1289,36 @@ function haversine(lat1, lon1, lat2, lon2) {
 
 function fmtAlt(ft) {
   if (ft == null) return 'unbekannt';
-  if (unitSystem === 'metric') return Math.round(ft * 0.3048).toLocaleString('de-DE') + ' m';
-  return Math.round(ft).toLocaleString('de-DE') + ' ft';
+  switch (altUnit) {
+    case 'ft': return Math.round(ft).toLocaleString('de-DE') + ' ft';
+    case 'km': return (ft * 0.0003048).toFixed(1) + ' km';
+    case 'mi': return (ft / 5280).toFixed(1) + ' mi';
+    default: return Math.round(ft * 0.3048).toLocaleString('de-DE') + ' m';
+  }
 }
 function fmtSpeed(kt) {
   if (kt == null) return 'unbekannt';
-  if (unitSystem === 'metric') return Math.round(kt * 1.852) + ' km/h';
-  return Math.round(kt) + ' kt';
+  switch (speedUnit) {
+    case 'kt': return Math.round(kt) + ' kt';
+    case 'mph': return Math.round(kt * 1.15078) + ' mph';
+    default: return Math.round(kt * 1.852) + ' km/h';
+  }
 }
 function fmtTrack(t) { return t == null ? 'unbekannt' : Math.round(t) + '°'; }
 function fmtDist(km) {
   if (km == null) return 'unbekannt';
-  if (unitSystem === 'metric') return km.toFixed(1) + ' km';
-  return (km / 1.852).toFixed(1) + ' nm';
+  switch (rangeUnit) {
+    case 'nm': return (km / 1.852).toFixed(1) + ' nm';
+    case 'mi': return (km / 1.60934).toFixed(1) + ' mi';
+    default: return km.toFixed(1) + ' km';
+  }
 }
 function getTrack(a) { return a.track != null ? a.track : a.calc_track; }
 function fmtVRate(fpm) {
   if (fpm == null) return 'unbekannt';
   if (Math.abs(fpm) < 50) return 'Reiseflug (waagerecht)';
   const arrow = fpm > 0 ? '↑' : '↓';
-  if (unitSystem === 'metric') return `${arrow} ${(Math.abs(fpm) * 0.00508).toFixed(1)} m/s`;
+  if (ALT_UNIT_IS_METRIC[altUnit]) return `${arrow} ${(Math.abs(fpm) * 0.00508).toFixed(1)} m/s`;
   return `${arrow} ${Math.abs(Math.round(fpm))} ft/min`;
 }
 
@@ -1268,7 +1340,7 @@ function fmtTemp(a) {
   const isMeasured = measuredC != null;
   const c = isMeasured ? measuredC : isaTempC(a.alt_baro);
   if (c == null) return 'unbekannt';
-  const val = unitSystem === 'metric' ? Math.round(c) + ' °C' : Math.round(c * 9 / 5 + 32) + ' °F';
+  const val = ALT_UNIT_IS_METRIC[altUnit] ? Math.round(c) + ' °C' : Math.round(c * 9 / 5 + 32) + ' °F';
   return val + (isMeasured ? ' (gemessen)' : ' (ISA-Schätzung)');
 }
 
@@ -2063,7 +2135,9 @@ if (sidebarCollapsed) {
 }
 updateMapThemeButtons();
 updateNotificationButtons();
-updateUnitButtons();
+updateSpeedUnitButtons();
+updateAltUnitButtons();
+updateRangeUnitButtons();
 updateTrailButtons();
 updateTrailsShowAllButtons();
 updateExternalButtons();
