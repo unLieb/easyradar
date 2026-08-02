@@ -39,6 +39,22 @@
   #sidebar header h1 { font-size: 18px; font-weight: 600; margin: 0; color: var(--blue); }
   #sidebar header .version { font-size: 10px; color: var(--text-muted); margin-top: 1px; text-decoration: none; display: inline-block; }
   #sidebar header .version:hover { text-decoration: underline; }
+  .level-badge { display: flex; align-items: center; gap: 4px; background: none; border: none; padding: 0; margin-top: 3px; font-size: 11px; font-weight: 600; color: var(--blue); cursor: pointer; font-family: inherit; }
+  .level-badge:hover { text-decoration: underline; }
+
+  .level-profile { text-align: center; padding: 4px 0 8px; }
+  .level-profile-title { font-size: 22px; font-weight: 700; color: var(--text); }
+  .level-profile-sub { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 14px; }
+  .level-profile-bar-track { height: 10px; background: var(--bg); border-radius: 5px; overflow: hidden; margin-bottom: 6px; }
+  .level-profile-bar-fill { height: 100%; background: var(--blue); border-radius: 5px; }
+  .level-profile-xp { font-size: 12px; color: var(--text-muted); }
+  .level-profile-achcount { font-size: 12px; color: var(--text); font-weight: 600; margin-top: 4px; margin-bottom: 16px; }
+  .level-profile-maxed { font-size: 13px; font-weight: 600; color: var(--blue); margin-bottom: 16px; }
+  .level-profile-next-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; text-align: left; }
+  .level-profile-next { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 16px; text-align: left; }
+  .level-profile-sources-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; text-align: left; border-top: 1px solid var(--border); padding-top: 12px; }
+  .xp-suggestion-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 6px 0; text-align: left; }
+  .xp-suggestion-value { color: var(--blue); font-weight: 600; flex-shrink: 0; margin-left: 8px; }
   #sidebar header .count { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
 
   #search-bar { padding: 10px 18px 0; }
@@ -280,6 +296,7 @@
         <div class="brand-text">
           <h1>easyRADAR</h1>
           <a class="version" id="app-version" href="/CHANGELOG.md" target="_blank" rel="noopener" title="Änderungsprotokoll ansehen"></a>
+          <button class="level-badge" id="level-badge" onclick="event.stopPropagation(); openLevelProfile()">🛰️ Radar-Level <span id="level-number">–</span></button>
           <div class="count" id="count">Lade Flugzeuge…</div>
         </div>
       </header>
@@ -526,7 +543,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.40.0';
+const APP_VERSION = '0.41.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -1788,11 +1805,13 @@ const ACHIEVEMENT_GROUPS = {
 };
 const ACHIEVEMENT_CATEGORIES = [
   { id: 'flugzeuge', icon: '✈️', title: 'Flugzeuge', group: 'sammlung' },
+  { id: 'flugzeugtypen', icon: '🔢', title: 'Flugzeugtypen', group: 'sammlung' },
   { id: 'selten', icon: '⭐', title: 'Seltene Flugzeuge', group: 'sammlung' },
   { id: 'airlines', icon: '🌍', title: 'Airlines', group: 'sammlung' },
   { id: 'laender', icon: '🌎', title: 'Länder', group: 'sammlung' },
   { id: 'empfang', icon: '📡', title: 'Empfang', group: 'leistung' },
   { id: 'nachrichten', icon: '📬', title: 'Nachrichten', group: 'leistung' },
+  { id: 'gesamtflugzeuge', icon: '📶', title: 'Gesamtflugzeuge', group: 'leistung' },
   { id: 'tagesrekorde', icon: '📈', title: 'Tagesrekorde', group: 'leistung' },
   { id: 'flughoehe', icon: '🛫', title: 'Flughöhe', group: 'leistung' },
   { id: 'niedrigueberflug', icon: '📉', title: 'Niedrigster Überflug', group: 'leistung' },
@@ -1893,7 +1912,19 @@ const ACHIEVEMENTS_CATALOG = [
   { id: 'anniversary_7', cat: 'jubilaeen', icon: '🎂', title: '7 Tage Radar online' },
   { id: 'anniversary_30', cat: 'jubilaeen', icon: '🎂', title: '30 Tage Radar online' },
   { id: 'anniversary_100', cat: 'jubilaeen', icon: '🎂', title: '100 Tage Radar online' },
-  { id: 'anniversary_365', cat: 'jubilaeen', icon: '🎂', title: '365 Tage Radar online' }
+  { id: 'anniversary_365', cat: 'jubilaeen', icon: '🎂', title: '365 Tage Radar online' },
+
+  { id: 'types_10', cat: 'flugzeugtypen', icon: '✈️', title: '10 verschiedene Flugzeugtypen' },
+  { id: 'types_25', cat: 'flugzeugtypen', icon: '✈️', title: '25 verschiedene Flugzeugtypen' },
+  { id: 'types_50', cat: 'flugzeugtypen', icon: '✈️', title: '50 verschiedene Flugzeugtypen' },
+  { id: 'types_100', cat: 'flugzeugtypen', icon: '✈️', title: '100 verschiedene Flugzeugtypen' },
+
+  { id: 'aircraft_100', cat: 'gesamtflugzeuge', icon: '📶', title: '100 Flugzeuge insgesamt' },
+  { id: 'aircraft_500', cat: 'gesamtflugzeuge', icon: '📶', title: '500 Flugzeuge insgesamt' },
+  { id: 'aircraft_1000', cat: 'gesamtflugzeuge', icon: '📶', title: '1.000 Flugzeuge insgesamt' },
+  { id: 'aircraft_2500', cat: 'gesamtflugzeuge', icon: '📶', title: '2.500 Flugzeuge insgesamt' },
+  { id: 'aircraft_5000', cat: 'gesamtflugzeuge', icon: '📶', title: '5.000 Flugzeuge insgesamt' },
+  { id: 'aircraft_10000', cat: 'gesamtflugzeuge', icon: '📶', title: '10.000 Flugzeuge insgesamt' }
 ];
 const RECORD_LABELS = {
   max_alt: 'Höchste Flughöhe', max_dist: 'Weiteste Entfernung',
@@ -1964,9 +1995,52 @@ function showAchievementToast(icon, title, sub) {
 // tapping one replaces the whole panel content with just that category - so the
 // user is never looking at more than one category's items at once, however many
 // categories are unlocked. Mirrors the iOS Settings "push into a screen" pattern.
+// Mirrors ACHIEVEMENT_XP in stats-service.py exactly - frozen once shipped, see
+// the comment there. Needed client-side for rarity labels on tiles and for
+// picking "cheapest still-locked item per category" on the level profile page.
+const ACHIEVEMENT_XP = {
+  first_helicopter: 20, first_military: 40, first_business: 20,
+  first_seaplane: 60, first_rescue_heli: 25, first_firefighter: 50,
+  first_lufthansa: 15, first_ryanair: 15, first_emirates: 25,
+  first_singapore: 30, first_qantas: 40,
+  airlines_100: 100, airlines_250: 250, airlines_500: 500,
+  range_100km: 20, range_150km: 35, range_200km: 55,
+  range_250km: 80, range_300km: 110, range_400km: 150,
+  daily_100: 20, daily_500: 40, daily_1000: 80, daily_2500: 150, daily_5000: 300,
+  msg_100000: 20, msg_1000000: 60, msg_10000000: 150, msg_100000000: 400,
+  altitude_fl300: 20, altitude_fl400: 35, altitude_fl450: 60,
+  lowalt_1000m: 20, lowalt_500m: 35, lowalt_250m: 55, lowalt_100m: 90,
+  country_de: 15, country_at: 20, country_ch: 20, country_nl: 20,
+  country_gb: 25, country_fr: 25, country_it: 25, country_pl: 25,
+  country_es: 30, country_tr: 40, country_ru: 50, country_ae: 60,
+  country_us: 70, country_cn: 80, country_jp: 90, countries_50: 300,
+  night_watchman: 60, early_bird: 50, night_owl: 100,
+  anniversary_1: 50, anniversary_7: 100, anniversary_30: 250,
+  anniversary_100: 500, anniversary_365: 1000,
+  types_10: 30, types_25: 80, types_50: 180, types_100: 400,
+  aircraft_100: 20, aircraft_500: 40, aircraft_1000: 80,
+  aircraft_2500: 150, aircraft_5000: 300, aircraft_10000: 600,
+  first_a380: 200, first_concorde: 800, rare_a340: 150,
+  first_osprey: 250, first_chinook: 100, rare_antonov: 200,
+  rare_beluga: 300, rare_dreamlifter: 300, rare_vc25: 800,
+  rare_e3sentry: 150, rare_u2: 400, rare_sr71: 1200,
+  rare_b2spirit: 600, rare_b52: 200, rare_c17: 80, rare_f35: 150,
+  rare_eurofighter: 60, rare_fa18: 120, rare_p8: 150, rare_kc46: 150,
+  rare_kc135: 100, rare_e6mercury: 300, rare_nasa: 250
+};
+
+function rarityForXp(xp) {
+  if (xp >= 800) return 'Legendär';
+  if (xp >= 300) return 'Episch';
+  if (xp >= 100) return 'Selten';
+  if (xp >= 30) return 'Ungewöhnlich';
+  return 'Häufig';
+}
+
 const ACH_CATEGORY_KIND = {
   flugzeuge: 'chips', selten: 'chips', airlines: 'chips', laender: 'chips',
   empfang: 'ladder', flughoehe: 'ladder', niedrigueberflug: 'ladder',
+  flugzeugtypen: 'ladder', gesamtflugzeuge: 'ladder',
   tagesrekorde: 'medals', nachrichten: 'msgbar',
   zeit: 'cards', jubilaeen: 'cards'
 };
@@ -2081,6 +2155,7 @@ function renderAchCards(items, unlockedMap) {
 }
 
 function renderAchCategoryDetail(catId, unlockedMap, cumMessages) {
+  if (catId === '__level__') return renderLevelProfile();
   const cat = ACHIEVEMENT_CATEGORIES.find(c => c.id === catId);
   const allItems = ACHIEVEMENTS_CATALOG.filter(a => a.cat === catId);
   const items = allItems.filter(a => !ACH_MILESTONE_IDS.has(a.id));
@@ -2117,11 +2192,79 @@ function renderAchievementsView() {
   }
 }
 
-function renderAchievements(unlockedList, cumMessages) {
+let lastLevelInfo = null;
+
+function updateLevelBadge() {
+  const el = document.getElementById('level-number');
+  if (el && lastLevelInfo) el.textContent = lastLevelInfo.level;
+}
+
+function openLevelProfile() {
+  const panel = document.getElementById('stats-panel');
+  if (!panel.classList.contains('show')) toggleStats();
+  achOpenCategory = '__level__';
+  selectedAchChipId = null;
+  renderAchievementsView();
+  document.getElementById('s-achievements').scrollIntoView({ block: 'start' });
+}
+
+// Per category: the next not-yet-unlocked item. Tiered categories (ladder/medals/
+// msgbar) use catalog order since that's already ascending by threshold; open-ended
+// collections (chips/cards, e.g. Laender) have no inherent order, so the cheapest
+// locked item stands in as "easiest next win".
+function nextSuggestionForCategory(catId, unlockedMap) {
+  const items = ACHIEVEMENTS_CATALOG.filter(a => a.cat === catId && !unlockedMap[a.id]);
+  if (!items.length) return null;
+  const kind = ACH_CATEGORY_KIND[catId];
+  if (kind === 'ladder' || kind === 'medals' || kind === 'msgbar') return items[0];
+  return items.slice().sort((a, b) => (ACHIEVEMENT_XP[a.id] || 0) - (ACHIEVEMENT_XP[b.id] || 0))[0];
+}
+
+function buildXpSuggestions(unlockedMap, limit) {
+  const suggestions = ACHIEVEMENT_CATEGORIES
+    .map(cat => nextSuggestionForCategory(cat.id, unlockedMap))
+    .filter(Boolean);
+  suggestions.sort((a, b) => (ACHIEVEMENT_XP[a.id] || 0) - (ACHIEVEMENT_XP[b.id] || 0));
+  return suggestions.slice(0, limit || 6);
+}
+
+function renderLevelProfile() {
+  const li = lastLevelInfo || { level: 0, maxLevel: 50, totalXp: 0, currentLevelXp: 0, nextLevelXp: 5, xpToNext: 5, bonusXp: 0 };
+  const totalCount = ACHIEVEMENTS_CATALOG.length;
+  const unlockedCount = Object.keys(lastAchUnlockedMap).length;
+  const pct = totalCount ? Math.round(100 * unlockedCount / totalCount) : 0;
+  const maxed = li.nextLevelXp == null;
+  const barPct = maxed ? 100 : Math.round(100 * (li.totalXp - li.currentLevelXp) / (li.nextLevelXp - li.currentLevelXp));
+  const barMaxXp = maxed ? li.totalXp : li.nextLevelXp;
+
+  const suggestions = buildXpSuggestions(lastAchUnlockedMap, 6);
+  const suggestionsHtml = suggestions.length
+    ? suggestions.map(a => `<div class="xp-suggestion-row"><span>☐ ${a.icon} ${a.title}</span><span class="xp-suggestion-value">+${ACHIEVEMENT_XP[a.id] || 0} XP</span></div>`).join('')
+    : '<div class="xp-suggestion-row" style="opacity:.6">Alle Meilensteine erreicht! 🎉</div>';
+
+  return `<button class="ach-back-btn" onclick="closeAchCategory()">← Zurück</button>
+    <div class="level-profile">
+      <div class="level-profile-title">🛰️ Radar-Level ${li.level}</div>
+      <div class="level-profile-sub">Radar-Operator</div>
+      <div class="level-profile-bar-track"><div class="level-profile-bar-fill" style="width:${barPct}%"></div></div>
+      <div class="level-profile-xp">${li.totalXp.toLocaleString('de-DE')} / ${barMaxXp.toLocaleString('de-DE')} XP</div>
+      <div class="level-profile-achcount">${unlockedCount} / ${totalCount} Achievements · ${pct}%</div>
+      ${maxed
+        ? `<div class="level-profile-maxed">Max-Level erreicht${li.bonusXp > 0 ? ` · +${li.bonusXp.toLocaleString('de-DE')} Bonus-XP` : ''}</div>`
+        : `<div class="level-profile-next-title">Nächstes Level</div>
+           <div class="level-profile-next">Level ${li.level + 1} · noch ${li.xpToNext.toLocaleString('de-DE')} XP</div>`}
+      <div class="level-profile-sources-title">Mögliche XP-Quellen</div>
+      ${suggestionsHtml}
+    </div>`;
+}
+
+function renderAchievements(unlockedList, cumMessages, levelInfo) {
   const unlockedMap = {};
   unlockedList.forEach(u => { unlockedMap[u.id] = u; });
   lastAchUnlockedMap = unlockedMap;
   lastAchCumMessages = cumMessages || 0;
+  lastLevelInfo = levelInfo || null;
+  updateLevelBadge();
   renderAchievementsView();
 }
 
@@ -2178,7 +2321,7 @@ async function fetchAndRenderAchievements() {
     recordsFirstLoad = false;
     localStorage.setItem('knownRecordBrokenAt', JSON.stringify(knownRecordBrokenAt));
 
-    renderAchievements(unlocked, d.messagesAccumulated || 0);
+    renderAchievements(unlocked, d.messagesAccumulated || 0, d.levelInfo);
   } catch (e) { /* achievements optional, ignore failures */ }
   finally { achievementsFetchInFlight = false; }
 }
