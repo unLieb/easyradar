@@ -135,7 +135,9 @@
   #settings-panel .label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
   .section-title { font-size: 11px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: .04em; margin: 18px 0 17px; padding: 0 18px; }
   .section-title:first-child { margin-top: 0; }
-  #settings-panel .section-title, #stats-panel .section-title { padding: 0; }
+  #stats-panel .section-title { padding: 0; }
+  #settings-panel .section-title { padding: 18px 0 17px; margin: 0; position: sticky; top: 0; z-index: 2; background: var(--card); }
+  #settings-panel .section-title:first-child { padding-top: 0; }
 
   #stats-panel { display: none; position: absolute; bottom: 64px; left: 356px; background: var(--card); border-radius: 18px; box-shadow: 0 12px 40px rgba(0,0,0,0.14); padding: 20px 22px; width: 280px; max-height: 70vh; overflow-y: auto; z-index: 950; transition: left 0.2s ease; }
   #app.collapsed #stats-panel { left: 16px; }
@@ -184,12 +186,15 @@
   .segmented { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .segmented button { flex: 1; padding: 7px 0; font-size: 13px; border: none; background: var(--card); color: var(--text); cursor: pointer; }
   .segmented button.active { background: var(--blue); color: #fff; }
-  .settings-sub { margin: 12px 0 0 6px; padding-left: 12px; border-left: 1px solid rgba(0,0,0,0.08); }
+  .settings-sub { margin: 12px 0 0 6px; padding-left: 12px; border-left: 1px solid rgba(0,0,0,0.08); overflow: hidden; max-height: 200px; opacity: 1; transition: max-height 0.18s ease, opacity 0.18s ease, margin-top 0.18s ease; }
+  .settings-sub.sub-hidden { max-height: 0; opacity: 0; margin-top: 0; pointer-events: none; }
   .settings-sub .label:first-child { margin-top: 0 !important; }
   .settings-sub .toggle-row:first-child { margin-top: 0 !important; }
   .toggle-row:has(input:not(:checked)) .label { opacity: 0.6; }
+  .label-hint { font-size: 11px; color: var(--text-muted); opacity: 0.75; margin-bottom: 8px; }
   #radius-slider { width: 100%; accent-color: var(--blue); margin: 8px 0 2px; cursor: pointer; display: block; }
   .radius-slider-scale { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
+  .radius-slider-scale #radius-slider-max { opacity: 0.55; }
   #settings-panel .label[title] { cursor: help; text-decoration: underline dotted var(--border); text-underline-offset: 3px; }
   .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; cursor: pointer; }
   .toggle-row[title] .label { cursor: help; text-decoration: underline dotted var(--border); text-underline-offset: 3px; }
@@ -435,7 +440,8 @@
       </label>
 
       <div class="section-title">📡 Empfang</div>
-      <div class="label" title="Begrenzt nur die externe Quelle (adsb.fi), damit die Karte nicht mit weit entfernten Flugzeugen vollläuft. Deine eigenen ADS-B-Empfangsdaten werden dadurch nicht gefiltert.">Empfangsradius (<span id="radius-unit-label">km</span>, 0 = kein Limit)</div>
+      <div class="label" style="margin-bottom:2px" title="Begrenzt nur die externe Quelle (adsb.fi), damit die Karte nicht mit weit entfernten Flugzeugen vollläuft. Deine eigenen ADS-B-Empfangsdaten werden dadurch nicht gefiltert.">Empfangsradius</div>
+      <div class="label-hint" id="radius-hint">0 km = unbegrenzt</div>
       <input type="range" id="radius-slider" min="0" max="500" step="10" value="0" oninput="setRadius(this.value)">
       <div class="radius-slider-scale"><span id="radius-slider-min">0</span><span id="radius-slider-max">500 km</span></div>
       <input type="number" id="radius-input" min="0" step="10" style="width:100%; padding:6px 8px; border:1px solid var(--border); border-radius:8px; font-size:13px; box-sizing:border-box;" onchange="setRadius(this.value)">
@@ -485,7 +491,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.34.0';
+const APP_VERSION = '0.35.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -663,7 +669,7 @@ function setRangeOutlineFill(on) {
 function updateRangeOutlineButtons() {
   document.getElementById('range-outline-toggle').checked = showRangeOutline;
   const wrap = document.getElementById('range-outline-dependent-wrap');
-  if (wrap) wrap.style.display = showRangeOutline ? 'block' : 'none';
+  if (wrap) wrap.classList.toggle('sub-hidden', !showRangeOutline);
 }
 
 function setRangeOutline(on) {
@@ -957,7 +963,7 @@ function setRangeUnit(u) {
 function updateTrailButtons() {
   document.getElementById('trails-toggle').checked = showTrails;
   const wrap = document.getElementById('trails-all-wrap');
-  if (wrap) wrap.style.display = showTrails ? 'block' : 'none';
+  if (wrap) wrap.classList.toggle('sub-hidden', !showTrails);
 }
 
 function setTrailVisibility(hex, visible) {
@@ -1087,7 +1093,7 @@ const RADIUS_SLIDER_MAX = { km: 500, nm: 270, mi: 310 };
 const RADIUS_SLIDER_STEP = { km: 10, nm: 5, mi: 5 };
 
 function updateRadiusUI() {
-  document.getElementById('radius-unit-label').textContent = rangeUnit;
+  document.getElementById('radius-hint').textContent = '0 ' + rangeUnit + ' = unbegrenzt';
   let displayVal = '';
   if (radiusKm > 0) {
     if (rangeUnit === 'nm') displayVal = Math.round(radiusKm / 1.852);
@@ -1102,7 +1108,7 @@ function updateRadiusUI() {
   slider.value = displayVal || 0;
   document.getElementById('radius-slider-max').textContent = max + ' ' + rangeUnit;
   const wrap = document.getElementById('radius-dependent-wrap');
-  if (wrap) wrap.style.display = radiusKm > 0 ? 'block' : 'none';
+  if (wrap) wrap.classList.toggle('sub-hidden', !(radiusKm > 0));
 }
 
 function setRadius(value) {
