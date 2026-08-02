@@ -63,13 +63,13 @@
   .plane-row .metrics { text-align: right; font-size: 12px; color: var(--text-muted); }
   .plane-row .metrics .alt { font-weight: 600; color: var(--text); font-size: 13px; }
 
-  #panel-detail { display: none; flex: 1; overflow-y: auto; flex-direction: column; }
+  #panel-detail { display: none; flex: 1; overflow-y: auto; flex-direction: column; overflow-anchor: none; }
   #panel-detail.show { display: flex; }
   #panel-list.hidden { display: none; }
 
   #detail-header { position: sticky; top: 0; z-index: 5; background: var(--card); transform: translateZ(0); }
   #detail-header .close { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.85); border: none; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; color: var(--text); font-size: 15px; z-index: 2; }
-  #d-photo-wrap { height: 200px; background: #dde2e7; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  #d-photo-wrap { height: 200px; background: #dde2e7; display: flex; align-items: center; justify-content: center; overflow: hidden; will-change: height; }
   #d-photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
   #d-photo-placeholder { font-size: 12px; color: var(--text-muted); padding: 40px 0; }
   #d-photo-credit { font-size: 10px; color: var(--text-muted); text-align: right; padding: 3px 12px; }
@@ -482,7 +482,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.32.2';
+const APP_VERSION = '0.32.3';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -544,18 +544,14 @@ function setMapTheme(theme) {
 
 map.on('click', () => { if (selectedHex) closeDetail(); });
 
+// Updated synchronously (no requestAnimationFrame indirection) so the height
+// change lands in the same frame as the scroll event instead of one frame
+// behind it - that one-frame lag was the source of a residual visible jump.
 const PHOTO_MAX_H = 200, PHOTO_MIN_H = 70;
-let photoShrinkTicking = false;
+const photoWrapEl = document.getElementById('d-photo-wrap');
 document.getElementById('panel-detail').addEventListener('scroll', (e) => {
-  if (photoShrinkTicking) return;
-  photoShrinkTicking = true;
-  const scrollTop = e.target.scrollTop;
-  requestAnimationFrame(() => {
-    const wrap = document.getElementById('d-photo-wrap');
-    if (wrap) wrap.style.height = Math.max(PHOTO_MIN_H, PHOTO_MAX_H - scrollTop) + 'px';
-    photoShrinkTicking = false;
-  });
-});
+  photoWrapEl.style.height = Math.max(PHOTO_MIN_H, PHOTO_MAX_H - e.target.scrollTop) + 'px';
+}, { passive: true });
 
 document.getElementById('panel-list').addEventListener('click', (e) => {
   if (e.target.id === 'panel-list') closeSidebarOnMobile();
