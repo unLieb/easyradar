@@ -19,3 +19,9 @@ Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
 ## 0.40.0 – 2026-08-02
 - Seltene Flugzeuge (A380, Concorde, Militärtransporter, NASA-Flugzeuge u. a.) werden in der Flugzeugliste jetzt mit einem kleinen ⭐ markiert, statt erst im Nachhinein über den Meilenstein aufzufallen
+
+## 0.41.0 – 0.42.0 – 2026-08-02
+- Neu: 🛰️ Radar-Level neben Logo und Version in der Seitenleiste – ein einzelner Fortschrittswert, der ausschließlich aus freigeschalteten Meilensteinen entsteht
+- Klick auf das Level öffnet eine Profilseite: Fortschritt zum nächsten Level, Anzahl freigeschalteter Meilensteine, und Vorschläge für die nächsten erreichbaren Meilensteine
+- Jeder Meilenstein zeigt jetzt seinen XP-Wert und eine Raritätsstufe (Häufig bis Legendär)
+- Neue Meilenstein-Kategorien: Flugzeugtypen (10/25/50/100 verschiedene Typen) und Gesamtflugzeuge (100–10.000 insgesamt empfangene Flugzeuge)
