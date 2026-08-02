@@ -228,6 +228,8 @@
   .achievement-toast .ach-icon { font-size: 26px; flex-shrink: 0; }
   .achievement-toast .toast-title { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
   .achievement-toast .toast-sub { font-size: 14px; font-weight: 700; color: var(--text); }
+  .achievement-toast .toast-xp { font-size: 11px; color: var(--blue); font-weight: 600; margin-top: 2px; }
+  .ach-xp-tag { font-size: 10px; color: var(--text-muted); font-weight: 600; }
   #d-timeline .stat-list-row .name { color: var(--text); }
   #d-timeline .stat-list-row .count { color: var(--text-muted); font-weight: 600; flex-shrink: 0; text-align: right; }
   #stats-panel .bar-track { flex: 1; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
@@ -543,7 +545,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.41.0';
+const APP_VERSION = '0.42.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -1982,10 +1984,11 @@ function checkMilitaryNotification(a) {
   showBrowserNotification('🪖 Militärflugzeug entdeckt', `${label}${a.t ? ' · ' + a.t : ''}`.trim());
 }
 
-function showAchievementToast(icon, title, sub) {
+function showAchievementToast(icon, title, sub, xp) {
   const el = document.createElement('div');
   el.className = 'achievement-toast';
-  el.innerHTML = `<span class="ach-icon">${icon}</span><div><div class="toast-title">${title}</div><div class="toast-sub">${sub}</div></div>`;
+  const xpHtml = xp ? `<div class="toast-xp">+${xp} XP</div>` : '';
+  el.innerHTML = `<span class="ach-icon">${icon}</span><div><div class="toast-title">${title}</div><div class="toast-sub">${sub}</div>${xpHtml}</div>`;
   document.body.appendChild(el);
   requestAnimationFrame(() => el.classList.add('show'));
   setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 4500);
@@ -2109,9 +2112,10 @@ function renderAchChipGrid(catId, items, unlockedMap) {
   let detailHtml = '';
   if (sel) {
     const u = unlockedMap[sel.id];
-    const sub = u
+    const xp = ACHIEVEMENT_XP[sel.id] || 0;
+    const sub = (u
       ? '✔ Freigeschaltet am ' + new Date(u.unlockedAt * 1000).toLocaleDateString('de-DE') + (u.callsign ? ' · ' + u.callsign : '')
-      : '🔒 Noch nicht entdeckt';
+      : '🔒 Noch nicht entdeckt') + ` · ${rarityForXp(xp)} · ${xp} XP`;
     detailHtml = `<div class="ach-chip-detail"><span class="ach-chip-detail-icon">${sel.icon}</span><div><div class="ach-chip-detail-title">${chipLabel(sel)}</div><div class="ach-chip-detail-sub">${sub}</div></div></div>`;
   }
   return `<div class="ach-chip-grid">${chips}</div>${detailHtml}`;
@@ -2120,7 +2124,7 @@ function renderAchChipGrid(catId, items, unlockedMap) {
 function renderAchLadder(items, unlockedMap) {
   const rows = items.map(a => {
     const u = unlockedMap[a.id];
-    return `<div class="ach-ladder-row${u ? '' : ' locked'}"><span>${a.title}</span><span class="ach-ladder-mark">${u ? '✔' : '🔒'}</span></div>`;
+    return `<div class="ach-ladder-row${u ? '' : ' locked'}"><span>${a.title} <span class="ach-xp-tag">· ${ACHIEVEMENT_XP[a.id] || 0} XP</span></span><span class="ach-ladder-mark">${u ? '✔' : '🔒'}</span></div>`;
   }).join('');
   return `<div class="ach-ladder">${rows}</div>`;
 }
@@ -2129,7 +2133,7 @@ function renderAchMedals(items, unlockedMap) {
   return items.map((a, i) => {
     const u = unlockedMap[a.id];
     const icon = MEDAL_ICONS[i] || '🏅';
-    return `<div class="ach-medal-row${u ? '' : ' locked'}"><span class="ach-medal-icon">${icon}</span><span class="ach-medal-title">${a.title}</span><span>${u ? '✔' : ''}</span></div>`;
+    return `<div class="ach-medal-row${u ? '' : ' locked'}"><span class="ach-medal-icon">${icon}</span><span class="ach-medal-title">${a.title} <span class="ach-xp-tag">· ${ACHIEVEMENT_XP[a.id] || 0} XP</span></span><span>${u ? '✔' : ''}</span></div>`;
   }).join('');
 }
 
@@ -2141,7 +2145,7 @@ function renderAchMsgBar(items, unlockedMap, cumMessages) {
     const pct = u ? 100 : Math.max(0, Math.min(100, Math.round(100 * (cumMessages - prevThreshold) / (threshold - prevThreshold))));
     const mark = u ? '✔' : (pct > 0 ? pct + '%' : '🔒');
     prevThreshold = threshold;
-    return `<div class="ach-msgbar-row${u ? '' : ' locked'}"><div class="ach-msgbar-label"><span>${a.title}</span><span>${mark}</span></div><div class="ach-msgbar-track"><div class="ach-msgbar-fill" style="width:${pct}%"></div></div></div>`;
+    return `<div class="ach-msgbar-row${u ? '' : ' locked'}"><div class="ach-msgbar-label"><span>${a.title} <span class="ach-xp-tag">· ${ACHIEVEMENT_XP[a.id] || 0} XP</span></span><span>${mark}</span></div><div class="ach-msgbar-track"><div class="ach-msgbar-fill" style="width:${pct}%"></div></div></div>`;
   }).join('');
 }
 
@@ -2149,7 +2153,8 @@ function renderAchCards(items, unlockedMap) {
   return items.map(a => {
     const u = unlockedMap[a.id];
     const cls = u ? 'achievement unlocked' : 'achievement locked';
-    const sub = u ? new Date(u.unlockedAt * 1000).toLocaleDateString('de-DE') : 'Noch nicht freigeschaltet';
+    const xp = ACHIEVEMENT_XP[a.id] || 0;
+    const sub = (u ? new Date(u.unlockedAt * 1000).toLocaleDateString('de-DE') : 'Noch nicht freigeschaltet') + ` · ${rarityForXp(xp)} · ${xp} XP`;
     return `<div class="${cls}"><span class="ach-icon">${a.icon}</span><div><div class="ach-title">${a.title}</div><div class="ach-sub">${sub}</div></div></div>`;
   }).join('');
 }
@@ -2165,7 +2170,8 @@ function renderAchCategoryDetail(catId, unlockedMap, cumMessages) {
 
   const milestonesHtml = milestones.map(a => {
     const u = unlockedMap[a.id];
-    const sub = u ? '✔ ' + new Date(u.unlockedAt * 1000).toLocaleDateString('de-DE') : '🔒 Noch nicht erreicht';
+    const xp = ACHIEVEMENT_XP[a.id] || 0;
+    const sub = (u ? '✔ ' + new Date(u.unlockedAt * 1000).toLocaleDateString('de-DE') : '🔒 Noch nicht erreicht') + ` · ${rarityForXp(xp)} · ${xp} XP`;
     return `<div class="ach-milestone-row achievement"><span class="ach-icon">${a.icon}</span><div><div class="ach-title">${a.title}</div><div class="ach-sub">${sub}</div></div></div>`;
   }).join('');
 
@@ -2300,7 +2306,7 @@ async function fetchAndRenderAchievements() {
         if (!achievementsFirstLoad) {
           const meta = ACHIEVEMENTS_CATALOG.find(a => a.id === u.id);
           if (meta) {
-            showAchievementToast(meta.icon, 'Meilenstein freigeschaltet!', meta.title);
+            showAchievementToast(meta.icon, 'Meilenstein freigeschaltet!', meta.title, ACHIEVEMENT_XP[u.id] || 0);
             showBrowserNotification('🎯 Meilenstein freigeschaltet!', meta.title);
           }
         }
