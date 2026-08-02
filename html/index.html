@@ -156,18 +156,49 @@
   .achievement .ach-sub { font-size: 11px; color: var(--text-muted); }
   .achievement.locked { opacity: 0.4; filter: grayscale(1); }
 
-  .ach-category { border-top: 1px solid var(--border); }
-  .ach-category:first-child { border-top: none; }
-  .ach-category-header { width: 100%; display: flex; justify-content: space-between; align-items: center; background: none; border: none; padding: 9px 0; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text); }
-  .ach-category-header .ach-progress { font-size: 11px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 4px; }
-  .ach-category-header .ach-caret { display: inline-block; transition: transform 0.15s ease; }
-  .ach-category-header.open .ach-caret { transform: rotate(90deg); }
-  .ach-category-body { display: none; padding: 0 0 6px 4px; }
-  .ach-category-body.open { display: block; }
   .ach-group-title { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 12px 0 2px; }
   #s-achievements > .ach-group-title:first-child { margin-top: 0; }
-  .ach-cat-progress-track { height: 4px; background: var(--bg); border-radius: 2px; overflow: hidden; margin-bottom: 4px; }
-  .ach-cat-progress-fill { height: 100%; background: var(--blue); border-radius: 2px; transition: width 0.3s ease; }
+
+  .ach-list-row { width: 100%; display: flex; justify-content: space-between; align-items: center; background: none; border: none; border-top: 1px solid var(--border); padding: 9px 0; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text); text-align: left; }
+  .ach-list-row:first-child { border-top: none; }
+  .ach-list-progress { font-size: 11px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .ach-list-progress-track { width: 36px; height: 4px; background: var(--bg); border-radius: 2px; overflow: hidden; display: inline-block; }
+  .ach-list-progress-fill { display: block; height: 100%; background: var(--blue); border-radius: 2px; }
+  .ach-list-arrow { color: var(--text-muted); }
+
+  .ach-back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; padding: 0 0 12px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--blue); }
+  .ach-detail-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .ach-detail-progress { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; }
+
+  .ach-milestone-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+
+  .ach-chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ach-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 54px; height: 52px; border-radius: 10px; background: var(--bg); cursor: pointer; border: 2px solid transparent; box-sizing: border-box; }
+  .ach-chip .ach-chip-icon { font-size: 19px; }
+  .ach-chip .ach-chip-label { font-size: 9px; color: var(--text-muted); text-align: center; line-height: 1.1; max-width: 48px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ach-chip.locked { opacity: 0.4; filter: grayscale(1); }
+  .ach-chip.selected { border-color: var(--blue); }
+  .ach-chip-detail { margin-top: 12px; padding: 10px 12px; background: var(--bg); border-radius: 10px; font-size: 12px; display: flex; align-items: center; gap: 10px; }
+  .ach-chip-detail .ach-chip-detail-icon { font-size: 20px; }
+  .ach-chip-detail .ach-chip-detail-title { font-weight: 600; color: var(--text); font-size: 13px; }
+  .ach-chip-detail .ach-chip-detail-sub { color: var(--text-muted); font-size: 11px; margin-top: 1px; }
+
+  .ach-ladder { border-left: 2px solid var(--border); padding-left: 14px; }
+  .ach-ladder-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 0; font-size: 13px; color: var(--text); }
+  .ach-ladder-row.locked { opacity: 0.5; }
+  .ach-ladder-mark { font-size: 13px; flex-shrink: 0; }
+
+  .ach-medal-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+  .ach-medal-icon { font-size: 24px; }
+  .ach-medal-row.locked .ach-medal-icon { opacity: 0.35; filter: grayscale(1); }
+  .ach-medal-title { flex: 1; font-size: 13px; color: var(--text); }
+  .ach-medal-row.locked .ach-medal-title { opacity: 0.5; }
+
+  .ach-msgbar-row { padding: 8px 0; }
+  .ach-msgbar-row.locked .ach-msgbar-label { opacity: 0.6; }
+  .ach-msgbar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text); margin-bottom: 4px; }
+  .ach-msgbar-track { height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+  .ach-msgbar-fill { height: 100%; background: var(--blue); border-radius: 4px; }
 
   .achievement-toast {
     position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-16px);
@@ -491,7 +522,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.35.0';
+const APP_VERSION = '0.36.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -1876,43 +1907,169 @@ function showAchievementToast(icon, title, sub) {
   setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 4500);
 }
 
-let achOpenCategories = new Set(JSON.parse(localStorage.getItem('achOpenCategories') || '[]'));
+// Drill-down navigation: root shows only the category list (icon/title/progress),
+// tapping one replaces the whole panel content with just that category - so the
+// user is never looking at more than one category's items at once, however many
+// categories are unlocked. Mirrors the iOS Settings "push into a screen" pattern.
+const ACH_CATEGORY_KIND = {
+  flugzeuge: 'chips', selten: 'chips', airlines: 'chips', laender: 'chips',
+  empfang: 'ladder', flughoehe: 'ladder', niedrigueberflug: 'ladder',
+  tagesrekorde: 'medals', nachrichten: 'msgbar',
+  zeit: 'cards', jubilaeen: 'cards'
+};
+// Aggregate count milestones (not individual collectibles) get pulled out of the
+// chip grid and shown as their own small row above it instead.
+const ACH_MILESTONE_IDS = new Set(['countries_50', 'airlines_100', 'airlines_250', 'airlines_500']);
+const COUNTRY_CHIP_NAMES = {
+  country_de: 'Deutschland', country_us: 'USA', country_gb: 'Großbritannien', country_fr: 'Frankreich',
+  country_it: 'Italien', country_es: 'Spanien', country_nl: 'Niederlande', country_pl: 'Polen',
+  country_ch: 'Schweiz', country_at: 'Österreich', country_ru: 'Russland', country_cn: 'China',
+  country_jp: 'Japan', country_ae: 'VAE', country_tr: 'Türkei'
+};
+const MEDAL_ICONS = ['🥉', '🥈', '🥇', '🏆', '💎'];
+const ACH_MSG_THRESHOLDS = { msg_100000: 100000, msg_1000000: 1000000, msg_10000000: 10000000, msg_100000000: 100000000 };
 
-function toggleAchCategory(catId) {
-  if (achOpenCategories.has(catId)) achOpenCategories.delete(catId); else achOpenCategories.add(catId);
-  localStorage.setItem('achOpenCategories', JSON.stringify([...achOpenCategories]));
-  const body = document.getElementById(`ach-cat-${catId}`);
-  if (body) body.classList.toggle('open', achOpenCategories.has(catId));
-  const header = document.getElementById(`ach-hdr-${catId}`);
-  if (header) header.classList.toggle('open', achOpenCategories.has(catId));
+function chipLabel(a) {
+  if (COUNTRY_CHIP_NAMES[a.id]) return COUNTRY_CHIP_NAMES[a.id];
+  return a.title.replace(/^Erste[rs]?\s+/, '').replace(/\s*\([^)]*\)/, '').replace(/\s+entdeckt$/, '');
 }
 
-function renderAchievements(unlockedList) {
-  const unlockedMap = {};
-  unlockedList.forEach(u => { unlockedMap[u.id] = u; });
+let achOpenCategory = null;
+let selectedAchChipId = null;
+let lastAchUnlockedMap = {};
+let lastAchCumMessages = 0;
+
+function openAchCategory(catId) {
+  achOpenCategory = catId;
+  selectedAchChipId = null;
+  renderAchievementsView();
+}
+function closeAchCategory() {
+  achOpenCategory = null;
+  selectedAchChipId = null;
+  renderAchievementsView();
+}
+function selectAchChip(catId, id) {
+  selectedAchChipId = (selectedAchChipId === id) ? null : id;
+  renderAchievementsView();
+}
+
+function renderAchCategoryList(unlockedMap) {
   let lastGroup = null;
-  document.getElementById('s-achievements').innerHTML = ACHIEVEMENT_CATEGORIES.map(cat => {
+  return ACHIEVEMENT_CATEGORIES.map(cat => {
     const items = ACHIEVEMENTS_CATALOG.filter(a => a.cat === cat.id);
     const unlockedCount = items.filter(a => unlockedMap[a.id]).length;
     const pct = items.length ? Math.round((unlockedCount / items.length) * 100) : 0;
-    const isOpen = achOpenCategories.has(cat.id);
-    const itemsHtml = items.map(a => {
-      const u = unlockedMap[a.id];
-      const cls = u ? 'achievement unlocked' : 'achievement locked';
-      const sub = u ? new Date(u.unlockedAt * 1000).toLocaleDateString('de-DE') : 'Noch nicht freigeschaltet';
-      return `<div class="${cls}"><span class="ach-icon">${a.icon}</span><div><div class="ach-title">${a.title}</div><div class="ach-sub">${sub}</div></div></div>`;
-    }).join('');
     const groupHeaderHtml = cat.group !== lastGroup ? `<div class="ach-group-title">${ACHIEVEMENT_GROUPS[cat.group]}</div>` : '';
     lastGroup = cat.group;
-    return `${groupHeaderHtml}<div class="ach-category">
-      <button class="ach-category-header${isOpen ? ' open' : ''}" id="ach-hdr-${cat.id}" onclick="toggleAchCategory('${cat.id}')">
-        <span>${cat.icon} ${cat.title}</span>
-        <span class="ach-progress">${unlockedCount}/${items.length} <span class="ach-caret">▸</span></span>
-      </button>
-      <div class="ach-cat-progress-track"><div class="ach-cat-progress-fill" style="width:${pct}%"></div></div>
-      <div class="ach-category-body${isOpen ? ' open' : ''}" id="ach-cat-${cat.id}">${itemsHtml}</div>
+    return `${groupHeaderHtml}<button class="ach-list-row" onclick="openAchCategory('${cat.id}')">
+      <span>${cat.icon} ${cat.title}</span>
+      <span class="ach-list-progress">${unlockedCount}/${items.length}<span class="ach-list-progress-track"><span class="ach-list-progress-fill" style="width:${pct}%"></span></span><span class="ach-list-arrow">›</span></span>
+    </button>`;
+  }).join('');
+}
+
+function renderAchChipGrid(catId, items, unlockedMap) {
+  const chips = items.map(a => {
+    const u = unlockedMap[a.id];
+    const cls = 'ach-chip' + (u ? '' : ' locked') + (selectedAchChipId === a.id ? ' selected' : '');
+    return `<div class="${cls}" onclick="selectAchChip('${catId}','${a.id}')">
+      <span class="ach-chip-icon">${a.icon}</span>
+      <span class="ach-chip-label">${chipLabel(a)}</span>
     </div>`;
   }).join('');
+  const sel = items.find(a => a.id === selectedAchChipId);
+  let detailHtml = '';
+  if (sel) {
+    const u = unlockedMap[sel.id];
+    const sub = u
+      ? '✔ Freigeschaltet am ' + new Date(u.unlockedAt * 1000).toLocaleDateString('de-DE') + (u.callsign ? ' · ' + u.callsign : '')
+      : '🔒 Noch nicht entdeckt';
+    detailHtml = `<div class="ach-chip-detail"><span class="ach-chip-detail-icon">${sel.icon}</span><div><div class="ach-chip-detail-title">${chipLabel(sel)}</div><div class="ach-chip-detail-sub">${sub}</div></div></div>`;
+  }
+  return `<div class="ach-chip-grid">${chips}</div>${detailHtml}`;
+}
+
+function renderAchLadder(items, unlockedMap) {
+  const rows = items.map(a => {
+    const u = unlockedMap[a.id];
+    return `<div class="ach-ladder-row${u ? '' : ' locked'}"><span>${a.title}</span><span class="ach-ladder-mark">${u ? '✔' : '🔒'}</span></div>`;
+  }).join('');
+  return `<div class="ach-ladder">${rows}</div>`;
+}
+
+function renderAchMedals(items, unlockedMap) {
+  return items.map((a, i) => {
+    const u = unlockedMap[a.id];
+    const icon = MEDAL_ICONS[i] || '🏅';
+    return `<div class="ach-medal-row${u ? '' : ' locked'}"><span class="ach-medal-icon">${icon}</span><span class="ach-medal-title">${a.title}</span><span>${u ? '✔' : ''}</span></div>`;
+  }).join('');
+}
+
+function renderAchMsgBar(items, unlockedMap, cumMessages) {
+  let prevThreshold = 0;
+  return items.map(a => {
+    const threshold = ACH_MSG_THRESHOLDS[a.id];
+    const u = unlockedMap[a.id];
+    const pct = u ? 100 : Math.max(0, Math.min(100, Math.round(100 * (cumMessages - prevThreshold) / (threshold - prevThreshold))));
+    const mark = u ? '✔' : (pct > 0 ? pct + '%' : '🔒');
+    prevThreshold = threshold;
+    return `<div class="ach-msgbar-row${u ? '' : ' locked'}"><div class="ach-msgbar-label"><span>${a.title}</span><span>${mark}</span></div><div class="ach-msgbar-track"><div class="ach-msgbar-fill" style="width:${pct}%"></div></div></div>`;
+  }).join('');
+}
+
+function renderAchCards(items, unlockedMap) {
+  return items.map(a => {
+    const u = unlockedMap[a.id];
+    const cls = u ? 'achievement unlocked' : 'achievement locked';
+    const sub = u ? new Date(u.unlockedAt * 1000).toLocaleDateString('de-DE') : 'Noch nicht freigeschaltet';
+    return `<div class="${cls}"><span class="ach-icon">${a.icon}</span><div><div class="ach-title">${a.title}</div><div class="ach-sub">${sub}</div></div></div>`;
+  }).join('');
+}
+
+function renderAchCategoryDetail(catId, unlockedMap, cumMessages) {
+  const cat = ACHIEVEMENT_CATEGORIES.find(c => c.id === catId);
+  const allItems = ACHIEVEMENTS_CATALOG.filter(a => a.cat === catId);
+  const items = allItems.filter(a => !ACH_MILESTONE_IDS.has(a.id));
+  const milestones = allItems.filter(a => ACH_MILESTONE_IDS.has(a.id));
+  const unlockedCount = allItems.filter(a => unlockedMap[a.id]).length;
+  const kind = ACH_CATEGORY_KIND[catId];
+
+  const milestonesHtml = milestones.map(a => {
+    const u = unlockedMap[a.id];
+    const sub = u ? '✔ ' + new Date(u.unlockedAt * 1000).toLocaleDateString('de-DE') : '🔒 Noch nicht erreicht';
+    return `<div class="ach-milestone-row achievement"><span class="ach-icon">${a.icon}</span><div><div class="ach-title">${a.title}</div><div class="ach-sub">${sub}</div></div></div>`;
+  }).join('');
+
+  let bodyHtml;
+  if (kind === 'chips') bodyHtml = renderAchChipGrid(catId, items, unlockedMap);
+  else if (kind === 'ladder') bodyHtml = renderAchLadder(items, unlockedMap);
+  else if (kind === 'medals') bodyHtml = renderAchMedals(items, unlockedMap);
+  else if (kind === 'msgbar') bodyHtml = renderAchMsgBar(items, unlockedMap, cumMessages);
+  else bodyHtml = renderAchCards(items, unlockedMap);
+
+  return `<button class="ach-back-btn" onclick="closeAchCategory()">← Zurück</button>
+    <div class="ach-detail-title">${cat.icon} ${cat.title}</div>
+    <div class="ach-detail-progress">${unlockedCount}/${allItems.length} freigeschaltet</div>
+    ${milestonesHtml}
+    ${bodyHtml}`;
+}
+
+function renderAchievementsView() {
+  const container = document.getElementById('s-achievements');
+  if (achOpenCategory) {
+    container.innerHTML = renderAchCategoryDetail(achOpenCategory, lastAchUnlockedMap, lastAchCumMessages);
+  } else {
+    container.innerHTML = renderAchCategoryList(lastAchUnlockedMap);
+  }
+}
+
+function renderAchievements(unlockedList, cumMessages) {
+  const unlockedMap = {};
+  unlockedList.forEach(u => { unlockedMap[u.id] = u; });
+  lastAchUnlockedMap = unlockedMap;
+  lastAchCumMessages = cumMessages || 0;
+  renderAchievementsView();
 }
 
 async function fetchAndRenderAchievements() {
@@ -1949,7 +2106,7 @@ async function fetchAndRenderAchievements() {
     recordsFirstLoad = false;
     localStorage.setItem('knownRecordBrokenAt', JSON.stringify(knownRecordBrokenAt));
 
-    renderAchievements(unlocked);
+    renderAchievements(unlocked, d.messagesAccumulated || 0);
   } catch (e) { /* achievements optional, ignore failures */ }
 }
 
