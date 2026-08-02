@@ -434,7 +434,7 @@
       </label>
 
       <div class="section-title">📡 Empfang</div>
-      <div class="label">Empfangsradius (<span id="radius-unit-label">km</span>, 0 = kein Limit)</div>
+      <div class="label" title="Begrenzt nur die externe Quelle (adsb.fi), damit die Karte nicht mit weit entfernten Flugzeugen vollläuft. Deine eigenen ADS-B-Empfangsdaten werden dadurch nicht gefiltert.">Empfangsradius (<span id="radius-unit-label">km</span>, 0 = kein Limit)</div>
       <input type="number" id="radius-input" min="0" step="10" style="width:100%; padding:6px 8px; border:1px solid var(--border); border-radius:8px; font-size:13px; box-sizing:border-box;" onchange="setRadius(this.value)">
       <div class="settings-sub" id="radius-dependent-wrap">
         <label class="toggle-row">
@@ -482,7 +482,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.32.3';
+const APP_VERSION = '0.33.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -2050,7 +2050,7 @@ async function refresh() {
 
   for (const a of data.aircraft) {
     localHexes.add(a.hex);
-    if (a.lat == null || a.lon == null || !withinRadius(a)) continue;
+    if (a.lat == null || a.lon == null) continue;
     window.currentAircraft[a.hex] = a;
     checkMilitaryNotification(a);
     a._external = false;
