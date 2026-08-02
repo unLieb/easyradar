@@ -133,7 +133,7 @@
   #app.collapsed #settings-panel { left: 16px; }
   #settings-panel.show { display: block; }
   #settings-panel .label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-  .section-title { font-size: 11px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: .04em; margin: 18px 0 10px; padding: 0 18px; }
+  .section-title { font-size: 11px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: .04em; margin: 18px 0 17px; padding: 0 18px; }
   .section-title:first-child { margin-top: 0; }
   #settings-panel .section-title, #stats-panel .section-title { padding: 0; }
 
@@ -184,9 +184,12 @@
   .segmented { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .segmented button { flex: 1; padding: 7px 0; font-size: 13px; border: none; background: var(--card); color: var(--text); cursor: pointer; }
   .segmented button.active { background: var(--blue); color: #fff; }
-  .settings-sub { margin: 12px 0 0 6px; padding-left: 12px; border-left: 2px solid var(--border); }
+  .settings-sub { margin: 12px 0 0 6px; padding-left: 12px; border-left: 1px solid rgba(0,0,0,0.08); }
   .settings-sub .label:first-child { margin-top: 0 !important; }
   .settings-sub .toggle-row:first-child { margin-top: 0 !important; }
+  .toggle-row:has(input:not(:checked)) .label { opacity: 0.6; }
+  #radius-slider { width: 100%; accent-color: var(--blue); margin: 8px 0 2px; cursor: pointer; display: block; }
+  .radius-slider-scale { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
   #settings-panel .label[title] { cursor: help; text-decoration: underline dotted var(--border); text-underline-offset: 3px; }
   .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; cursor: pointer; }
   .toggle-row[title] .label { cursor: help; text-decoration: underline dotted var(--border); text-underline-offset: 3px; }
@@ -385,8 +388,6 @@
       <div class="segmented">
         <button id="altunit-m" onclick="setAltUnit('m')">m</button>
         <button id="altunit-ft" onclick="setAltUnit('ft')">ft</button>
-        <button id="altunit-km" onclick="setAltUnit('km')">km</button>
-        <button id="altunit-mi" onclick="setAltUnit('mi')">mi</button>
       </div>
       <div class="label" style="margin-top:12px">Reichweite</div>
       <div class="segmented">
@@ -435,6 +436,8 @@
 
       <div class="section-title">📡 Empfang</div>
       <div class="label" title="Begrenzt nur die externe Quelle (adsb.fi), damit die Karte nicht mit weit entfernten Flugzeugen vollläuft. Deine eigenen ADS-B-Empfangsdaten werden dadurch nicht gefiltert.">Empfangsradius (<span id="radius-unit-label">km</span>, 0 = kein Limit)</div>
+      <input type="range" id="radius-slider" min="0" max="500" step="10" value="0" oninput="setRadius(this.value)">
+      <div class="radius-slider-scale"><span id="radius-slider-min">0</span><span id="radius-slider-max">500 km</span></div>
       <input type="number" id="radius-input" min="0" step="10" style="width:100%; padding:6px 8px; border:1px solid var(--border); border-radius:8px; font-size:13px; box-sizing:border-box;" onchange="setRadius(this.value)">
       <div class="settings-sub" id="radius-dependent-wrap">
         <label class="toggle-row">
@@ -459,7 +462,7 @@
       <div class="label" style="margin-top:12px" title="Wie oft die Flugzeugliste vom Empfänger aktualisiert wird. Kürzer = aktueller, aber mehr CPU/Netzwerklast.">Aktualisierungsrate</div>
       <div class="segmented">
         <button id="refresh-1000" onclick="setRefreshRate(1000)">1 s</button>
-        <button id="refresh-2000" onclick="setRefreshRate(2000)">2 s</button>
+        <button id="refresh-2000" onclick="setRefreshRate(2000)" title="Standardwert">2 s •</button>
         <button id="refresh-5000" onclick="setRefreshRate(5000)">5 s</button>
       </div>
 
@@ -482,7 +485,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.33.0';
+const APP_VERSION = '0.34.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -679,7 +682,7 @@ let sidebarCollapsed = window.innerWidth <= 768;
 let speedUnit = localStorage.getItem('speedUnit') || 'kmh';
 let altUnit = localStorage.getItem('altUnit') || 'm';
 let rangeUnit = localStorage.getItem('rangeUnit') || 'km';
-const ALT_UNIT_IS_METRIC = { m: true, km: true, ft: false, mi: false };
+const ALT_UNIT_IS_METRIC = { m: true, ft: false };
 let showTrails = localStorage.getItem('showTrails') !== 'false';
 let trailsShowAll = localStorage.getItem('trailsShowAll') === 'true';
 let lastWithPos = [];
@@ -880,7 +883,7 @@ function updateSpeedUnitButtons() {
   }
 }
 function updateAltUnitButtons() {
-  for (const u of ['m', 'ft', 'km', 'mi']) {
+  for (const u of ['m', 'ft']) {
     document.getElementById('altunit-' + u).classList.toggle('active', altUnit === u);
   }
 }
@@ -902,12 +905,8 @@ function roundMeters(m) {
 }
 
 function legendAltLabel(ft) {
-  switch (altUnit) {
-    case 'km': return (roundMeters(ft * 0.3048) / 1000).toLocaleString('de-DE') + ' km';
-    case 'ft': return ft.toLocaleString('de-DE') + ' ft';
-    case 'mi': return (ft / 5280).toFixed(1) + ' mi';
-    default: return roundMeters(ft * 0.3048).toLocaleString('de-DE') + ' m';
-  }
+  if (altUnit === 'ft') return ft.toLocaleString('de-DE') + ' ft';
+  return roundMeters(ft * 0.3048).toLocaleString('de-DE') + ' m';
 }
 
 function renderLegend() {
@@ -1084,6 +1083,9 @@ async function setAirports(on) {
   }
 }
 
+const RADIUS_SLIDER_MAX = { km: 500, nm: 270, mi: 310 };
+const RADIUS_SLIDER_STEP = { km: 10, nm: 5, mi: 5 };
+
 function updateRadiusUI() {
   document.getElementById('radius-unit-label').textContent = rangeUnit;
   let displayVal = '';
@@ -1093,6 +1095,12 @@ function updateRadiusUI() {
     else displayVal = Math.round(radiusKm);
   }
   document.getElementById('radius-input').value = displayVal;
+  const slider = document.getElementById('radius-slider');
+  const max = RADIUS_SLIDER_MAX[rangeUnit];
+  slider.max = max;
+  slider.step = RADIUS_SLIDER_STEP[rangeUnit];
+  slider.value = displayVal || 0;
+  document.getElementById('radius-slider-max').textContent = max + ' ' + rangeUnit;
   const wrap = document.getElementById('radius-dependent-wrap');
   if (wrap) wrap.style.display = radiusKm > 0 ? 'block' : 'none';
 }
@@ -1285,12 +1293,8 @@ function haversine(lat1, lon1, lat2, lon2) {
 
 function fmtAlt(ft) {
   if (ft == null) return 'unbekannt';
-  switch (altUnit) {
-    case 'ft': return Math.round(ft).toLocaleString('de-DE') + ' ft';
-    case 'km': return (ft * 0.0003048).toFixed(1) + ' km';
-    case 'mi': return (ft / 5280).toFixed(1) + ' mi';
-    default: return Math.round(ft * 0.3048).toLocaleString('de-DE') + ' m';
-  }
+  if (altUnit === 'ft') return Math.round(ft).toLocaleString('de-DE') + ' ft';
+  return Math.round(ft * 0.3048).toLocaleString('de-DE') + ' m';
 }
 function fmtSpeed(kt) {
   if (kt == null) return 'unbekannt';
