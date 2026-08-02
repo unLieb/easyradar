@@ -522,7 +522,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.36.0';
+const APP_VERSION = '0.36.1';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -1962,7 +1962,7 @@ function renderAchCategoryList(unlockedMap) {
     const pct = items.length ? Math.round((unlockedCount / items.length) * 100) : 0;
     const groupHeaderHtml = cat.group !== lastGroup ? `<div class="ach-group-title">${ACHIEVEMENT_GROUPS[cat.group]}</div>` : '';
     lastGroup = cat.group;
-    return `${groupHeaderHtml}<button class="ach-list-row" onclick="openAchCategory('${cat.id}')">
+    return `${groupHeaderHtml}<button class="ach-list-row" onclick="event.stopPropagation(); openAchCategory('${cat.id}')">
       <span>${cat.icon} ${cat.title}</span>
       <span class="ach-list-progress">${unlockedCount}/${items.length}<span class="ach-list-progress-track"><span class="ach-list-progress-fill" style="width:${pct}%"></span></span><span class="ach-list-arrow">›</span></span>
     </button>`;
@@ -1973,7 +1973,7 @@ function renderAchChipGrid(catId, items, unlockedMap) {
   const chips = items.map(a => {
     const u = unlockedMap[a.id];
     const cls = 'ach-chip' + (u ? '' : ' locked') + (selectedAchChipId === a.id ? ' selected' : '');
-    return `<div class="${cls}" onclick="selectAchChip('${catId}','${a.id}')">
+    return `<div class="${cls}" onclick="event.stopPropagation(); selectAchChip('${catId}','${a.id}')">
       <span class="ach-chip-icon">${a.icon}</span>
       <span class="ach-chip-label">${chipLabel(a)}</span>
     </div>`;
@@ -2048,7 +2048,7 @@ function renderAchCategoryDetail(catId, unlockedMap, cumMessages) {
   else if (kind === 'msgbar') bodyHtml = renderAchMsgBar(items, unlockedMap, cumMessages);
   else bodyHtml = renderAchCards(items, unlockedMap);
 
-  return `<button class="ach-back-btn" onclick="closeAchCategory()">← Zurück</button>
+  return `<button class="ach-back-btn" onclick="event.stopPropagation(); closeAchCategory()">← Zurück</button>
     <div class="ach-detail-title">${cat.icon} ${cat.title}</div>
     <div class="ach-detail-progress">${unlockedCount}/${allItems.length} freigeschaltet</div>
     ${milestonesHtml}
