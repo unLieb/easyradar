@@ -38,3 +38,7 @@ Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
 ## 0.44.1 – 2026-08-02
 - Änderungsprotokoll aus dem Statistik-Panel in die Seitenleiste verschoben – ersetzt dort die Flugzeugliste komplett, statt unterhalb der Statistiken zu erscheinen
+
+## 0.45.0 – 2026-08-02
+- Radar-Level-Profil und einzelne Meilenstein-Kategorien blenden jetzt die restlichen Statistiken komplett aus, statt darunter zu erscheinen
+- Schließen des Statistik-Panels (Klick auf die Karte, erneuter Klick auf den Statistik-Button) setzt die Ansicht wieder auf die normale Übersicht zurück
