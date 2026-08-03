@@ -32,3 +32,6 @@ Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
 ## 0.43.1 – 2026-08-02
 - Flugzeuganzahl aus der Seitenleisten-Kopfzeile entfernt (steht bereits in der Statusleiste) – Kopfzeile zeigt jetzt nur noch Logo, Name, Version und Radar-Level
+
+## 0.44.0 – 2026-08-02
+- Änderungsprotokoll wird jetzt direkt in der App angezeigt (Klick auf die Versionsnummer), statt nur die Rohdatei in einem neuen Tab zu öffnen
