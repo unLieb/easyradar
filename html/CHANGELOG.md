@@ -29,3 +29,6 @@ Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 ## 0.43.0 – 2026-08-02
 - Profilseite überarbeitet: kräftigerer Fortschrittsbalken, Motivations-Hinweis kurz vor dem nächsten Level
 - XP-Vorschläge zeigen jetzt den echten Fortschritt, wo messbar (z. B. "180 / 200 km", "23 / 25 Flugzeugtypen")
+
+## 0.43.1 – 2026-08-02
+- Flugzeuganzahl aus der Seitenleisten-Kopfzeile entfernt (steht bereits in der Statusleiste) – Kopfzeile zeigt jetzt nur noch Logo, Name, Version und Radar-Level
