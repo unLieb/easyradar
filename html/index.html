@@ -402,45 +402,47 @@
     </div>
 
     <div id="stats-panel">
-      <div class="section-title">Empfänger</div>
-      <div class="stat-row"><span class="label">Nachrichten/s</span><span class="value" id="s-msgrate">—</span></div>
-      <div class="stat-row"><span class="label">Verstärkung (Gain)</span><span class="value" id="s-gain">—</span></div>
-      <div class="stat-row"><span class="label">Max. Reichweite</span><span class="value" id="s-maxrange">—</span></div>
-      <div class="stat-row"><span class="label">MLAT-Anteil (aktuell)</span><span class="value" id="s-mlat">—</span></div>
+      <div id="stats-overview">
+        <div class="section-title">Empfänger</div>
+        <div class="stat-row"><span class="label">Nachrichten/s</span><span class="value" id="s-msgrate">—</span></div>
+        <div class="stat-row"><span class="label">Verstärkung (Gain)</span><span class="value" id="s-gain">—</span></div>
+        <div class="stat-row"><span class="label">Max. Reichweite</span><span class="value" id="s-maxrange">—</span></div>
+        <div class="stat-row"><span class="label">MLAT-Anteil (aktuell)</span><span class="value" id="s-mlat">—</span></div>
 
-      <div class="section-title">Zeitraum</div>
-      <div class="segmented">
-        <button id="stats-range-today" onclick="setStatsRange('today')">Heute</button>
-        <button id="stats-range-alltime" onclick="setStatsRange('alltime')">Insgesamt</button>
+        <div class="section-title">Zeitraum</div>
+        <div class="segmented">
+          <button id="stats-range-today" onclick="setStatsRange('today')">Heute</button>
+          <button id="stats-range-alltime" onclick="setStatsRange('alltime')">Insgesamt</button>
+        </div>
+
+        <div class="section-title">Rekorde</div>
+        <div class="stat-row"><span class="label">Flugzeuge</span><span class="value" id="s-uniquecount">—</span></div>
+        <div class="stat-row"><span class="label">davon Militär</span><span class="value" id="s-militarycount" style="color:#2e7d32">—</span></div>
+        <div class="stat-row" id="s-msgstoday-row"><span class="label">Nachrichten</span><span class="value" id="s-msgstoday">—</span></div>
+        <div class="stat-row"><span class="label">Ø Reichweite</span><span class="value" id="s-avgdist">—</span></div>
+        <div class="stat-row"><span class="label">Ø Flughöhe</span><span class="value" id="s-avgalt">—</span></div>
+        <div class="stat-row"><span class="label">Höchste Flughöhe</span><span class="value" id="s-maxalt">—</span></div>
+        <div class="stat-row"><span class="label">Niedrigster Überflug</span><span class="value" id="s-minalt">—</span></div>
+        <div class="stat-row"><span class="label">Höchste Geschwindigkeit</span><span class="value" id="s-maxspeed">—</span></div>
+        <div class="stat-row"><span class="label">Weiteste Entfernung</span><span class="value" id="s-maxdist">—</span></div>
+
+        <div class="section-title">Top Flugzeugtypen</div>
+        <div id="s-toptypes"></div>
+
+        <div class="section-title">Häufigste Rufzeichen</div>
+        <div id="s-topcallsigns"></div>
+
+        <div class="section-title">Häufigste Fluggesellschaft</div>
+        <div id="s-topairlines"></div>
+
+        <div class="section-title">Empfang nach Richtung</div>
+        <div id="s-directions"></div>
       </div>
-
-      <div class="section-title">Rekorde</div>
-      <div class="stat-row"><span class="label">Flugzeuge</span><span class="value" id="s-uniquecount">—</span></div>
-      <div class="stat-row"><span class="label">davon Militär</span><span class="value" id="s-militarycount" style="color:#2e7d32">—</span></div>
-      <div class="stat-row" id="s-msgstoday-row"><span class="label">Nachrichten</span><span class="value" id="s-msgstoday">—</span></div>
-      <div class="stat-row"><span class="label">Ø Reichweite</span><span class="value" id="s-avgdist">—</span></div>
-      <div class="stat-row"><span class="label">Ø Flughöhe</span><span class="value" id="s-avgalt">—</span></div>
-      <div class="stat-row"><span class="label">Höchste Flughöhe</span><span class="value" id="s-maxalt">—</span></div>
-      <div class="stat-row"><span class="label">Niedrigster Überflug</span><span class="value" id="s-minalt">—</span></div>
-      <div class="stat-row"><span class="label">Höchste Geschwindigkeit</span><span class="value" id="s-maxspeed">—</span></div>
-      <div class="stat-row"><span class="label">Weiteste Entfernung</span><span class="value" id="s-maxdist">—</span></div>
-
-      <div class="section-title">Top Flugzeugtypen</div>
-      <div id="s-toptypes"></div>
-
-      <div class="section-title">Häufigste Rufzeichen</div>
-      <div id="s-topcallsigns"></div>
-
-      <div class="section-title">Häufigste Fluggesellschaft</div>
-      <div id="s-topairlines"></div>
-
-      <div class="section-title">Empfang nach Richtung</div>
-      <div id="s-directions"></div>
 
       <div class="section-title">Meilensteine</div>
       <div id="s-achievements"></div>
 
-      <div style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">Rekorde/Top-Listen dauerhaft gespeichert</div>
+      <div id="stats-footer-note" style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">Rekorde/Top-Listen dauerhaft gespeichert</div>
     </div>
 
     <div id="settings-panel">
@@ -558,7 +560,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.44.1';
+const APP_VERSION = '0.45.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -955,6 +957,7 @@ function closeSidebarOnMobile() {
 function toggleSettings() {
   document.getElementById('stats-panel').classList.remove('show');
   document.getElementById('stats-btn-float').classList.remove('active');
+  resetAchievementsNav();
   document.getElementById('settings-panel').classList.toggle('show');
   document.getElementById('settings-btn-float').classList.toggle('active');
 }
@@ -962,8 +965,11 @@ function toggleSettings() {
 function toggleStats() {
   document.getElementById('settings-panel').classList.remove('show');
   document.getElementById('settings-btn-float').classList.remove('active');
-  document.getElementById('stats-panel').classList.toggle('show');
+  const panel = document.getElementById('stats-panel');
+  const opening = !panel.classList.contains('show');
+  panel.classList.toggle('show');
   document.getElementById('stats-btn-float').classList.toggle('active');
+  if (!opening) resetAchievementsNav();
 }
 
 function updateSpeedUnitButtons() {
@@ -1335,6 +1341,7 @@ document.addEventListener('click', (e) => {
     if (panel.classList.contains('show') && !panel.contains(e.target) && !btn.contains(e.target)) {
       panel.classList.remove('show');
       btn.classList.remove('active');
+      if (panelId === 'stats-panel') resetAchievementsNav();
     }
   }
 });
@@ -2202,12 +2209,33 @@ function renderAchCategoryDetail(catId, unlockedMap, cumMessages) {
     ${bodyHtml}`;
 }
 
+// Hides the unrelated overview stats (Empfaenger/Rekorde/Top-Listen/Richtung)
+// while a Meilenstein-Kategorie or das Radar-Level-Profil offen ist, damit dort
+// wirklich nur das steht, worauf man gerade geklickt hat - nicht Statistiken
+// obendrueber, die damit gar nichts zu tun haben.
 function renderAchievementsView() {
   const container = document.getElementById('s-achievements');
+  const overview = document.getElementById('stats-overview');
+  const footerNote = document.getElementById('stats-footer-note');
   if (achOpenCategory) {
     container.innerHTML = renderAchCategoryDetail(achOpenCategory, lastAchUnlockedMap, lastAchCumMessages);
+    overview.style.display = 'none';
+    footerNote.style.display = 'none';
   } else {
     container.innerHTML = renderAchCategoryList(lastAchUnlockedMap);
+    overview.style.display = '';
+    footerNote.style.display = '';
+  }
+}
+
+// Closing the stats panel (outside click, toggling it off, switching to
+// settings) should reset back to the overview - otherwise reopening it later
+// silently drops you back into whatever category/level view you left open.
+function resetAchievementsNav() {
+  if (achOpenCategory !== null) {
+    achOpenCategory = null;
+    selectedAchChipId = null;
+    renderAchievementsView();
   }
 }
 
