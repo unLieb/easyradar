@@ -91,6 +91,9 @@
 
   #panel-detail { display: none; flex: 1; overflow-y: auto; flex-direction: column; overflow-anchor: none; }
   #panel-detail.show { display: flex; }
+  #panel-changelog { display: none; flex: 1; overflow-y: auto; flex-direction: column; padding: 16px 18px 8px; box-sizing: border-box; }
+  #panel-changelog.show { display: flex; }
+  #sidebar.changelog-open #search-bar, #sidebar.changelog-open #filter-bar { display: none; }
   #panel-list.hidden { display: none; }
 
   #detail-header { position: sticky; top: 0; z-index: 5; background: var(--card); transform: translateZ(0); }
@@ -368,6 +371,8 @@
           <div id="d-timeline" style="padding: 0 18px;"></div>
         </div>
       </div>
+
+      <div id="panel-changelog"></div>
     </div>
 
     <button id="collapse-btn" onclick="toggleSidebar()">&#9664;</button>
@@ -553,7 +558,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.44.0';
+const APP_VERSION = '0.44.1';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -2169,7 +2174,6 @@ function renderAchCards(items, unlockedMap) {
 
 function renderAchCategoryDetail(catId, unlockedMap, cumMessages) {
   if (catId === '__level__') return renderLevelProfile();
-  if (catId === '__changelog__') return renderChangelogView();
   const cat = ACHIEVEMENT_CATEGORIES.find(c => c.id === catId);
   const allItems = ACHIEVEMENTS_CATALOG.filter(a => a.cat === catId);
   const items = allItems.filter(a => !ACH_MILESTONE_IDS.has(a.id));
@@ -2378,32 +2382,41 @@ function parseChangelogMd(text) {
   return html;
 }
 
-async function loadChangelog() {
-  try {
-    const res = await fetch('/CHANGELOG.md', { cache: 'no-store' });
-    const text = await res.text();
-    changelogHtml = parseChangelogMd(text);
-    if (achOpenCategory === '__changelog__') renderAchievementsView();
-  } catch (e) {
-    changelogHtml = '<div class="changelog-intro">Änderungsprotokoll konnte nicht geladen werden.</div>';
-  }
-}
-
-function renderChangelogView() {
-  return `<button class="ach-back-btn" onclick="closeAchCategory()">← Zurück</button>
+function renderChangelogPanel() {
+  document.getElementById('panel-changelog').innerHTML = `<button class="ach-back-btn" onclick="closeChangelogView()">← Zurück</button>
     <div class="changelog-view">
       <div class="changelog-title">Änderungsprotokoll</div>
       ${changelogHtml || '<div class="changelog-intro">Lade…</div>'}
     </div>`;
 }
 
+async function loadChangelog() {
+  try {
+    const res = await fetch('/CHANGELOG.md', { cache: 'no-store' });
+    const text = await res.text();
+    changelogHtml = parseChangelogMd(text);
+    if (document.getElementById('panel-changelog').classList.contains('show')) renderChangelogPanel();
+  } catch (e) {
+    changelogHtml = '<div class="changelog-intro">Änderungsprotokoll konnte nicht geladen werden.</div>';
+  }
+}
+
+// Reuses the same list<->detail swap already used for plane selection - the
+// changelog is app-wide info, not a station statistic, so it doesn't belong
+// nested inside the stats panel underneath unrelated sections.
 function openChangelogView() {
-  const panel = document.getElementById('stats-panel');
-  if (!panel.classList.contains('show')) toggleStats();
-  achOpenCategory = '__changelog__';
-  selectedAchChipId = null;
-  renderAchievementsView();
-  document.getElementById('s-achievements').scrollIntoView({ block: 'start' });
+  if (selectedHex) closeDetail();
+  document.getElementById('panel-list').classList.add('hidden');
+  document.getElementById('sidebar').classList.add('changelog-open');
+  renderChangelogPanel();
+  document.getElementById('panel-changelog').classList.add('show');
+  if (sidebarCollapsed) toggleSidebar();
+}
+
+function closeChangelogView() {
+  document.getElementById('panel-changelog').classList.remove('show');
+  document.getElementById('sidebar').classList.remove('changelog-open');
+  document.getElementById('panel-list').classList.remove('hidden');
 }
 
 let achievementsFetchInFlight = false;
