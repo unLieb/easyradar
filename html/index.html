@@ -57,7 +57,6 @@
   .xp-suggestion-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 6px 0; text-align: left; }
   .xp-suggestion-sub { display: block; font-size: 10px; color: var(--text-muted); opacity: 0.75; margin-top: 1px; }
   .xp-suggestion-value { color: var(--text-muted); font-weight: 600; font-size: 11px; flex-shrink: 0; margin-left: 8px; }
-  #sidebar header .count { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
 
   #search-bar { padding: 10px 18px 0; }
   #search-input { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 13px; box-sizing: border-box; background: var(--bg); }
@@ -301,7 +300,6 @@
           <h1>easyRADAR</h1>
           <a class="version" id="app-version" href="/CHANGELOG.md" target="_blank" rel="noopener" title="Änderungsprotokoll ansehen"></a>
           <button class="level-badge" id="level-badge" onclick="event.stopPropagation(); openLevelProfile()">🛰️ Radar-Level <span id="level-number">–</span></button>
-          <div class="count" id="count">Lade Flugzeuge…</div>
         </div>
       </header>
 
@@ -547,7 +545,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.43.0';
+const APP_VERSION = '0.43.1';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -2487,7 +2485,6 @@ async function refresh() {
     setAdsbOnline(true);
     lastRefreshTime = Date.now();
   } catch (e) {
-    document.getElementById('count').textContent = 'Verbindung fehlgeschlagen';
     setAdsbOnline(false);
     return;
   }
@@ -2554,7 +2551,6 @@ async function refresh() {
 }
 
 function renderList(withPos) {
-  document.getElementById('count').textContent = withPos.length + ' Flugzeuge sichtbar';
   setStatusValue('status-count', withPos.length);
   const list = document.getElementById('panel-list');
   list.innerHTML = '';
