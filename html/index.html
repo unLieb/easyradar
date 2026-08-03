@@ -37,7 +37,7 @@
   #sidebar header { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; }
   #sidebar header .brand-logo { width: 44px; height: 44px; flex-shrink: 0; }
   #sidebar header h1 { font-size: 18px; font-weight: 600; margin: 0; color: var(--blue); }
-  #sidebar header .version { font-size: 10px; color: var(--text-muted); margin-top: 1px; text-decoration: none; display: inline-block; }
+  #sidebar header .version { font-size: 10px; color: var(--text-muted); margin-top: 1px; text-decoration: none; display: inline-block; background: none; border: none; padding: 0; font-family: inherit; cursor: pointer; text-align: left; }
   #sidebar header .version:hover { text-decoration: underline; }
   .level-badge { display: flex; align-items: center; gap: 4px; background: none; border: none; padding: 0; margin-top: 3px; font-size: 11px; font-weight: 600; color: var(--blue); cursor: pointer; font-family: inherit; }
   .level-badge:hover { text-decoration: underline; }
@@ -57,6 +57,14 @@
   .xp-suggestion-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 6px 0; text-align: left; }
   .xp-suggestion-sub { display: block; font-size: 10px; color: var(--text-muted); opacity: 0.75; margin-top: 1px; }
   .xp-suggestion-value { color: var(--text-muted); font-weight: 600; font-size: 11px; flex-shrink: 0; margin-left: 8px; }
+
+  .changelog-view { text-align: left; }
+  .changelog-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 14px; }
+  .changelog-intro { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+  .changelog-version { font-size: 12px; font-weight: 700; color: var(--blue); margin: 16px 0 6px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .changelog-version:first-of-type { padding-top: 0; border-top: none; margin-top: 0; }
+  .changelog-list { margin: 0; padding-left: 18px; }
+  .changelog-list li { font-size: 12px; color: var(--text); padding: 3px 0; }
 
   #search-bar { padding: 10px 18px 0; }
   #search-input { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 13px; box-sizing: border-box; background: var(--bg); }
@@ -298,7 +306,7 @@
         <img src="logo.png" alt="" class="brand-logo">
         <div class="brand-text">
           <h1>easyRADAR</h1>
-          <a class="version" id="app-version" href="/CHANGELOG.md" target="_blank" rel="noopener" title="Änderungsprotokoll ansehen"></a>
+          <button class="version" id="app-version" onclick="event.stopPropagation(); openChangelogView()" title="Änderungsprotokoll ansehen"></button>
           <button class="level-badge" id="level-badge" onclick="event.stopPropagation(); openLevelProfile()">🛰️ Radar-Level <span id="level-number">–</span></button>
         </div>
       </header>
@@ -545,7 +553,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.43.1';
+const APP_VERSION = '0.44.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -2161,6 +2169,7 @@ function renderAchCards(items, unlockedMap) {
 
 function renderAchCategoryDetail(catId, unlockedMap, cumMessages) {
   if (catId === '__level__') return renderLevelProfile();
+  if (catId === '__changelog__') return renderChangelogView();
   const cat = ACHIEVEMENT_CATEGORIES.find(c => c.id === catId);
   const allItems = ACHIEVEMENTS_CATALOG.filter(a => a.cat === catId);
   const items = allItems.filter(a => !ACH_MILESTONE_IDS.has(a.id));
@@ -2335,6 +2344,66 @@ async function loadStationName() {
       document.getElementById('status-station-wrap').style.display = '';
     }
   } catch (e) { /* optional, ignore failures */ }
+}
+
+// Reads CHANGELOG.md directly (the same file served at /CHANGELOG.md, so this
+// works whether or not the checkout is ever pushed to a git remote) and renders
+// it in-app instead of just linking out to the raw file. Fetched once at load;
+// hand-rolled parser since the format is entirely our own (# title, intro
+// paragraph, ## version headers, - bullet items), not general markdown.
+let changelogHtml = null;
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function parseChangelogMd(text) {
+  let html = '';
+  let inList = false;
+  for (const raw of text.split('\n')) {
+    const line = raw.trim();
+    if (!line || line.startsWith('# ')) continue;
+    if (line.startsWith('## ')) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<div class="changelog-version">${escapeHtml(line.slice(3))}</div>`;
+    } else if (line.startsWith('- ')) {
+      if (!inList) { html += '<ul class="changelog-list">'; inList = true; }
+      html += `<li>${escapeHtml(line.slice(2))}</li>`;
+    } else {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<div class="changelog-intro">${escapeHtml(line)}</div>`;
+    }
+  }
+  if (inList) html += '</ul>';
+  return html;
+}
+
+async function loadChangelog() {
+  try {
+    const res = await fetch('/CHANGELOG.md', { cache: 'no-store' });
+    const text = await res.text();
+    changelogHtml = parseChangelogMd(text);
+    if (achOpenCategory === '__changelog__') renderAchievementsView();
+  } catch (e) {
+    changelogHtml = '<div class="changelog-intro">Änderungsprotokoll konnte nicht geladen werden.</div>';
+  }
+}
+
+function renderChangelogView() {
+  return `<button class="ach-back-btn" onclick="closeAchCategory()">← Zurück</button>
+    <div class="changelog-view">
+      <div class="changelog-title">Änderungsprotokoll</div>
+      ${changelogHtml || '<div class="changelog-intro">Lade…</div>'}
+    </div>`;
+}
+
+function openChangelogView() {
+  const panel = document.getElementById('stats-panel');
+  if (!panel.classList.contains('show')) toggleStats();
+  achOpenCategory = '__changelog__';
+  selectedAchChipId = null;
+  renderAchievementsView();
+  document.getElementById('s-achievements').scrollIntoView({ block: 'start' });
 }
 
 let achievementsFetchInFlight = false;
@@ -2607,6 +2676,7 @@ updateRefreshRateButtons();
 document.getElementById('app-version').textContent = 'v' + APP_VERSION;
 renderLegend();
 loadStationName();
+loadChangelog();
 refresh();
 refreshTimer = setInterval(refresh, refreshRateMs);
 </script>
