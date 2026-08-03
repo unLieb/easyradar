@@ -44,17 +44,19 @@
 
   .level-profile { text-align: center; padding: 4px 0 8px; }
   .level-profile-title { font-size: 22px; font-weight: 700; color: var(--text); }
-  .level-profile-sub { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 14px; }
-  .level-profile-bar-track { height: 10px; background: var(--bg); border-radius: 5px; overflow: hidden; margin-bottom: 6px; }
-  .level-profile-bar-fill { height: 100%; background: var(--blue); border-radius: 5px; }
+  .level-profile-sub { font-size: 13px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; }
+  .level-profile-bar-track { height: 14px; background: var(--bg); border-radius: 7px; overflow: hidden; margin-bottom: 6px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.12); }
+  .level-profile-bar-fill { height: 100%; background: linear-gradient(90deg, var(--blue), #4fa3ff); border-radius: 7px; }
   .level-profile-xp { font-size: 12px; color: var(--text-muted); }
   .level-profile-achcount { font-size: 12px; color: var(--text); font-weight: 600; margin-top: 4px; margin-bottom: 16px; }
+  .level-profile-pct { color: var(--text-muted); font-weight: 400; font-size: 10px; }
   .level-profile-maxed { font-size: 13px; font-weight: 600; color: var(--blue); margin-bottom: 16px; }
   .level-profile-next-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; text-align: left; }
   .level-profile-next { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 16px; text-align: left; }
   .level-profile-sources-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; text-align: left; border-top: 1px solid var(--border); padding-top: 12px; }
   .xp-suggestion-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 6px 0; text-align: left; }
-  .xp-suggestion-value { color: var(--blue); font-weight: 600; flex-shrink: 0; margin-left: 8px; }
+  .xp-suggestion-sub { display: block; font-size: 10px; color: var(--text-muted); opacity: 0.75; margin-top: 1px; }
+  .xp-suggestion-value { color: var(--text-muted); font-weight: 600; font-size: 11px; flex-shrink: 0; margin-left: 8px; }
   #sidebar header .count { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
 
   #search-bar { padding: 10px 18px 0; }
@@ -545,7 +547,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.42.0';
+const APP_VERSION = '0.43.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
@@ -2234,6 +2236,45 @@ function buildXpSuggestions(unlockedMap, limit) {
   return suggestions.slice(0, limit || 6);
 }
 
+// How close a still-locked achievement is to unlocking, where that's measurable
+// from data we already track (a running record or a running count) - not
+// meaningful for "first of type" spots (Concorde, Erste Qantas, ...), those stay
+// a plain "noch nicht gesichtet".
+function achievementProgress(a) {
+  const id = a.id;
+  const num = parseInt((id.match(/\d+/) || [])[0], 10);
+  if (id.startsWith('range_') && !isNaN(num)) {
+    const current = lastAchRecords.max_dist ? Math.round(lastAchRecords.max_dist.value) : 0;
+    return { current, target: num, unit: 'km' };
+  }
+  if (id.startsWith('altitude_fl') && !isNaN(num)) {
+    const current = lastAchRecords.max_alt ? Math.round(lastAchRecords.max_alt.value) : 0;
+    return { current, target: num * 100, unit: 'ft' };
+  }
+  if (id.startsWith('types_') && !isNaN(num)) {
+    return { current: lastProgressCounts.typeCount, target: num, unit: 'Typen' };
+  }
+  if (id.startsWith('aircraft_') && !isNaN(num)) {
+    return { current: lastProgressCounts.aircraftCount, target: num, unit: 'Flugzeuge' };
+  }
+  if (id.startsWith('msg_') && !isNaN(num)) {
+    return { current: lastAchCumMessages, target: num, unit: 'Nachrichten' };
+  }
+  if (id.startsWith('airlines_') && !isNaN(num)) {
+    return { current: lastProgressCounts.airlineCount, target: num, unit: 'Airlines' };
+  }
+  if (id === 'countries_50') {
+    return { current: lastProgressCounts.countryCount, target: 50, unit: 'Länder' };
+  }
+  return null;
+}
+
+function xpSuggestionSubline(a) {
+  const p = achievementProgress(a);
+  if (!p) return 'Noch nicht gesichtet';
+  return `${p.current.toLocaleString('de-DE')} / ${p.target.toLocaleString('de-DE')} ${p.unit}`;
+}
+
 function renderLevelProfile() {
   const li = lastLevelInfo || { level: 0, maxLevel: 50, totalXp: 0, currentLevelXp: 0, nextLevelXp: 5, xpToNext: 5, bonusXp: 0 };
   const totalCount = ACHIEVEMENTS_CATALOG.length;
@@ -2242,10 +2283,11 @@ function renderLevelProfile() {
   const maxed = li.nextLevelXp == null;
   const barPct = maxed ? 100 : Math.round(100 * (li.totalXp - li.currentLevelXp) / (li.nextLevelXp - li.currentLevelXp));
   const barMaxXp = maxed ? li.totalXp : li.nextLevelXp;
+  const closeToNext = !maxed && barPct >= 70;
 
   const suggestions = buildXpSuggestions(lastAchUnlockedMap, 6);
   const suggestionsHtml = suggestions.length
-    ? suggestions.map(a => `<div class="xp-suggestion-row"><span>☐ ${a.icon} ${a.title}</span><span class="xp-suggestion-value">+${ACHIEVEMENT_XP[a.id] || 0} XP</span></div>`).join('')
+    ? suggestions.map(a => `<div class="xp-suggestion-row"><span>☐ ${a.icon} ${a.title}<span class="xp-suggestion-sub">${xpSuggestionSubline(a)}</span></span><span class="xp-suggestion-value">+${ACHIEVEMENT_XP[a.id] || 0} XP</span></div>`).join('')
     : '<div class="xp-suggestion-row" style="opacity:.6">Alle Meilensteine erreicht! 🎉</div>';
 
   return `<button class="ach-back-btn" onclick="closeAchCategory()">← Zurück</button>
@@ -2253,23 +2295,31 @@ function renderLevelProfile() {
       <div class="level-profile-title">🛰️ Radar-Level ${li.level}</div>
       <div class="level-profile-sub">Radar-Operator</div>
       <div class="level-profile-bar-track"><div class="level-profile-bar-fill" style="width:${barPct}%"></div></div>
-      <div class="level-profile-xp">${li.totalXp.toLocaleString('de-DE')} / ${barMaxXp.toLocaleString('de-DE')} XP</div>
-      <div class="level-profile-achcount">${unlockedCount} / ${totalCount} Achievements · ${pct}%</div>
+      <div class="level-profile-xp">${li.totalXp.toLocaleString('de-DE')} / ${barMaxXp.toLocaleString('de-DE')} Erfahrung</div>
+      <div class="level-profile-achcount">${unlockedCount} / ${totalCount} Achievements <span class="level-profile-pct">· ${pct}%</span></div>
       ${maxed
-        ? `<div class="level-profile-maxed">Max-Level erreicht${li.bonusXp > 0 ? ` · +${li.bonusXp.toLocaleString('de-DE')} Bonus-XP` : ''}</div>`
-        : `<div class="level-profile-next-title">Nächstes Level</div>
-           <div class="level-profile-next">Level ${li.level + 1} · noch ${li.xpToNext.toLocaleString('de-DE')} XP</div>`}
+        ? `<div class="level-profile-maxed">Max-Level erreicht${li.bonusXp > 0 ? ` · +${li.bonusXp.toLocaleString('de-DE')} Bonus-Erfahrung` : ''}</div>`
+        : closeToNext
+          ? `<div class="level-profile-next-title">🎯 Kurz vor Level ${li.level + 1}</div>
+             <div class="level-profile-next">Noch ${li.xpToNext.toLocaleString('de-DE')} Erfahrung</div>`
+          : `<div class="level-profile-next-title">Nächstes Level</div>
+             <div class="level-profile-next">Level ${li.level + 1} · noch ${li.xpToNext.toLocaleString('de-DE')} Erfahrung</div>`}
       <div class="level-profile-sources-title">Mögliche XP-Quellen</div>
       ${suggestionsHtml}
     </div>`;
 }
 
-function renderAchievements(unlockedList, cumMessages, levelInfo) {
+let lastAchRecords = {};
+let lastProgressCounts = { countryCount: 0, airlineCount: 0, typeCount: 0, aircraftCount: 0 };
+
+function renderAchievements(unlockedList, cumMessages, levelInfo, records, progressCounts) {
   const unlockedMap = {};
   unlockedList.forEach(u => { unlockedMap[u.id] = u; });
   lastAchUnlockedMap = unlockedMap;
   lastAchCumMessages = cumMessages || 0;
   lastLevelInfo = levelInfo || null;
+  lastAchRecords = records || {};
+  lastProgressCounts = progressCounts || lastProgressCounts;
   updateLevelBadge();
   renderAchievementsView();
 }
@@ -2327,7 +2377,10 @@ async function fetchAndRenderAchievements() {
     recordsFirstLoad = false;
     localStorage.setItem('knownRecordBrokenAt', JSON.stringify(knownRecordBrokenAt));
 
-    renderAchievements(unlocked, d.messagesAccumulated || 0, d.levelInfo);
+    renderAchievements(unlocked, d.messagesAccumulated || 0, d.levelInfo, records, {
+      countryCount: d.countryCount || 0, airlineCount: d.airlineCount || 0,
+      typeCount: d.typeCount || 0, aircraftCount: d.aircraftCount || 0
+    });
   } catch (e) { /* achievements optional, ignore failures */ }
   finally { achievementsFetchInFlight = false; }
 }
