@@ -35,3 +35,6 @@ Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
 ## 0.44.0 – 2026-08-02
 - Änderungsprotokoll wird jetzt direkt in der App angezeigt (Klick auf die Versionsnummer), statt nur die Rohdatei in einem neuen Tab zu öffnen
+
+## 0.44.1 – 2026-08-02
+- Änderungsprotokoll aus dem Statistik-Panel in die Seitenleiste verschoben – ersetzt dort die Flugzeugliste komplett, statt unterhalb der Statistiken zu erscheinen
