@@ -25,3 +25,7 @@ Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 - Klick auf das Level öffnet eine Profilseite: Fortschritt zum nächsten Level, Anzahl freigeschalteter Meilensteine, und Vorschläge für die nächsten erreichbaren Meilensteine
 - Jeder Meilenstein zeigt jetzt seinen XP-Wert und eine Raritätsstufe (Häufig bis Legendär)
 - Neue Meilenstein-Kategorien: Flugzeugtypen (10/25/50/100 verschiedene Typen) und Gesamtflugzeuge (100–10.000 insgesamt empfangene Flugzeuge)
+
+## 0.43.0 – 2026-08-02
+- Profilseite überarbeitet: kräftigerer Fortschrittsbalken, Motivations-Hinweis kurz vor dem nächsten Level
+- XP-Vorschläge zeigen jetzt den echten Fortschritt, wo messbar (z. B. "180 / 200 km", "23 / 25 Flugzeugtypen")
