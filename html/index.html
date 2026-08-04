@@ -81,7 +81,7 @@
   .plane-row .star { cursor: pointer; margin-right: 4px; color: var(--border); }
   .plane-row .star.on { color: #f9a825; }
   .plane-row { padding: 12px 16px; margin: 2px 8px; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.15s; }
-  .plane-row:hover { background: #f0f4f8; }
+  .plane-row:hover, .plane-row.radar-hover-linked { background: #f0f4f8; }
   .plane-row .callsign { font-weight: 600; font-size: 14px; }
   .plane-row .callsign.callsign-mil { color: #2e7d32; }
   .plane-row .callsign.callsign-einsatz { color: #d32f2f; }
@@ -391,7 +391,7 @@
     <div id="status-bar-wrap">
       <div id="status-bar">
         <span class="status-item">📡 ADS-B <span id="status-dot">🟢</span> <span id="status-text" class="online" data-i18n="status.online">Online</span></span>
-        <span class="status-item">✈️ <span id="status-count">0</span> <span data-i18n="status.aircraft">Flugzeuge</span></span>
+        <span class="status-item">✈️ <span id="status-count">0</span> <span id="status-aircraft-label" data-i18n="status.aircraft">Flugzeuge</span></span>
         <span class="status-item">📨 <span id="status-msgrate">—</span> msg/s</span>
         <span class="status-item">📍 <span id="status-location">—</span></span>
         <span class="status-item" id="status-station-wrap" style="display:none">🏷️ <span id="status-station">—</span></span>
@@ -575,7 +575,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.48.0';
+const APP_VERSION = '0.49.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 // --- i18n --------------------------------------------------------------------
@@ -617,6 +617,7 @@ function applyTranslations() {
     el.setAttribute('placeholder', t(el.getAttribute('data-i18n-placeholder')));
   });
   document.documentElement.lang = currentLang;
+  updateStatusAircraftLabel();
 }
 
 async function fetchLocale(code) {
@@ -811,13 +812,21 @@ function destPoint(lat, lon, bearingDeg, distKm) {
 // (unabhängig von der kosmetischen Sweep-Nadel oben, die weiterhin auf der Karte läuft).
 let radarScopeActive = localStorage.getItem('radarScopeActive') === 'true';
 let radarScopeMaxRangeKm = 150;
-let radarScopeAircraft = [];
+// Je Flugzeug wird sowohl die zuletzt bekannte (from*) als auch die neu gemeldete (to*)
+// Position gehalten - drawRadarScopeFrame() interpoliert dazwischen, statt bei jedem
+// Refresh hart zu springen. updateStart ist der performance.now()-Zeitpunkt des letzten
+// Sprungs; Peilung wird über den kürzeren Weg interpoliert (Wraparound bei 360°/0°).
+let radarScopeAircraftByHex = new Map();
+let radarScopeHoveredHex = null;
 let radarScopeSweepDeg = 0;
 let radarScopeAnimHandle = null;
 // Landesgrenzen/Küste, einmalig geladen: je Ring eine Liste aus [Peilung, Distanz] -
 // unabhängig von Canvas-Pixeln, damit ein Resize nur die Projektion neu baut, nicht die Daten neu lädt.
 let radarScopeMapRings = null;
 let radarScopeMapPath = null;
+// Echte, unregelmäßige Empfangskontur (aus rangeOutlineData, das ohnehin schon für die
+// Karte gepflegt wird) - geglättete [Peilung, Distanz]-Punkte, nur bei neuen Daten neu gebaut.
+let radarScopeContourPoints = null;
 const radarScopeCanvas = document.getElementById('radar-scope-canvas');
 const radarScopeCtx = radarScopeCanvas.getContext('2d');
 
@@ -832,6 +841,62 @@ function bearingBetween(lat1, lon1, lat2, lon2) {
 function radarScopePoint(cx, cy, r, bearingDeg) {
   const rad = bearingDeg * Math.PI / 180;
   return [cx + r * Math.sin(rad), cy - r * Math.cos(rad)];
+}
+
+// Kürzester Drehweg für Peilungs-Interpolation (350° -> 10° geht über 0°, nicht über 180°).
+function lerpBearing(from, to, frac) {
+  const diff = ((to - from + 540) % 360) - 180;
+  return (from + diff * frac + 360) % 360;
+}
+
+function angularDelta(a, b) {
+  const d = Math.abs(a - b) % 360;
+  return d > 180 ? 360 - d : d;
+}
+
+function updateRadarScopeContour() {
+  if (!rangeOutlineData) { radarScopeContourPoints = null; return; }
+  const numBuckets = 360 / rangeOutlineBucketDeg;
+  const points = [];
+  for (let b = 0; b < numBuckets; b++) {
+    const dist = rangeOutlineData[b];
+    if (dist == null) continue;
+    points.push([b * rangeOutlineBucketDeg + rangeOutlineBucketDeg / 2, dist]);
+  }
+  radarScopeContourPoints = points.length >= 3 ? chaikinSmoothClosed(points, 3) : null;
+}
+
+// Aktuelle, zeitlich interpolierte Positionen für Zeichnen und Hit-Testing - liest nie
+// direkt radarScopeAircraftByHex, damit beide Stellen garantiert denselben Stand sehen.
+function interpolatedRadarScopeAircraft() {
+  const now = performance.now();
+  const dur = Math.min(refreshRateMs || 2000, 4000);
+  const result = [];
+  for (const a of radarScopeAircraftByHex.values()) {
+    const frac = Math.max(0, Math.min(1, (now - a.updateStart) / dur));
+    result.push({
+      hex: a.hex,
+      flight: a.flight,
+      alt: a.alt,
+      shape: a.shape,
+      distKm: a.fromDist + (a.toDist - a.fromDist) * frac,
+      bearingDeg: lerpBearing(a.fromBearing, a.toBearing, frac),
+    });
+  }
+  return result;
+}
+
+function hitTestRadarScope(mx, my) {
+  const { cx, cy, R } = radarScopeGeometry();
+  let hitHex = null, hitDist = 16;
+  for (const a of interpolatedRadarScopeAircraft()) {
+    if (a.distKm > radarScopeMaxRangeKm) continue;
+    const r = R * a.distKm / radarScopeMaxRangeKm;
+    const [bx, by] = radarScopePoint(cx, cy, r, a.bearingDeg);
+    const d = Math.hypot(mx - bx, my - by);
+    if (d < hitDist) { hitDist = d; hitHex = a.hex; }
+  }
+  return hitHex;
 }
 
 function radarScopeGeometry() {
@@ -905,14 +970,31 @@ async function initRadarScopeMap() {
 }
 
 function updateRadarScopeAircraft(withPos) {
-  radarScopeAircraft = withPos.filter(a => a.lat != null && a.lon != null).map(a => ({
-    hex: a.hex,
-    flight: (a.flight || a.hex || '').trim(),
-    alt: a.alt_baro,
-    shape: classifyAircraft(a),
-    distKm: haversine(SITE_LAT, SITE_LON, a.lat, a.lon),
-    bearingDeg: bearingBetween(SITE_LAT, SITE_LON, a.lat, a.lon),
-  }));
+  const now = performance.now();
+  const next = new Map();
+  for (const a of withPos) {
+    if (a.lat == null || a.lon == null) continue;
+    const distKm = haversine(SITE_LAT, SITE_LON, a.lat, a.lon);
+    const bearingDeg = bearingBetween(SITE_LAT, SITE_LON, a.lat, a.lon);
+    const prev = radarScopeAircraftByHex.get(a.hex);
+    next.set(a.hex, {
+      hex: a.hex,
+      flight: (a.flight || a.hex || '').trim(),
+      alt: a.alt_baro,
+      shape: classifyAircraft(a),
+      fromDist: prev ? prev.toDist : distKm,
+      fromBearing: prev ? prev.toBearing : bearingDeg,
+      toDist: distKm,
+      toBearing: bearingDeg,
+      updateStart: now,
+    });
+  }
+  radarScopeAircraftByHex = next;
+}
+
+function updateStatusAircraftLabel() {
+  const el = document.getElementById('status-aircraft-label');
+  if (el) el.textContent = radarScopeActive ? t('status.contacts') : t('status.aircraft');
 }
 
 function setRadarScopeMode(active) {
@@ -921,6 +1003,7 @@ function setRadarScopeMode(active) {
   document.getElementById('app').classList.toggle('radar-mode', radarScopeActive);
   document.getElementById('radar-switch-map').classList.toggle('active', !radarScopeActive);
   document.getElementById('radar-switch-radar').classList.toggle('active', radarScopeActive);
+  updateStatusAircraftLabel();
   renderLegend();
   if (radarScopeActive) {
     if (selectedHex) closeDetail();
@@ -994,6 +1077,7 @@ function drawRadarScopeFrame() {
   const { w, h, cx, cy, R } = radarScopeGeometry();
   if (!w || !h) return;
   const ctx = radarScopeCtx;
+  const now = Date.now();
 
   ctx.fillStyle = '#04120a';
   ctx.fillRect(0, 0, w, h);
@@ -1011,26 +1095,59 @@ function drawRadarScopeFrame() {
     ctx.restore();
   }
 
+  // Reichweitenringe mit gut lesbarer Beschriftung (dunkles Schild hinter dem Text,
+  // sonst verschwindet es zwischen Kartenlinien und Zielen).
   ctx.strokeStyle = 'rgba(60,220,140,0.28)';
-  ctx.fillStyle = 'rgba(90,240,160,0.75)';
   ctx.lineWidth = 1;
-  ctx.font = '10px monospace';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'alphabetic';
-  const rings = 4;
+  ctx.font = 'bold 10px monospace';
+  ctx.textBaseline = 'middle';
+  const rings = 6;
   for (let i = 1; i <= rings; i++) {
     const r = R * i / rings;
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.fillText(Math.round(radarScopeMaxRangeKm * i / rings) + ' km', cx + 4, cy - r + 11);
+    const label = Math.round(radarScopeMaxRangeKm * i / rings) + ' km';
+    const lx = cx + 6, ly = cy - r;
+    const tw = ctx.measureText(label).width;
+    ctx.fillStyle = 'rgba(2,12,7,0.75)';
+    ctx.fillRect(lx - 2, ly - 7, tw + 4, 14);
+    ctx.fillStyle = 'rgba(150,255,195,0.95)';
+    ctx.textAlign = 'left';
+    ctx.fillText(label, lx, ly);
   }
+  ctx.textBaseline = 'alphabetic';
+
   ctx.beginPath();
   ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy);
   ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R);
   ctx.stroke();
 
+  // Echte, unregelmäßige Empfangskontur (falls schon Messdaten vorliegen) - deutlich
+  // kräftiger und leicht pulsierend, damit sie sich klar von den gleichmäßigen
+  // Orientierungsringen abhebt: das hier ist der tatsächliche Empfangsbereich.
+  if (radarScopeContourPoints) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.beginPath();
+    radarScopeContourPoints.forEach(([brg, dist], i) => {
+      const rr = R * Math.min(dist, radarScopeMaxRangeKm) / radarScopeMaxRangeKm;
+      const [x, y] = radarScopePoint(cx, cy, rr, brg);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    const pulse = 0.5 + 0.5 * Math.sin(now / 900);
+    ctx.strokeStyle = `rgba(90,255,170,${(0.5 + 0.3 * pulse).toFixed(2)})`;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Kompassrose: Hauptrichtungen kräftig, Zwischenrichtungen sehr dezent.
   ctx.font = 'bold 11px monospace';
+  ctx.fillStyle = 'rgba(90,240,160,0.75)';
   ctx.textAlign = 'center';
   ctx.fillText(t('radar.dirN'), cx, cy - R - 8);
   ctx.fillText(t('radar.dirS'), cx, cy + R + 16);
@@ -1038,6 +1155,14 @@ function drawRadarScopeFrame() {
   ctx.fillText(t('radar.dirE'), cx + R + 8, cy + 4);
   ctx.textAlign = 'right';
   ctx.fillText(t('radar.dirW'), cx - R - 8, cy + 4);
+
+  ctx.font = '9px monospace';
+  ctx.fillStyle = 'rgba(90,240,160,0.32)';
+  ctx.textAlign = 'center';
+  for (const [deg, key] of [[45, 'radar.dirNE'], [135, 'radar.dirSE'], [225, 'radar.dirSW'], [315, 'radar.dirNW']]) {
+    const [lx, ly] = radarScopePoint(cx, cy, R + 14, deg);
+    ctx.fillText(t(key), lx, ly + 3);
+  }
   ctx.textAlign = 'left';
 
   // Sweep-Kegel: ein gefüllter Sektor hinter der Nadel her, wie bei einem klassischen
@@ -1066,12 +1191,39 @@ function drawRadarScopeFrame() {
   ctx.lineTo(sx, sy);
   ctx.stroke();
 
-  for (const a of radarScopeAircraft) {
+  // Stationssymbol im Zentrum, sanft pulsierend statt eines toten Punkts.
+  const pulseR = 3 + Math.sin(now / 500);
+  ctx.fillStyle = 'rgba(150,255,195,0.9)';
+  ctx.beginPath();
+  ctx.arc(cx, cy, pulseR, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(150,255,195,0.4)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(cx, cy, pulseR + 5, 0, Math.PI * 2);
+  ctx.stroke();
+
+  for (const a of interpolatedRadarScopeAircraft()) {
     if (a.distKm > radarScopeMaxRangeKm) continue;
     const r = R * a.distKm / radarScopeMaxRangeKm;
     const [bx, by] = radarScopePoint(cx, cy, r, a.bearingDeg);
     const selected = a.hex === selectedHex;
-    const blipR = selected ? 7 : 6;
+    const hovered = a.hex === radarScopeHoveredHex;
+    // Kontinuierlicher Helligkeits-/Größenboost nahe der Sweep-Position statt eines
+    // binären Ein/Aus - Ziele bleiben dauerhaft sichtbar, leuchten aber beim Überstreichen kurz auf.
+    const sweepBoost = Math.max(0, 1 - angularDelta(a.bearingDeg, radarScopeSweepDeg) / 25);
+    const blipR = (selected ? 7 : 6) + sweepBoost * 3;
+
+    if (sweepBoost > 0.15) {
+      ctx.save();
+      ctx.globalAlpha = sweepBoost * 0.5;
+      ctx.beginPath();
+      ctx.arc(bx, by, blipR + 4, 0, Math.PI * 2);
+      ctx.strokeStyle = '#eaffef';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    }
 
     drawRadarBlipShape(ctx, a.shape, bx, by, blipR, altColor(a.alt));
 
@@ -1082,8 +1234,8 @@ function drawRadarScopeFrame() {
       ctx.fillText(a.flight, bx, by - blipR - 5);
     }
 
-    if (selected) {
-      ctx.strokeStyle = '#ffffff';
+    if (selected || hovered) {
+      ctx.strokeStyle = selected ? '#ffffff' : 'rgba(255,255,255,0.55)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.arc(bx, by, blipR + 5, 0, Math.PI * 2);
@@ -1092,20 +1244,35 @@ function drawRadarScopeFrame() {
   }
 }
 
-radarScopeCanvas.addEventListener('click', (e) => {
-  const { w, h, cx, cy, R } = radarScopeGeometry();
-  const rect = radarScopeCanvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-  let hitHex = null, hitDist = 16;
-  for (const a of radarScopeAircraft) {
-    if (a.distKm > radarScopeMaxRangeKm) continue;
-    const r = R * a.distKm / radarScopeMaxRangeKm;
-    const [bx, by] = radarScopePoint(cx, cy, r, a.bearingDeg);
-    const d = Math.hypot(mx - bx, my - by);
-    if (d < hitDist) { hitDist = d; hitHex = a.hex; }
+function updateRadarHoverLinkedRow() {
+  document.querySelectorAll('#panel-list .plane-row.radar-hover-linked').forEach(el => el.classList.remove('radar-hover-linked'));
+  if (radarScopeHoveredHex) {
+    const row = document.querySelector(`#panel-list .plane-row[data-hex="${radarScopeHoveredHex}"]`);
+    if (row) row.classList.add('radar-hover-linked');
   }
+}
+
+radarScopeCanvas.addEventListener('click', (e) => {
+  const rect = radarScopeCanvas.getBoundingClientRect();
+  const hitHex = hitTestRadarScope(e.clientX - rect.left, e.clientY - rect.top);
   if (hitHex) selectPlane(hitHex);
   else if (selectedHex) closeDetail();
+});
+
+radarScopeCanvas.addEventListener('mousemove', (e) => {
+  const rect = radarScopeCanvas.getBoundingClientRect();
+  const hitHex = hitTestRadarScope(e.clientX - rect.left, e.clientY - rect.top);
+  if (hitHex !== radarScopeHoveredHex) {
+    radarScopeHoveredHex = hitHex;
+    updateRadarHoverLinkedRow();
+  }
+});
+
+radarScopeCanvas.addEventListener('mouseleave', () => {
+  if (radarScopeHoveredHex !== null) {
+    radarScopeHoveredHex = null;
+    updateRadarHoverLinkedRow();
+  }
 });
 
 // Chaikin corner-cutting on the closed loop: replaces each vertex pair with two
@@ -2957,6 +3124,7 @@ async function fetchAndRenderDbStats() {
       rangeOutlineData = d.rangeOutline;
       rangeOutlineBucketDeg = d.rangeBucketDeg || 5;
       updateRangeOutline();
+      updateRadarScopeContour();
     }
   } catch (e) { /* db stats optional, ignore failures */ }
 
@@ -3116,6 +3284,10 @@ function renderList(withPos) {
         <div>${fmtDist(haversine(SITE_LAT, SITE_LON, a.lat, a.lon))}</div>
       </div>`;
     row.onclick = () => selectPlane(a.hex);
+    if (radarScopeActive) {
+      row.onmouseenter = () => { radarScopeHoveredHex = a.hex; };
+      row.onmouseleave = () => { if (radarScopeHoveredHex === a.hex) radarScopeHoveredHex = null; };
+    }
     list.appendChild(row);
   }
 }

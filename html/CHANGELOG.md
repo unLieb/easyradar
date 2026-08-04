@@ -2,6 +2,14 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.49.0 – 2026-08-04
+- Radar-Modus: Ziele bewegen sich jetzt gleitend zwischen zwei Aktualisierungen statt zu springen
+- Radar-Modus: Ziele leuchten kurz auf, wenn die Sweep-Nadel sie überstreicht – bleiben aber weiterhin dauerhaft sichtbar
+- Radar-Modus: echte, unregelmäßige Empfangskontur (aus den ohnehin gesammelten Messdaten) jetzt sichtbar und leicht pulsierend
+- Radar-Modus: Reichweitenringe deutlich lesbarer beschriftet, Kompassrose um NO/SO/SW/NW ergänzt, pulsierendes Stationssymbol im Zentrum
+- Radar-Modus: Hover auf ein Ziel in der Liste hebt den passenden Punkt im Radar hervor und umgekehrt
+- Radar-Modus: Statusleiste zeigt "Kontakte" statt "Flugzeuge", solange der Radar-Modus aktiv ist
+
 ## 0.48.0 – 2026-08-04
 - Radar-Modus: Punkte jetzt farbcodiert nach Flughöhe (gleiche Farben wie auf der Karte) statt einheitlich grün
 - Radar-Modus: Zielform je Flugzeugkategorie (Kreis/Raute/Quadrat/Dreieck/Stern) statt einheitlicher Punkte

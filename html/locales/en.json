@@ -40,6 +40,11 @@
   "radar.dirE": "E",
   "radar.dirS": "S",
   "radar.dirW": "W",
+  "radar.dirNE": "NE",
+  "radar.dirSE": "SE",
+  "radar.dirSW": "SW",
+  "radar.dirNW": "NW",
+  "status.contacts": "Contacts",
   "status.aircraft": "aircraft",
   "status.updatedAgoPrefix": "Updated",
 

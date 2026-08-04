@@ -2,6 +2,14 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.49.0 – 2026-08-04
+- Radar Mode: targets now glide between updates instead of jumping
+- Radar Mode: targets briefly flash as the sweep needle passes over them, while staying permanently visible otherwise
+- Radar Mode: the real, irregular reception contour (from data already being collected) is now shown and gently pulses
+- Radar Mode: range rings are labelled much more legibly, compass rose extended with NE/SE/SW/NW, a pulsing station icon sits at the centre
+- Radar Mode: hovering a target in the list highlights the matching dot on the radar, and vice versa
+- Radar Mode: the status bar shows "Contacts" instead of "Aircraft" while Radar Mode is active
+
 ## 0.48.0 – 2026-08-04
 - Radar Mode: dots are now colour-coded by altitude (same colours as on the map) instead of plain green
 - Radar Mode: target shape now varies by aircraft category (circle/diamond/square/triangle/star) instead of uniform dots
