@@ -125,8 +125,8 @@
 
   #map { flex: 1; height: 100%; }
   #radar-scope-wrap { flex: 1; height: 100%; position: relative; display: none; }
-  #radar-scope-map { position: absolute; inset: 0; }
-  #radar-scope-canvas { position: absolute; inset: 0; width: 100%; height: 100%; background: transparent; cursor: pointer; }
+  #radar-scope-map { position: absolute; inset: 0; z-index: 1; }
+  #radar-scope-canvas { position: absolute; inset: 0; width: 100%; height: 100%; background: transparent; cursor: pointer; z-index: 2; }
   #app.radar-mode #map { display: none; }
   #app.radar-mode #radar-scope-wrap { display: block; }
 
@@ -579,7 +579,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.50.0';
+const APP_VERSION = '0.50.1';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 // --- i18n --------------------------------------------------------------------
@@ -932,10 +932,8 @@ function updateRadarScopeMapView() {
   const metersPerPixel = radarScopeMaxRangeKm * 1000 / R;
   const zoom = Math.log2(156543.03392 * Math.cos(SITE_LAT * Math.PI / 180) / metersPerPixel);
   radarScopeMap.setView([SITE_LAT, SITE_LON], zoom, { animate: false });
-  const grad = `radial-gradient(circle ${R}px at ${w / 2}px ${h / 2}px, black 0%, black 65%, transparent 100%)`;
-  const mapDiv = document.getElementById('radar-scope-map');
-  mapDiv.style.maskImage = grad;
-  mapDiv.style.webkitMaskImage = grad;
+  // Kein hartes Ausblenden mehr per CSS-Maske - die Karte bleibt überall sichtbar,
+  // drawRadarScopeFrame() legt stattdessen einen Nebel-Verlauf über den Rand (siehe dort).
 }
 
 function resizeRadarScopeCanvas() {
@@ -996,6 +994,10 @@ async function initRadarScopeMap() {
   radarScopeMap = L.map('radar-scope-map', {
     zoomControl: false, dragging: false, scrollWheelZoom: false, doubleClickZoom: false,
     boxZoom: false, keyboard: false, attributionControl: false, touchZoom: false, zoomAnimation: false,
+    // zoomSnap:0 erlaubt gebrochene Zoomstufen - Leaflet rundet sonst auf ganze Stufen,
+    // wodurch die berechnete Zoomstufe für radarScopeMaxRangeKm nicht exakt getroffen wird.
+    // Vektor-Kacheln (MapLibre GL) rendern bei gebrochenem Zoom genauso scharf wie bei ganzem.
+    zoomSnap: 0,
   }).setView([SITE_LAT, SITE_LON], 8);
   try {
     const res = await fetch('https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json');
@@ -1133,10 +1135,22 @@ function drawRadarScopeFrame() {
   // (#radar-scope-map) scheint durch das transparente Canvas hindurch.
   ctx.clearRect(0, 0, w, h);
 
+  // Nebel statt hartem Rand-Cutoff: innerhalb des Radarkreises bleibt die Landschaft
+  // scharf sichtbar, weiter draußen verblasst sie zunehmend Richtung Weiß statt einfach
+  // zu verschwinden - wirkt wie ein Fenster, nicht wie ein Loch in der Karte.
+  const fog = ctx.createRadialGradient(cx, cy, R * 0.9, cx, cy, Math.max(w, h));
+  fog.addColorStop(0, 'rgba(244,247,245,0)');
+  fog.addColorStop(0.35, 'rgba(244,247,245,0.55)');
+  fog.addColorStop(1, 'rgba(244,247,245,0.92)');
+  ctx.fillStyle = fog;
+  ctx.fillRect(0, 0, w, h);
+
   // Reichweitenringe mit gut lesbarer Beschriftung (dunkles Schild hinter dem Text,
-  // sonst verschwindet es zwischen Kartenlinien und Zielen).
+  // sonst verschwindet es zwischen Kartenlinien und Zielen). Gepunktet statt durchgezogen,
+  // damit sie sich in die Landschaft "einbrennen" statt einfach darüberzuliegen.
   ctx.strokeStyle = 'rgba(60,220,140,0.28)';
   ctx.lineWidth = 1;
+  ctx.setLineDash([1, 5]);
   ctx.font = 'bold 10px monospace';
   ctx.textBaseline = 'middle';
   const rings = 6;
@@ -1146,12 +1160,15 @@ function drawRadarScopeFrame() {
     const label = Math.round(ringKm) + ' km';
     const [lx, ly] = projectRadarPoint(0, ringKm);
     const tw = ctx.measureText(label).width;
+    ctx.setLineDash([]);
     ctx.fillStyle = 'rgba(2,12,7,0.75)';
     ctx.fillRect(lx + 4, ly - 7, tw + 4, 14);
     ctx.fillStyle = 'rgba(150,255,195,0.95)';
     ctx.textAlign = 'left';
     ctx.fillText(label, lx + 6, ly);
+    ctx.setLineDash([1, 5]);
   }
+  ctx.setLineDash([]);
   ctx.textBaseline = 'alphabetic';
 
   ctx.beginPath();
@@ -1159,9 +1176,10 @@ function drawRadarScopeFrame() {
   ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R);
   ctx.stroke();
 
-  // Echte, unregelmäßige Empfangskontur (falls schon Messdaten vorliegen) - deutlich
-  // kräftiger und leicht pulsierend, damit sie sich klar von den gleichmäßigen
-  // Orientierungsringen abhebt: das hier ist der tatsächliche Empfangsbereich.
+  // Echte, unregelmäßige Empfangskontur (falls schon Messdaten vorliegen) - leuchtend
+  // statt nur kräftig, damit sie sich klar von den gepunkteten Orientierungsringen
+  // abhebt: das hier ist der tatsächliche Luftraum, kein bloßer Orientierungskreis.
+  // Zusätzlich zum schnellen Leucht-Puls ein sehr langsamer "Herzschlag" (~20s) in der Linienbreite.
   if (radarScopeContourPoints) {
     ctx.beginPath();
     radarScopeContourPoints.forEach(([brg, dist], i) => {
@@ -1170,8 +1188,15 @@ function drawRadarScopeFrame() {
     });
     ctx.closePath();
     const pulse = 0.5 + 0.5 * Math.sin(now / 900);
-    ctx.strokeStyle = `rgba(90,255,170,${(0.5 + 0.3 * pulse).toFixed(2)})`;
-    ctx.lineWidth = 2.5;
+    const heartbeat = Math.max(0, Math.sin(2 * Math.PI * now / 20000));
+    // Günstige Glow-Näherung statt ctx.shadowBlur: das ist bei 60fps notorisch teuer
+    // und hat hier zu spürbaren Renderer-Hängern geführt. Ein breiterer, blasserer Strich
+    // unter dem eigentlichen simuliert das Leuchten fast ohne zusätzliche Kosten.
+    ctx.strokeStyle = `rgba(120,255,190,${(0.16 + 0.1 * pulse).toFixed(2)})`;
+    ctx.lineWidth = 7 + heartbeat * 2;
+    ctx.stroke();
+    ctx.strokeStyle = `rgba(150,255,210,${(0.7 + 0.3 * pulse).toFixed(2)})`;
+    ctx.lineWidth = 2.2 + heartbeat * 1.2;
     ctx.stroke();
   }
 
@@ -1199,7 +1224,7 @@ function drawRadarScopeFrame() {
   // Röhrenradar - unabhängig von der Framerate, da jeden Frame komplett neu gezeichnet
   // statt aus verblassenden Frames zusammengesetzt. 'lighten' sorgt zusätzlich dafür, dass
   // die echte Landschaft darunter im Kegel kurz heller aufscheint statt nur überdeckt zu werden.
-  const WEDGE_SPAN_DEG = 40;
+  const WEDGE_SPAN_DEG = 34;
   const a0 = (radarScopeSweepDeg - WEDGE_SPAN_DEG - 90) * Math.PI / 180;
   const a1 = (radarScopeSweepDeg - 90) * Math.PI / 180;
   ctx.save();
@@ -1211,7 +1236,10 @@ function drawRadarScopeFrame() {
   ctx.moveTo(cx, cy);
   ctx.arc(cx, cy, R, a0, a1, false);
   ctx.closePath();
-  ctx.fillStyle = 'rgba(120,255,180,0.16)';
+  const wedgeGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+  wedgeGlow.addColorStop(0, 'rgba(160,255,210,0.45)');
+  wedgeGlow.addColorStop(1, 'rgba(160,255,210,0.12)');
+  ctx.fillStyle = wedgeGlow;
   ctx.fill();
   ctx.restore();
 
@@ -1223,7 +1251,21 @@ function drawRadarScopeFrame() {
   ctx.lineTo(sx, sy);
   ctx.stroke();
 
-  // Stationssymbol im Zentrum, sanft pulsierend statt eines toten Punkts.
+  // Stationssymbol im Zentrum: sanft pulsierender Kern plus zwei versetzte, verblassende
+  // Impulsringe, die kontinuierlich nach außen laufen - wirkt wie ein aktiver Sender statt
+  // eines toten Punkts.
+  const PING_PERIOD = 2400;
+  for (let k = 0; k < 2; k++) {
+    const phase = ((now + k * PING_PERIOD / 2) % PING_PERIOD) / PING_PERIOD;
+    const pingAlpha = (1 - phase) * 0.45;
+    if (pingAlpha < 0.02) continue;
+    ctx.strokeStyle = `rgba(150,255,195,${pingAlpha.toFixed(2)})`;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, phase * 28, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
   const pulseR = 3 + Math.sin(now / 500);
   ctx.fillStyle = 'rgba(150,255,195,0.9)';
   ctx.beginPath();

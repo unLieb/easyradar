@@ -2,6 +2,13 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.50.1 – 2026-08-04
+- Radar Mode: rings, reception contour, sweep, and targets were invisible (hidden behind the map layer) – fixed with explicit layer ordering
+- Radar Mode: fixed an incorrect zoom level that kept the map from matching the configured range
+- Radar Mode: fixed a renderer hang caused by an expensive glow effect (replaced with a cheaper equivalent, no quality loss)
+- Radar Mode: reception contour now glows more and pulses on a ~20-second rhythm, range rings are dotted instead of solid, the sweep visibly brightens the terrain, small pulse rings now emanate from the station icon
+- Radar Mode: terrain now fades into fog toward the edge instead of a hard cutoff
+
 ## 0.50.0 – 2026-08-04
 - Radar Mode: real terrain instead of a plain green screen – the same map data as Map mode, restyled for radar (roads/buildings/place names hidden, water/forests/land use in monochrome green)
 - Every user automatically sees their own surroundings – no location setup needed, since it's the same live map data used in Map mode
