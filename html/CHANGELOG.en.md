@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.51.1 – 2026-08-04
+- Radar Mode: a real afterglow trail for the sweep (angular gradient, bright at the sweep line, fading toward the tail) instead of a uniformly filled pie slice
+
 ## 0.51.0 – 2026-08-04
 - Radar Mode: reworked the visual hierarchy so aircraft stay the focus instead of competing with the reception contour
 - The reception contour is now a filled area with a thin edge in its own cyan-green instead of a dominant line

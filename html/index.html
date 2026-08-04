@@ -579,7 +579,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.51.0';
+const APP_VERSION = '0.51.1';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 // --- i18n --------------------------------------------------------------------
@@ -1228,7 +1228,11 @@ function drawRadarScopeFrame() {
   // Röhrenradar - unabhängig von der Framerate, da jeden Frame komplett neu gezeichnet
   // statt aus verblassenden Frames zusammengesetzt. 'lighten' sorgt zusätzlich dafür, dass
   // die echte Landschaft darunter im Kegel kurz heller aufscheint statt nur überdeckt zu werden.
-  const WEDGE_SPAN_DEG = 34;
+  // Echter Nachzieheffekt statt eines gleichmäßig gefüllten "Kuchenstücks": ein
+  // Winkel-Gradient (createConicGradient), der am Sweep-Strahl hell ist und nach hinten
+  // ausfadet - wie das Nachleuchten eines echten Röhrenradars. Läuft in Browsern ohne
+  // Unterstützung (sehr selten) auf die vorherige gleichmäßige Füllung zurück.
+  const WEDGE_SPAN_DEG = 60;
   const a0 = (radarScopeSweepDeg - WEDGE_SPAN_DEG - 90) * Math.PI / 180;
   const a1 = (radarScopeSweepDeg - 90) * Math.PI / 180;
   ctx.save();
@@ -1240,12 +1244,19 @@ function drawRadarScopeFrame() {
   ctx.moveTo(cx, cy);
   ctx.arc(cx, cy, R, a0, a1, false);
   ctx.closePath();
-  // Deutlich zurückgenommen gegenüber der Vorversion - der Sweep soll die Flugzeuge
-  // betonen, nicht überstrahlen.
-  const wedgeGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
-  wedgeGlow.addColorStop(0, 'rgba(160,255,210,0.22)');
-  wedgeGlow.addColorStop(1, 'rgba(160,255,210,0.06)');
-  ctx.fillStyle = wedgeGlow;
+  let wedgeFill;
+  try {
+    const span = WEDGE_SPAN_DEG / 360;
+    wedgeFill = ctx.createConicGradient(a0, cx, cy);
+    wedgeFill.addColorStop(0, 'rgba(160,255,210,0)');
+    wedgeFill.addColorStop(span * 0.6, 'rgba(160,255,210,0.05)');
+    wedgeFill.addColorStop(span, 'rgba(160,255,210,0.4)');
+  } catch (e) {
+    wedgeFill = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+    wedgeFill.addColorStop(0, 'rgba(160,255,210,0.22)');
+    wedgeFill.addColorStop(1, 'rgba(160,255,210,0.06)');
+  }
+  ctx.fillStyle = wedgeFill;
   ctx.fill();
   ctx.restore();
 

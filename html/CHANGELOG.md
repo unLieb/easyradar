@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.51.1 – 2026-08-04
+- Radar-Modus: echter Nachzieheffekt für den Sweep (Winkel-Gradient, hell am Sweep-Strahl, nach hinten ausfadend) statt eines gleichmäßig gefüllten Kreissegments
+
 ## 0.51.0 – 2026-08-04
 - Radar-Modus: visuelle Hierarchie überarbeitet, damit die Flugzeuge im Blick stehen statt mit der Empfangskontur zu konkurrieren
 - Empfangskontur jetzt als Fläche mit dünnem Rand in eigenem Cyan-Grün statt dominanter Linie
