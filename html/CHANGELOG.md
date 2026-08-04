@@ -2,6 +2,12 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.46.0 – 2026-08-04
+- Englische Sprache hinzugefügt – kompletter Umschalter zwischen Deutsch und Englisch in den Einstellungen, inklusive Radar-Level, Meilensteinen, Statistiken und Änderungsprotokoll
+- Sprachauswahl merkt sich die Wahl dauerhaft; ohne gespeicherte Wahl wird die Browsersprache erkannt (deutsche Browser → Deutsch, alle anderen → Englisch)
+- Übersetzungsdateien liegen als separate JSON-Dateien vor, damit künftig auch weitere Sprachen von der Community beigesteuert werden können
+- Änderungsprotokoll wird ab dieser Version zweisprachig geführt – ältere Einträge bleiben auf Deutsch
+
 ## 0.45.0 – 2026-08-02
 - Radar-Level-Profil und einzelne Meilenstein-Kategorien blenden jetzt die restlichen Statistiken komplett aus, statt darunter zu erscheinen
 - Schließen des Statistik-Panels (Klick auf die Karte, erneuter Klick auf den Statistik-Button) setzt die Ansicht wieder auf die normale Übersicht zurück

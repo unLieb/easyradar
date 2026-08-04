@@ -309,22 +309,22 @@
         <img src="logo.png" alt="" class="brand-logo">
         <div class="brand-text">
           <h1>easyRADAR</h1>
-          <button class="version" id="app-version" onclick="event.stopPropagation(); openChangelogView()" title="Änderungsprotokoll ansehen"></button>
-          <button class="level-badge" id="level-badge" onclick="event.stopPropagation(); openLevelProfile()">🛰️ Radar-Level <span id="level-number">–</span></button>
+          <button class="version" id="app-version" onclick="event.stopPropagation(); openChangelogView()" data-i18n-title="changelog.tooltip"></button>
+          <button class="level-badge" id="level-badge" onclick="event.stopPropagation(); openLevelProfile()">🛰️ <span data-i18n="level.badgeLabel">Radar-Level</span> <span id="level-number">–</span></button>
         </div>
       </header>
 
       <div id="search-bar">
-        <input type="text" id="search-input" placeholder="🔍 Callsign / Registrierung / ICAO" oninput="setSearchQuery(this.value)">
+        <input type="text" id="search-input" data-i18n-placeholder="search.placeholder" oninput="setSearchQuery(this.value)">
       </div>
       <div id="filter-bar">
-        <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">Alle</button>
-        <button class="filter-chip" data-filter="airliner" onclick="setFilter('airliner')">Airliner</button>
-        <button class="filter-chip" data-filter="helikopter" onclick="setFilter('helikopter')">Helikopter</button>
-        <button class="filter-chip" data-filter="militaer" onclick="setFilter('militaer')">Militär</button>
-        <button class="filter-chip" data-filter="business" onclick="setFilter('business')">Business</button>
-        <button class="filter-chip" data-filter="propeller" onclick="setFilter('propeller')">Propeller</button>
-        <button class="filter-chip" id="favorites-chip" onclick="toggleFavoritesOnly()">⭐ Favoriten</button>
+        <button class="filter-chip active" data-filter="all" onclick="setFilter('all')" data-i18n="filter.all">Alle</button>
+        <button class="filter-chip" data-filter="airliner" onclick="setFilter('airliner')" data-i18n="filter.airliner">Airliner</button>
+        <button class="filter-chip" data-filter="helikopter" onclick="setFilter('helikopter')" data-i18n="filter.helicopter">Helikopter</button>
+        <button class="filter-chip" data-filter="militaer" onclick="setFilter('militaer')" data-i18n="filter.military">Militär</button>
+        <button class="filter-chip" data-filter="business" onclick="setFilter('business')" data-i18n="filter.business">Business</button>
+        <button class="filter-chip" data-filter="propeller" onclick="setFilter('propeller')" data-i18n="filter.propeller">Propeller</button>
+        <button class="filter-chip" id="favorites-chip" onclick="toggleFavoritesOnly()">⭐ <span data-i18n="filter.favorites">Favoriten</span></button>
       </div>
 
       <div id="panel-list"></div>
@@ -332,7 +332,7 @@
       <div id="panel-detail">
         <div id="detail-header">
           <button class="close" onclick="closeDetail()">&times;</button>
-          <div id="d-photo-wrap"><div id="d-photo-placeholder">Lade Foto…</div></div>
+          <div id="d-photo-wrap"><div id="d-photo-placeholder" data-i18n="detail.loadingPhoto">Lade Foto…</div></div>
           <div id="d-photo-credit" style="display:none"></div>
         </div>
         <div id="d-titleblock">
@@ -340,34 +340,34 @@
             <h2 id="d-callsign">—</h2>
             <div id="d-type">—</div>
           </div>
-          <button id="d-fav-btn" onclick="toggleFavorite(selectedHex)" aria-label="Favorit">☆</button>
+          <button id="d-fav-btn" onclick="toggleFavorite(selectedHex)" aria-label="Favorite">☆</button>
         </div>
         <div class="detail-rows">
-          <div class="section-title">Flug</div>
-          <div class="row"><span class="label">ICAO-Typ</span><span class="value" id="d-icaotype">—</span></div>
-          <div id="d-airline-row" class="row" style="display:none"><span class="label">Airline</span><span class="value" id="d-airline">—</span></div>
-          <div id="d-operator-row" class="row"><span class="label">Betreiber</span><span class="value" id="d-operator">—</span></div>
-          <div class="row"><span class="label">Registrierung</span><span class="value" id="d-reg">—</span></div>
-          <div id="d-country-row" class="row" style="display:none"><span class="label">Herkunftsland</span><span class="value" id="d-country">—</span></div>
+          <div class="section-title" data-i18n="detail.section.flight">Flug</div>
+          <div class="row"><span class="label" data-i18n="detail.icaoType">ICAO-Typ</span><span class="value" id="d-icaotype">—</span></div>
+          <div id="d-airline-row" class="row" style="display:none"><span class="label" data-i18n="detail.airline">Airline</span><span class="value" id="d-airline">—</span></div>
+          <div id="d-operator-row" class="row"><span class="label" data-i18n="detail.operator">Betreiber</span><span class="value" id="d-operator">—</span></div>
+          <div class="row"><span class="label" data-i18n="detail.registration">Registrierung</span><span class="value" id="d-reg">—</span></div>
+          <div id="d-country-row" class="row" style="display:none"><span class="label" data-i18n="detail.originCountry">Herkunftsland</span><span class="value" id="d-country">—</span></div>
 
-          <div class="section-title" id="d-route-title" style="display:none">Route</div>
+          <div class="section-title" id="d-route-title" style="display:none" data-i18n="detail.section.route">Route</div>
           <div id="d-route" style="display:none"></div>
 
-          <div class="section-title">Position</div>
-          <div class="row"><span class="label">Höhe</span><span class="value" id="d-alt">—</span></div>
-          <div class="row"><span class="label">Außentemperatur</span><span class="value" id="d-temp">—</span></div>
-          <div class="row"><span class="label">Steig-/Sinkrate</span><span class="value" id="d-vrate">—</span></div>
-          <div class="row"><span class="label">Geschwindigkeit</span><span class="value" id="d-speed">—</span></div>
-          <div class="row"><span class="label">Kurs</span><span class="value" id="d-track">—</span></div>
-          <div class="row"><span class="label">Entfernung</span><span class="value" id="d-dist">—</span></div>
+          <div class="section-title" data-i18n="detail.section.position">Position</div>
+          <div class="row"><span class="label" data-i18n="detail.altitude">Höhe</span><span class="value" id="d-alt">—</span></div>
+          <div class="row"><span class="label" data-i18n="detail.outsideTemp">Außentemperatur</span><span class="value" id="d-temp">—</span></div>
+          <div class="row"><span class="label" data-i18n="detail.vrate">Steig-/Sinkrate</span><span class="value" id="d-vrate">—</span></div>
+          <div class="row"><span class="label" data-i18n="detail.speed">Geschwindigkeit</span><span class="value" id="d-speed">—</span></div>
+          <div class="row"><span class="label" data-i18n="detail.track">Kurs</span><span class="value" id="d-track">—</span></div>
+          <div class="row"><span class="label" data-i18n="detail.distance">Entfernung</span><span class="value" id="d-dist">—</span></div>
 
-          <div class="section-title">Technik</div>
-          <div class="row"><span class="label">Hex-Code</span><span class="value" id="d-hex">—</span></div>
-          <div class="row"><span class="label">Transponder</span><span class="value" id="d-squawk">—</span></div>
-          <div class="row"><span class="label">ADS-B Version</span><span class="value" id="d-version">—</span></div>
-          <div class="row"><span class="label">Quelle</span><span class="value" id="d-source">—</span></div>
+          <div class="section-title" data-i18n="detail.section.technical">Technik</div>
+          <div class="row"><span class="label" data-i18n="detail.hexCode">Hex-Code</span><span class="value" id="d-hex">—</span></div>
+          <div class="row"><span class="label" data-i18n="detail.transponder">Transponder</span><span class="value" id="d-squawk">—</span></div>
+          <div class="row"><span class="label" data-i18n="detail.adsbVersion">ADS-B Version</span><span class="value" id="d-version">—</span></div>
+          <div class="row"><span class="label" data-i18n="detail.source">Quelle</span><span class="value" id="d-source">—</span></div>
 
-          <div class="section-title">Verlauf</div>
+          <div class="section-title" data-i18n="detail.section.history">Verlauf</div>
           <div id="d-timeline" style="padding: 0 18px;"></div>
         </div>
       </div>
@@ -382,170 +382,172 @@
 
     <div id="status-bar-wrap">
       <div id="status-bar">
-        <span class="status-item">📡 ADS-B <span id="status-dot">🟢</span> <span id="status-text" class="online">Online</span></span>
-        <span class="status-item">✈️ <span id="status-count">0</span> Flugzeuge</span>
+        <span class="status-item">📡 ADS-B <span id="status-dot">🟢</span> <span id="status-text" class="online" data-i18n="status.online">Online</span></span>
+        <span class="status-item">✈️ <span id="status-count">0</span> <span data-i18n="status.aircraft">Flugzeuge</span></span>
         <span class="status-item">📨 <span id="status-msgrate">—</span> msg/s</span>
         <span class="status-item">📍 <span id="status-location">—</span></span>
         <span class="status-item" id="status-station-wrap" style="display:none">🏷️ <span id="status-station">—</span></span>
-        <span class="status-item">🕒 Aktualisiert vor <span id="status-age">—</span></span>
+        <span class="status-item">🕒 <span data-i18n="status.updatedAgoPrefix">Aktualisiert vor</span> <span id="status-age">—</span></span>
       </div>
     </div>
 
     <div id="map-controls-bottom">
       <div id="legend"></div>
-      <button id="settings-btn-float" onclick="toggleSettings()" aria-label="Einstellungen">
+      <button id="settings-btn-float" onclick="toggleSettings()" aria-label="Settings">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
-      <button id="stats-btn-float" onclick="toggleStats()" aria-label="Statistik">
+      <button id="stats-btn-float" onclick="toggleStats()" aria-label="Statistics">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       </button>
     </div>
 
     <div id="stats-panel">
       <div id="stats-overview">
-        <div class="section-title">Empfänger</div>
-        <div class="stat-row"><span class="label">Nachrichten/s</span><span class="value" id="s-msgrate">—</span></div>
-        <div class="stat-row"><span class="label">Verstärkung (Gain)</span><span class="value" id="s-gain">—</span></div>
-        <div class="stat-row"><span class="label">Max. Reichweite</span><span class="value" id="s-maxrange">—</span></div>
-        <div class="stat-row"><span class="label">MLAT-Anteil (aktuell)</span><span class="value" id="s-mlat">—</span></div>
+        <div class="section-title" data-i18n="stats.section.receiver">Empfänger</div>
+        <div class="stat-row"><span class="label" data-i18n="stats.msgRate">Nachrichten/s</span><span class="value" id="s-msgrate">—</span></div>
+        <div class="stat-row"><span class="label" data-i18n="stats.gain">Verstärkung (Gain)</span><span class="value" id="s-gain">—</span></div>
+        <div class="stat-row"><span class="label" data-i18n="stats.maxRange">Max. Reichweite</span><span class="value" id="s-maxrange">—</span></div>
+        <div class="stat-row"><span class="label" data-i18n="stats.mlatShare">MLAT-Anteil (aktuell)</span><span class="value" id="s-mlat">—</span></div>
 
-        <div class="section-title">Zeitraum</div>
+        <div class="section-title" data-i18n="stats.section.period">Zeitraum</div>
         <div class="segmented">
-          <button id="stats-range-today" onclick="setStatsRange('today')">Heute</button>
-          <button id="stats-range-alltime" onclick="setStatsRange('alltime')">Insgesamt</button>
+          <button id="stats-range-today" onclick="setStatsRange('today')" data-i18n="stats.today">Heute</button>
+          <button id="stats-range-alltime" onclick="setStatsRange('alltime')" data-i18n="stats.allTime">Insgesamt</button>
         </div>
 
-        <div class="section-title">Rekorde</div>
-        <div class="stat-row"><span class="label">Flugzeuge</span><span class="value" id="s-uniquecount">—</span></div>
-        <div class="stat-row"><span class="label">davon Militär</span><span class="value" id="s-militarycount" style="color:#2e7d32">—</span></div>
-        <div class="stat-row" id="s-msgstoday-row"><span class="label">Nachrichten</span><span class="value" id="s-msgstoday">—</span></div>
-        <div class="stat-row"><span class="label">Ø Reichweite</span><span class="value" id="s-avgdist">—</span></div>
-        <div class="stat-row"><span class="label">Ø Flughöhe</span><span class="value" id="s-avgalt">—</span></div>
-        <div class="stat-row"><span class="label">Höchste Flughöhe</span><span class="value" id="s-maxalt">—</span></div>
-        <div class="stat-row"><span class="label">Niedrigster Überflug</span><span class="value" id="s-minalt">—</span></div>
-        <div class="stat-row"><span class="label">Höchste Geschwindigkeit</span><span class="value" id="s-maxspeed">—</span></div>
-        <div class="stat-row"><span class="label">Weiteste Entfernung</span><span class="value" id="s-maxdist">—</span></div>
+        <div class="section-title" data-i18n="stats.section.records">Rekorde</div>
+        <div class="stat-row"><span class="label" data-i18n="stats.aircraft">Flugzeuge</span><span class="value" id="s-uniquecount">—</span></div>
+        <div class="stat-row"><span class="label" data-i18n="stats.ofWhichMilitary">davon Militär</span><span class="value" id="s-militarycount" style="color:#2e7d32">—</span></div>
+        <div class="stat-row" id="s-msgstoday-row"><span class="label" data-i18n="stats.messages">Nachrichten</span><span class="value" id="s-msgstoday">—</span></div>
+        <div class="stat-row"><span class="label" data-i18n="stats.avgRange">Ø Reichweite</span><span class="value" id="s-avgdist">—</span></div>
+        <div class="stat-row"><span class="label" data-i18n="stats.avgAltitude">Ø Flughöhe</span><span class="value" id="s-avgalt">—</span></div>
+        <div class="stat-row"><span class="label" data-i18n="stats.maxAltitude">Höchste Flughöhe</span><span class="value" id="s-maxalt">—</span></div>
+        <div class="stat-row"><span class="label" data-i18n="stats.lowestOverflight">Niedrigster Überflug</span><span class="value" id="s-minalt">—</span></div>
+        <div class="stat-row"><span class="label" data-i18n="stats.maxSpeed">Höchste Geschwindigkeit</span><span class="value" id="s-maxspeed">—</span></div>
+        <div class="stat-row"><span class="label" data-i18n="stats.maxDistance">Weiteste Entfernung</span><span class="value" id="s-maxdist">—</span></div>
 
-        <div class="section-title">Top Flugzeugtypen</div>
+        <div class="section-title" data-i18n="stats.section.topTypes">Top Flugzeugtypen</div>
         <div id="s-toptypes"></div>
 
-        <div class="section-title">Häufigste Rufzeichen</div>
+        <div class="section-title" data-i18n="stats.section.topCallsigns">Häufigste Rufzeichen</div>
         <div id="s-topcallsigns"></div>
 
-        <div class="section-title">Häufigste Fluggesellschaft</div>
+        <div class="section-title" data-i18n="stats.section.topAirlines">Häufigste Fluggesellschaft</div>
         <div id="s-topairlines"></div>
 
-        <div class="section-title">Empfang nach Richtung</div>
+        <div class="section-title" data-i18n="stats.section.directions">Empfang nach Richtung</div>
         <div id="s-directions"></div>
       </div>
 
-      <div class="section-title">Meilensteine</div>
+      <div class="section-title" data-i18n="stats.section.milestones">Meilensteine</div>
       <div id="s-achievements"></div>
 
-      <div id="stats-footer-note" style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;">Rekorde/Top-Listen dauerhaft gespeichert</div>
+      <div id="stats-footer-note" style="margin-top:12px; font-size:10px; color:var(--text-muted); text-align:center;" data-i18n="stats.footerNote">Rekorde/Top-Listen dauerhaft gespeichert</div>
     </div>
 
     <div id="settings-panel">
-      <div class="section-title">🖥️ Anzeige</div>
-      <div class="label">Kartendesign</div>
+      <div class="section-title">🖥️ <span data-i18n="settings.section.display">Anzeige</span></div>
+      <div class="label" data-i18n="settings.mapTheme">Kartendesign</div>
       <div class="segmented">
-        <button id="maptheme-light" onclick="setMapTheme('light')">Hell</button>
-        <button id="maptheme-dark" onclick="setMapTheme('dark')">Dunkel</button>
+        <button id="maptheme-light" onclick="setMapTheme('light')" data-i18n="settings.light">Hell</button>
+        <button id="maptheme-dark" onclick="setMapTheme('dark')" data-i18n="settings.dark">Dunkel</button>
       </div>
-      <div class="label" style="margin-top:12px">Geschwindigkeit</div>
+      <div class="label" style="margin-top:12px" data-i18n="settings.speed">Geschwindigkeit</div>
       <div class="segmented">
         <button id="speedunit-kmh" onclick="setSpeedUnit('kmh')">km/h</button>
         <button id="speedunit-kt" onclick="setSpeedUnit('kt')">kn</button>
         <button id="speedunit-mph" onclick="setSpeedUnit('mph')">mph</button>
       </div>
-      <div class="label" style="margin-top:12px">Höhe</div>
+      <div class="label" style="margin-top:12px" data-i18n="settings.altitude">Höhe</div>
       <div class="segmented">
         <button id="altunit-m" onclick="setAltUnit('m')">m</button>
         <button id="altunit-ft" onclick="setAltUnit('ft')">ft</button>
       </div>
-      <div class="label" style="margin-top:12px">Reichweite</div>
+      <div class="label" style="margin-top:12px" data-i18n="settings.range">Reichweite</div>
       <div class="segmented">
         <button id="rangeunit-km" onclick="setRangeUnit('km')">km</button>
         <button id="rangeunit-nm" onclick="setRangeUnit('nm')">nm</button>
         <button id="rangeunit-mi" onclick="setRangeUnit('mi')">mi</button>
       </div>
-      <div class="label" style="margin-top:12px">Markergröße</div>
+      <div class="label" style="margin-top:12px" data-i18n="settings.markerSize">Markergröße</div>
       <div class="segmented">
-        <button id="markersize-small" onclick="setMarkerSize('small')">Klein</button>
-        <button id="markersize-medium" onclick="setMarkerSize('medium')">Mittel</button>
-        <button id="markersize-large" onclick="setMarkerSize('large')">Groß</button>
+        <button id="markersize-small" onclick="setMarkerSize('small')" data-i18n="settings.small">Klein</button>
+        <button id="markersize-medium" onclick="setMarkerSize('medium')" data-i18n="settings.medium">Mittel</button>
+        <button id="markersize-large" onclick="setMarkerSize('large')" data-i18n="settings.large">Groß</button>
       </div>
-      <label class="toggle-row" style="margin-top:12px" title="Merkt sich Kartenausschnitt und Zoomstufe zwischen Besuchen, statt beim Start immer auf den Empfänger zu zentrieren.">
-        <span class="label" style="margin:0">Beim Start letzte Kartenposition merken</span>
+      <label class="toggle-row" style="margin-top:12px" data-i18n-title="settings.rememberViewTooltip" title="Merkt sich Kartenausschnitt und Zoomstufe zwischen Besuchen, statt beim Start immer auf den Empfänger zu zentrieren.">
+        <span class="label" style="margin:0" data-i18n="settings.rememberView">Beim Start letzte Kartenposition merken</span>
         <span class="toggle-switch"><input type="checkbox" id="remember-view-toggle" onchange="setRememberView(this.checked)"><span class="toggle-slider"></span></span>
       </label>
-      <label class="toggle-row" title="Deaktiviert die rotierende Radar-Nadel und andere Bewegungseffekte in der Oberfläche.">
-        <span class="label" style="margin:0">Animationen</span>
+      <label class="toggle-row" data-i18n-title="settings.animationsTooltip" title="Deaktiviert die rotierende Radar-Nadel und andere Bewegungseffekte in der Oberfläche.">
+        <span class="label" style="margin:0" data-i18n="settings.animations">Animationen</span>
         <span class="toggle-switch"><input type="checkbox" id="animations-toggle" onchange="setAnimations(this.checked)"><span class="toggle-slider"></span></span>
       </label>
-      <label class="toggle-row" title="Aus spart Datenvolumen - es werden dann keine Flugzeugfotos von planespotters.net mehr geladen.">
-        <span class="label" style="margin:0">Flugzeugbilder</span>
+      <label class="toggle-row" data-i18n-title="settings.photosTooltip" title="Aus spart Datenvolumen - es werden dann keine Flugzeugfotos von planespotters.net mehr geladen.">
+        <span class="label" style="margin:0" data-i18n="settings.photos">Flugzeugbilder</span>
         <span class="toggle-switch"><input type="checkbox" id="photos-toggle" onchange="setPhotosEnabled(this.checked)"><span class="toggle-slider"></span></span>
       </label>
       <label class="toggle-row">
-        <span class="label" style="margin:0">Flughäfen</span>
+        <span class="label" style="margin:0" data-i18n="settings.airports">Flughäfen</span>
         <span class="toggle-switch"><input type="checkbox" id="airports-toggle" onchange="setAirports(this.checked)"><span class="toggle-slider"></span></span>
       </label>
       <label class="toggle-row">
-        <span class="label" style="margin:0">Flugverlauf</span>
+        <span class="label" style="margin:0" data-i18n="settings.trails">Flugverlauf</span>
         <span class="toggle-switch"><input type="checkbox" id="trails-toggle" onchange="setTrails(this.checked)"><span class="toggle-slider"></span></span>
       </label>
       <div class="settings-sub" id="trails-all-wrap">
-        <label class="toggle-row" title="Zeigt den bisherigen Flugweg aller Flugzeuge statt nur des gerade ausgewählten.">
-          <span class="label" style="margin:0">Alle Flugverläufe anzeigen</span>
+        <label class="toggle-row" data-i18n-title="settings.trailsAllTooltip" title="Zeigt den bisherigen Flugweg aller Flugzeuge statt nur des gerade ausgewählten.">
+          <span class="label" style="margin:0" data-i18n="settings.trailsAll">Alle Flugverläufe anzeigen</span>
           <span class="toggle-switch"><input type="checkbox" id="trails-all-toggle" onchange="setTrailsShowAll(this.checked)"><span class="toggle-slider"></span></span>
         </label>
       </div>
 
-      <div class="section-title">🔔 Benachrichtigungen</div>
+      <div class="section-title">🔔 <span data-i18n="settings.section.notifications">Benachrichtigungen</span></div>
       <label class="toggle-row">
-        <span class="label" style="margin:0">Browser-Benachrichtigungen bei neuen Meilensteinen und Militärflugzeugen</span>
+        <span class="label" style="margin:0" data-i18n="settings.notifications">Browser-Benachrichtigungen bei neuen Meilensteinen und Militärflugzeugen</span>
         <span class="toggle-switch"><input type="checkbox" id="notif-toggle" onchange="setNotifications(this.checked)"><span class="toggle-slider"></span></span>
       </label>
 
-      <div class="section-title">📡 Empfang</div>
-      <div class="label" style="margin-bottom:2px" title="Begrenzt nur die externe Quelle (adsb.fi), damit die Karte nicht mit weit entfernten Flugzeugen vollläuft. Deine eigenen ADS-B-Empfangsdaten werden dadurch nicht gefiltert.">Empfangsradius</div>
+      <div class="section-title">📡 <span data-i18n="settings.section.reception">Empfang</span></div>
+      <div class="label" style="margin-bottom:2px" data-i18n="settings.receptionRadius" data-i18n-title="settings.receptionRadiusTooltip" title="Begrenzt nur die externe Quelle (adsb.fi), damit die Karte nicht mit weit entfernten Flugzeugen vollläuft. Deine eigenen ADS-B-Empfangsdaten werden dadurch nicht gefiltert.">Empfangsradius</div>
       <div class="label-hint" id="radius-hint">0 km = unbegrenzt</div>
       <input type="range" id="radius-slider" min="0" max="500" step="10" value="0" oninput="setRadius(this.value)">
       <div class="radius-slider-scale"><span id="radius-slider-min">0</span><span id="radius-slider-max">500 km</span></div>
       <input type="number" id="radius-input" min="0" step="10" style="width:100%; padding:6px 8px; border:1px solid var(--border); border-radius:8px; font-size:13px; box-sizing:border-box;" onchange="setRadius(this.value)">
       <div class="settings-sub" id="radius-dependent-wrap">
         <label class="toggle-row">
-          <span class="label" style="margin:0">Empfangsradius auf Karte anzeigen</span>
+          <span class="label" style="margin:0" data-i18n="settings.showRadiusRing">Empfangsradius auf Karte anzeigen</span>
           <span class="toggle-switch"><input type="checkbox" id="radius-ring-toggle" onchange="setRadiusRing(this.checked)"><span class="toggle-slider"></span></span>
         </label>
-        <label class="toggle-row" title="Rotierende Linie um deinen Standort, deren Länge dem eingestellten Empfangsradius entspricht - reine Optik, keine echte Messung.">
-          <span class="label" style="margin:0">Rotierende Radar-Nadel</span>
+        <label class="toggle-row" data-i18n-title="settings.radarSweepTooltip" title="Rotierende Linie um deinen Standort, deren Länge dem eingestellten Empfangsradius entspricht - reine Optik, keine echte Messung.">
+          <span class="label" style="margin:0" data-i18n="settings.radarSweep">Rotierende Radar-Nadel</span>
           <span class="toggle-switch"><input type="checkbox" id="radar-sweep-toggle" onchange="setRadarSweep(this.checked)"><span class="toggle-slider"></span></span>
         </label>
       </div>
-      <label class="toggle-row" style="margin-top:12px" title="Zeigt, wie weit dein Empfänger tatsächlich in jede Richtung reicht - berechnet aus den bisher empfangenen Positionen, nicht aus dem Empfangsradius oben.">
-        <span class="label" style="margin:0">Empfangskontur auf Karte anzeigen</span>
+      <label class="toggle-row" style="margin-top:12px" data-i18n-title="settings.rangeOutlineTooltip" title="Zeigt, wie weit dein Empfänger tatsächlich in jede Richtung reicht - berechnet aus den bisher empfangenen Positionen, nicht aus dem Empfangsradius oben.">
+        <span class="label" style="margin:0" data-i18n="settings.showRangeOutline">Empfangskontur auf Karte anzeigen</span>
         <span class="toggle-switch"><input type="checkbox" id="range-outline-toggle" onchange="setRangeOutline(this.checked)"><span class="toggle-slider"></span></span>
       </label>
       <div class="settings-sub" id="range-outline-dependent-wrap">
         <label class="toggle-row">
-          <span class="label" style="margin:0">Empfangskontur als Fläche füllen</span>
+          <span class="label" style="margin:0" data-i18n="settings.rangeOutlineFill">Empfangskontur als Fläche füllen</span>
           <span class="toggle-switch"><input type="checkbox" id="range-outline-fill-toggle" onchange="setRangeOutlineFill(this.checked)"><span class="toggle-slider"></span></span>
         </label>
       </div>
-      <div class="label" style="margin-top:12px" title="Wie oft die Flugzeugliste vom Empfänger aktualisiert wird. Kürzer = aktueller, aber mehr CPU/Netzwerklast.">Aktualisierungsrate</div>
+      <div class="label" style="margin-top:12px" data-i18n="settings.refreshRate" data-i18n-title="settings.refreshRateTooltip" title="Wie oft die Flugzeugliste vom Empfänger aktualisiert wird. Kürzer = aktueller, aber mehr CPU/Netzwerklast.">Aktualisierungsrate</div>
       <div class="segmented">
         <button id="refresh-1000" onclick="setRefreshRate(1000)">1 s</button>
-        <button id="refresh-2000" onclick="setRefreshRate(2000)" title="Standardwert">2 s •</button>
+        <button id="refresh-2000" onclick="setRefreshRate(2000)" data-i18n-title="settings.defaultValue" title="Standardwert">2 s •</button>
         <button id="refresh-5000" onclick="setRefreshRate(5000)">5 s</button>
       </div>
 
-      <div class="section-title">🛰 Datenquellen</div>
-      <label class="toggle-row" title="Blendet zusätzlich Flugzeuge außerhalb der Reichweite deiner eigenen Antenne ein, gemeldet vom kostenlosen Netzwerk adsb.fi.">
-        <span class="label" style="margin:0">Externe Quelle (adsb.fi)</span>
+      <div class="section-title">🛰 <span data-i18n="settings.section.dataSources">Datenquellen</span></div>
+      <label class="toggle-row" data-i18n-title="settings.externalSourceTooltip" title="Blendet zusätzlich Flugzeuge außerhalb der Reichweite deiner eigenen Antenne ein, gemeldet vom kostenlosen Netzwerk adsb.fi.">
+        <span class="label" style="margin:0" data-i18n="settings.externalSource">Externe Quelle (adsb.fi)</span>
         <span class="toggle-switch"><input type="checkbox" id="external-toggle" onchange="setExternal(this.checked)"><span class="toggle-slider"></span></span>
       </label>
+      <div class="label" style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border);" data-i18n="settings.language">Sprache</div>
+      <div class="segmented" id="lang-switcher"></div>
     </div>
   </div>
 </div>
@@ -560,8 +562,114 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.45.0';
+const APP_VERSION = '0.46.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
+
+// --- i18n --------------------------------------------------------------------
+// English is the reference/complete locale: every key must exist there. Other
+// locales (including German) can be partial - a missing key falls back to the
+// English value, so an incomplete community translation never shows a blank or
+// a raw key to the user. Locale files are static JSON under /locales/, fetched
+// once at load (they're tiny, and don't change at runtime) - no build step, so
+// contributing a new language is just adding /locales/xx.json + one manifest line.
+const REFERENCE_LANG = 'en';
+let currentLang = 'de';
+let localeStrings = {};
+let referenceLocaleStrings = {};
+let localeManifest = [{ code: 'de', name: 'Deutsch' }, { code: 'en', name: 'English' }];
+let localeCompletenessCache = {};
+
+function t(key, vars) {
+  let s = localeStrings[key];
+  if (s === undefined) s = referenceLocaleStrings[key];
+  if (s === undefined) return key;
+  if (vars) {
+    for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+  }
+  return s;
+}
+
+function uiLocale() {
+  return currentLang === 'de' ? 'de-DE' : 'en-GB';
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.setAttribute('title', t(el.getAttribute('data-i18n-title')));
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.setAttribute('placeholder', t(el.getAttribute('data-i18n-placeholder')));
+  });
+  document.documentElement.lang = currentLang;
+}
+
+async function fetchLocale(code) {
+  try {
+    const res = await fetch(`/locales/${code}.json`, { cache: 'no-store' });
+    if (!res.ok) throw new Error('not found');
+    return await res.json();
+  } catch (e) {
+    return {};
+  }
+}
+
+function renderLangSwitcher() {
+  const el = document.getElementById('lang-switcher');
+  if (!el) return;
+  el.innerHTML = localeManifest.map(l => {
+    const pct = localeCompletenessCache[l.code];
+    const pctLabel = (pct != null && pct < 100) ? ` (${pct}%)` : '';
+    return `<button id="lang-btn-${l.code}" onclick="setLanguage('${l.code}')" class="${l.code === currentLang ? 'active' : ''}">${l.name}${pctLabel}</button>`;
+  }).join('');
+}
+
+// Re-renders everything driven by t() rather than reloading - all the data we
+// have is still valid, only the labels attached to it change.
+function refreshAfterLanguageChange() {
+  applyTranslations();
+  renderLangSwitcher();
+  updateRadiusUI();
+  renderLegend();
+  renderList(lastWithPos);
+  if (selectedHex) showDetail(selectedHex);
+  renderAchievementsView();
+  updateLevelBadge();
+  loadChangelog();
+}
+
+async function setLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+  localeStrings = lang === REFERENCE_LANG ? referenceLocaleStrings : await fetchLocale(lang);
+  refreshAfterLanguageChange();
+}
+
+async function initI18n() {
+  try {
+    const res = await fetch('/locales/manifest.json', { cache: 'no-store' });
+    if (res.ok) localeManifest = await res.json();
+  } catch (e) { /* keep the built-in de/en fallback list */ }
+
+  referenceLocaleStrings = await fetchLocale(REFERENCE_LANG);
+
+  const saved = localStorage.getItem('lang');
+  currentLang = saved || (((navigator.language || '').toLowerCase().startsWith('de')) ? 'de' : REFERENCE_LANG);
+
+  localeStrings = currentLang === REFERENCE_LANG ? referenceLocaleStrings : await fetchLocale(currentLang);
+
+  const refCount = Object.keys(referenceLocaleStrings).length || 1;
+  for (const l of localeManifest) {
+    if (l.code === REFERENCE_LANG) { localeCompletenessCache[l.code] = 100; continue; }
+    const strings = l.code === currentLang ? localeStrings : await fetchLocale(l.code);
+    localeCompletenessCache[l.code] = Math.min(100, Math.round(100 * Object.keys(strings).length / refCount));
+  }
+
+  applyTranslations();
+  renderLangSwitcher();
+}
 
 let initialView = { center: [SITE_LAT, SITE_LON], zoom: 8 };
 if (localStorage.getItem('rememberView') === 'true') {
@@ -779,7 +887,7 @@ function setAdsbOnline(on) {
   adsbOnline = on;
   document.getElementById('status-dot').textContent = on ? '🟢' : '🔴';
   const textEl = document.getElementById('status-text');
-  textEl.textContent = on ? 'Online' : 'Offline';
+  textEl.textContent = on ? t('status.online') : t('status.offline');
   textEl.classList.toggle('online', on);
   textEl.classList.toggle('offline', !on);
 }
@@ -1000,8 +1108,8 @@ function roundMeters(m) {
 }
 
 function legendAltLabel(ft) {
-  if (altUnit === 'ft') return ft.toLocaleString('de-DE') + ' ft';
-  return roundMeters(ft * 0.3048).toLocaleString('de-DE') + ' m';
+  if (altUnit === 'ft') return ft.toLocaleString(uiLocale()) + ' ft';
+  return roundMeters(ft * 0.3048).toLocaleString(uiLocale()) + ' m';
 }
 
 function renderLegend() {
@@ -1018,9 +1126,9 @@ function renderLegend() {
     return `<div class="legend-row"><span class="swatch" style="background:${b.color}"></span>${label}</div>`;
   }).join('');
   const externalRow = externalEnabled
-    ? `<div class="legend-row" style="margin-top:4px; border-top:1px solid var(--border); padding-top:4px;"><span class="swatch" style="background:${EXTERNAL_COLOR}"></span>Externe Quelle (adsb.fi)</div>`
+    ? `<div class="legend-row" style="margin-top:4px; border-top:1px solid var(--border); padding-top:4px;"><span class="swatch" style="background:${EXTERNAL_COLOR}"></span>${t('settings.externalSource')}</div>`
     : '';
-  document.getElementById('legend').innerHTML = `<div class="legend-title">Flughöhe</div>${rows}${externalRow}`;
+  document.getElementById('legend').innerHTML = `<div class="legend-title">${t('legend.altitude')}</div>${rows}${externalRow}`;
 }
 
 function refreshUnitDependentUI() {
@@ -1114,7 +1222,7 @@ function airportIcon(ap) {
 }
 
 function mediaHtml(info) {
-  if (!info || !info.thumb) return 'Kein Foto verfügbar';
+  if (!info || !info.thumb) return t('detail.noPhoto');
   return `<img src="${info.thumb}" style="width:100%; border-radius:6px; display:block;">`;
 }
 
@@ -1155,7 +1263,7 @@ async function loadAirports() {
   airportLayer = L.layerGroup();
   for (const ap of data) {
     const marker = L.marker([ap.lat, ap.lon], { icon: airportIcon(ap) });
-    marker.bindPopup(airportPopupHtml(ap, ap.wikiTitle ? 'Lade Info…' : 'Keine weiteren Informationen verfügbar'));
+    marker.bindPopup(airportPopupHtml(ap, ap.wikiTitle ? t('map.loadingInfo') : t('map.noMoreInfo')));
     marker.on('popupopen', () => loadAirportInfo(ap, marker));
     airportLayer.addLayer(marker);
   }
@@ -1182,7 +1290,7 @@ const RADIUS_SLIDER_MAX = { km: 500, nm: 270, mi: 310 };
 const RADIUS_SLIDER_STEP = { km: 10, nm: 5, mi: 5 };
 
 function updateRadiusUI() {
-  document.getElementById('radius-hint').textContent = '0 ' + rangeUnit + ' = unbegrenzt';
+  document.getElementById('radius-hint').textContent = '0 ' + rangeUnit + ' = ' + t('settings.unlimited');
   let displayVal = '';
   if (radiusKm > 0) {
     if (rangeUnit === 'nm') displayVal = Math.round(radiusKm / 1.852);
@@ -1388,21 +1496,21 @@ function haversine(lat1, lon1, lat2, lon2) {
 }
 
 function fmtAlt(ft) {
-  if (ft == null) return 'unbekannt';
-  if (altUnit === 'ft') return Math.round(ft).toLocaleString('de-DE') + ' ft';
-  return Math.round(ft * 0.3048).toLocaleString('de-DE') + ' m';
+  if (ft == null) return t('common.unknown');
+  if (altUnit === 'ft') return Math.round(ft).toLocaleString(uiLocale()) + ' ft';
+  return Math.round(ft * 0.3048).toLocaleString(uiLocale()) + ' m';
 }
 function fmtSpeed(kt) {
-  if (kt == null) return 'unbekannt';
+  if (kt == null) return t('common.unknown');
   switch (speedUnit) {
     case 'kt': return Math.round(kt) + ' kn';
     case 'mph': return Math.round(kt * 1.15078) + ' mph';
     default: return Math.round(kt * 1.852) + ' km/h';
   }
 }
-function fmtTrack(t) { return t == null ? 'unbekannt' : Math.round(t) + '°'; }
+function fmtTrack(t_) { return t_ == null ? t('common.unknown') : Math.round(t_) + '°'; }
 function fmtDist(km) {
-  if (km == null) return 'unbekannt';
+  if (km == null) return t('common.unknown');
   switch (rangeUnit) {
     case 'nm': return (km / 1.852).toFixed(1) + ' nm';
     case 'mi': return (km / 1.60934).toFixed(1) + ' mi';
@@ -1411,8 +1519,8 @@ function fmtDist(km) {
 }
 function getTrack(a) { return a.track != null ? a.track : a.calc_track; }
 function fmtVRate(fpm) {
-  if (fpm == null) return 'unbekannt';
-  if (Math.abs(fpm) < 50) return 'Reiseflug (waagerecht)';
+  if (fpm == null) return t('common.unknown');
+  if (Math.abs(fpm) < 50) return t('detail.levelFlight');
   const arrow = fpm > 0 ? '↑' : '↓';
   if (ALT_UNIT_IS_METRIC[altUnit]) return `${arrow} ${(Math.abs(fpm) * 0.00508).toFixed(1)} m/s`;
   return `${arrow} ${Math.abs(Math.round(fpm))} ft/min`;
@@ -1435,9 +1543,9 @@ function fmtTemp(a) {
   const measuredC = a.oat != null ? a.oat : (a.tat != null ? a.tat : null);
   const isMeasured = measuredC != null;
   const c = isMeasured ? measuredC : isaTempC(a.alt_baro);
-  if (c == null) return 'unbekannt';
+  if (c == null) return t('common.unknown');
   const val = ALT_UNIT_IS_METRIC[altUnit] ? Math.round(c) + ' °C' : Math.round(c * 9 / 5 + 32) + ' °F';
-  return val + (isMeasured ? ' (gemessen)' : ' (ISA-Schätzung)');
+  return val + (isMeasured ? ' (' + t('detail.measured') + ')' : ' (' + t('detail.isaEstimate') + ')');
 }
 
 const photoCache = {};
@@ -1447,18 +1555,18 @@ function renderPhoto(photo) {
   const wrap = document.getElementById('d-photo-wrap');
   const credit = document.getElementById('d-photo-credit');
   if (photo) {
-    wrap.innerHTML = `<img src="${photo.thumbnail_large.src}" alt="Flugzeugfoto">`;
+    wrap.innerHTML = `<img src="${photo.thumbnail_large.src}" alt="${t('detail.aircraftPhoto')}">`;
     credit.style.display = 'block';
-    credit.innerHTML = `Foto: ${photo.photographer} · <a href="${photo.link}" target="_blank" rel="noopener">planespotters.net</a>`;
+    credit.innerHTML = `${t('detail.photoBy')} ${photo.photographer} · <a href="${photo.link}" target="_blank" rel="noopener">planespotters.net</a>`;
   } else {
-    wrap.innerHTML = '<div id="d-photo-placeholder">Kein Foto verfügbar</div>';
+    wrap.innerHTML = `<div id="d-photo-placeholder">${t('detail.noPhoto')}</div>`;
     credit.style.display = 'none';
   }
 }
 
 async function loadPhoto(hex) {
   if (!photosEnabled) {
-    document.getElementById('d-photo-wrap').innerHTML = '<div id="d-photo-placeholder">Flugzeugbilder deaktiviert</div>';
+    document.getElementById('d-photo-wrap').innerHTML = `<div id="d-photo-placeholder">${t('detail.photosDisabled')}</div>`;
     document.getElementById('d-photo-credit').style.display = 'none';
     return;
   }
@@ -1487,7 +1595,7 @@ function updateOperatorRowVisibility() {
   const operatorText = document.getElementById('d-operator').textContent.trim();
   const airlineText = document.getElementById('d-airline').textContent.trim();
   const airlineKnown = airlineRow.style.display !== 'none' && airlineText && airlineText !== '—';
-  const operatorKnown = operatorText && operatorText !== '—' && operatorText !== 'Lade…';
+  const operatorKnown = operatorText && operatorText !== '—' && operatorText !== t('common.loading');
   const sameAsAirline = airlineKnown && operatorKnown && operatorText.toLowerCase() === airlineText.toLowerCase();
   operatorRow.style.display = sameAsAirline ? 'none' : 'flex';
 }
@@ -1577,7 +1685,7 @@ let lastDetailHex = null;
 
 function fmtSource(a) {
   if (a.mlat && a.mlat.length > 0) return 'MLAT';
-  if (a._external) return 'Extern (adsb.fi)';
+  if (a._external) return t('detail.externalSource');
   const type = a.type || '';
   if (type.indexOf('tisb') !== -1) return 'TIS-B';
   if (type.indexOf('adsb') !== -1) return 'ADS-B';
@@ -1619,7 +1727,7 @@ async function loadOperator(reg, hex) {
     updateOperatorRowVisibility();
     return;
   }
-  target.textContent = 'Lade…';
+  target.textContent = t('common.loading');
   try {
     const res = await fetch(`https://api.adsbdb.com/v0/aircraft/${encodeURIComponent(reg)}`);
     if (!res.ok) throw new Error('not found');
@@ -1638,7 +1746,7 @@ function showDetail(hex) {
   const a = window.currentAircraft && window.currentAircraft[hex];
   if (!a) return;
   document.getElementById('d-callsign').textContent = (a.flight || a.hex || '—').trim();
-  document.getElementById('d-type').textContent = a.desc || a.t || 'Typ unbekannt';
+  document.getElementById('d-type').textContent = a.desc || a.t || t('common.unknownType');
   document.getElementById('d-icaotype').textContent = a.t || '—';
   document.getElementById('d-reg').textContent = a.r || '—';
   const countryName = countryNameForHex(a.hex);
@@ -1681,13 +1789,13 @@ function renderTimeline() {
   const el = document.getElementById('d-timeline');
   if (!el) return;
   if (!geocodeTimeline.length) {
-    el.innerHTML = '<div style="font-size:12px; color:var(--text-muted); padding:4px 0;">Sammle Wegpunkte…</div>';
+    el.innerHTML = `<div style="font-size:12px; color:var(--text-muted); padding:4px 0;">${t('detail.gatheringWaypoints')}</div>`;
     return;
   }
   el.innerHTML = geocodeTimeline.slice().reverse().map(p => {
     const minsAgo = Math.max(0, Math.round((Date.now() - p.time) / 60000));
-    const when = minsAgo < 1 ? 'gerade' : `vor ${minsAgo} Minute${minsAgo === 1 ? '' : 'n'}`;
-    return `<div class="stat-list-row"><span class="name">${when}</span><span class="count">über ${p.place}</span></div>`;
+    const when = minsAgo < 1 ? t('detail.justNow') : (minsAgo === 1 ? t('detail.minuteAgo') : t('detail.minutesAgo', { n: minsAgo }));
+    return `<div class="stat-list-row"><span class="name">${when}</span><span class="count">${t('detail.overPlace', { place: p.place })}</span></div>`;
   }).join('');
 }
 
@@ -1820,138 +1928,140 @@ function barListHtml(entries) {
   </div>`).join('');
 }
 
-const ACHIEVEMENT_GROUPS = {
-  sammlung: 'Sammlungen',
-  leistung: 'Leistungsbereiche',
-  besonderes: 'Besonderes'
-};
+// Titles are translation lookups now (t('achgroup.'+id) / t('achcat.'+id) /
+// t('ach.'+id)), not stored here, so they re-render on a language switch.
 const ACHIEVEMENT_CATEGORIES = [
-  { id: 'flugzeuge', icon: '✈️', title: 'Flugzeuge', group: 'sammlung' },
-  { id: 'flugzeugtypen', icon: '🔢', title: 'Flugzeugtypen', group: 'sammlung' },
-  { id: 'selten', icon: '⭐', title: 'Seltene Flugzeuge', group: 'sammlung' },
-  { id: 'airlines', icon: '🌍', title: 'Airlines', group: 'sammlung' },
-  { id: 'laender', icon: '🌎', title: 'Länder', group: 'sammlung' },
-  { id: 'empfang', icon: '📡', title: 'Empfang', group: 'leistung' },
-  { id: 'nachrichten', icon: '📬', title: 'Nachrichten', group: 'leistung' },
-  { id: 'gesamtflugzeuge', icon: '📶', title: 'Gesamtflugzeuge', group: 'leistung' },
-  { id: 'tagesrekorde', icon: '📈', title: 'Tagesrekorde', group: 'leistung' },
-  { id: 'flughoehe', icon: '🛫', title: 'Flughöhe', group: 'leistung' },
-  { id: 'niedrigueberflug', icon: '📉', title: 'Niedrigster Überflug', group: 'leistung' },
-  { id: 'zeit', icon: '🕒', title: 'Zeit', group: 'besonderes' },
-  { id: 'jubilaeen', icon: '🎂', title: 'Jubiläen', group: 'besonderes' }
+  { id: 'flugzeuge', icon: '✈️', group: 'sammlung' },
+  { id: 'flugzeugtypen', icon: '🔢', group: 'sammlung' },
+  { id: 'selten', icon: '⭐', group: 'sammlung' },
+  { id: 'airlines', icon: '🌍', group: 'sammlung' },
+  { id: 'laender', icon: '🌎', group: 'sammlung' },
+  { id: 'empfang', icon: '📡', group: 'leistung' },
+  { id: 'nachrichten', icon: '📬', group: 'leistung' },
+  { id: 'gesamtflugzeuge', icon: '📶', group: 'leistung' },
+  { id: 'tagesrekorde', icon: '📈', group: 'leistung' },
+  { id: 'flughoehe', icon: '🛫', group: 'leistung' },
+  { id: 'niedrigueberflug', icon: '📉', group: 'leistung' },
+  { id: 'zeit', icon: '🕒', group: 'besonderes' },
+  { id: 'jubilaeen', icon: '🎂', group: 'besonderes' }
 ];
 
 const ACHIEVEMENTS_CATALOG = [
-  { id: 'first_helicopter', cat: 'flugzeuge', icon: '🚁', title: 'Erster Hubschrauber' },
-  { id: 'first_military', cat: 'flugzeuge', icon: '🪖', title: 'Militärflugzeug' },
-  { id: 'first_business', cat: 'flugzeuge', icon: '🛬', title: 'Erstes Geschäftsflugzeug' },
-  { id: 'first_seaplane', cat: 'flugzeuge', icon: '🛩', title: 'Erstes Wasserflugzeug' },
-  { id: 'first_rescue_heli', cat: 'flugzeuge', icon: '🚑', title: 'Erster Rettungshubschrauber' },
-  { id: 'first_firefighter', cat: 'flugzeuge', icon: '🚒', title: 'Erstes Löschflugzeug' },
+  { id: 'first_helicopter', cat: 'flugzeuge', icon: '🚁' },
+  { id: 'first_military', cat: 'flugzeuge', icon: '🪖' },
+  { id: 'first_business', cat: 'flugzeuge', icon: '🛬' },
+  { id: 'first_seaplane', cat: 'flugzeuge', icon: '🛩' },
+  { id: 'first_rescue_heli', cat: 'flugzeuge', icon: '🚑' },
+  { id: 'first_firefighter', cat: 'flugzeuge', icon: '🚒' },
 
-  { id: 'first_lufthansa', cat: 'airlines', icon: '🌍', title: 'Erste Lufthansa' },
-  { id: 'first_ryanair', cat: 'airlines', icon: '🌍', title: 'Erste Ryanair' },
-  { id: 'first_emirates', cat: 'airlines', icon: '🌍', title: 'Erste Emirates' },
-  { id: 'first_singapore', cat: 'airlines', icon: '🌍', title: 'Erste Singapore Airlines' },
-  { id: 'first_qantas', cat: 'airlines', icon: '🌍', title: 'Erste Qantas' },
-  { id: 'airlines_100', cat: 'airlines', icon: '🌍', title: '100 verschiedene Airlines' },
-  { id: 'airlines_250', cat: 'airlines', icon: '🌍', title: '250 verschiedene Airlines' },
-  { id: 'airlines_500', cat: 'airlines', icon: '🌍', title: '500 verschiedene Airlines' },
+  { id: 'first_lufthansa', cat: 'airlines', icon: '🌍' },
+  { id: 'first_ryanair', cat: 'airlines', icon: '🌍' },
+  { id: 'first_emirates', cat: 'airlines', icon: '🌍' },
+  { id: 'first_singapore', cat: 'airlines', icon: '🌍' },
+  { id: 'first_qantas', cat: 'airlines', icon: '🌍' },
+  { id: 'airlines_100', cat: 'airlines', icon: '🌍' },
+  { id: 'airlines_250', cat: 'airlines', icon: '🌍' },
+  { id: 'airlines_500', cat: 'airlines', icon: '🌍' },
 
-  { id: 'range_100km', cat: 'empfang', icon: '📡', title: 'Erste 100 km' },
-  { id: 'range_150km', cat: 'empfang', icon: '📡', title: 'Erste 150 km' },
-  { id: 'range_200km', cat: 'empfang', icon: '📡', title: 'Erste 200 km' },
-  { id: 'range_250km', cat: 'empfang', icon: '📡', title: 'Erste 250 km' },
-  { id: 'range_300km', cat: 'empfang', icon: '📡', title: 'Erste 300 km' },
-  { id: 'range_400km', cat: 'empfang', icon: '📡', title: 'Erste 400 km' },
+  { id: 'range_100km', cat: 'empfang', icon: '📡' },
+  { id: 'range_150km', cat: 'empfang', icon: '📡' },
+  { id: 'range_200km', cat: 'empfang', icon: '📡' },
+  { id: 'range_250km', cat: 'empfang', icon: '📡' },
+  { id: 'range_300km', cat: 'empfang', icon: '📡' },
+  { id: 'range_400km', cat: 'empfang', icon: '📡' },
 
-  { id: 'daily_100', cat: 'tagesrekorde', icon: '📈', title: '100 Flugzeuge an einem Tag' },
-  { id: 'daily_500', cat: 'tagesrekorde', icon: '📈', title: '500 Flugzeuge an einem Tag' },
-  { id: 'daily_1000', cat: 'tagesrekorde', icon: '📈', title: '1000 Flugzeuge an einem Tag' },
-  { id: 'daily_2500', cat: 'tagesrekorde', icon: '📈', title: '2500 Flugzeuge an einem Tag' },
-  { id: 'daily_5000', cat: 'tagesrekorde', icon: '📈', title: '5000 Flugzeuge an einem Tag' },
+  { id: 'daily_100', cat: 'tagesrekorde', icon: '📈' },
+  { id: 'daily_500', cat: 'tagesrekorde', icon: '📈' },
+  { id: 'daily_1000', cat: 'tagesrekorde', icon: '📈' },
+  { id: 'daily_2500', cat: 'tagesrekorde', icon: '📈' },
+  { id: 'daily_5000', cat: 'tagesrekorde', icon: '📈' },
 
-  { id: 'msg_100000', cat: 'nachrichten', icon: '📬', title: '100.000 ADS-B-Nachrichten' },
-  { id: 'msg_1000000', cat: 'nachrichten', icon: '📬', title: '1 Million Nachrichten' },
-  { id: 'msg_10000000', cat: 'nachrichten', icon: '📬', title: '10 Millionen Nachrichten' },
-  { id: 'msg_100000000', cat: 'nachrichten', icon: '📬', title: '100 Millionen Nachrichten' },
+  { id: 'msg_100000', cat: 'nachrichten', icon: '📬' },
+  { id: 'msg_1000000', cat: 'nachrichten', icon: '📬' },
+  { id: 'msg_10000000', cat: 'nachrichten', icon: '📬' },
+  { id: 'msg_100000000', cat: 'nachrichten', icon: '📬' },
 
-  { id: 'altitude_fl300', cat: 'flughoehe', icon: '🛫', title: 'Flug über FL300' },
-  { id: 'altitude_fl400', cat: 'flughoehe', icon: '🛫', title: 'FL400 erreicht' },
-  { id: 'altitude_fl450', cat: 'flughoehe', icon: '🛫', title: 'FL450 erreicht' },
+  { id: 'altitude_fl300', cat: 'flughoehe', icon: '🛫' },
+  { id: 'altitude_fl400', cat: 'flughoehe', icon: '🛫' },
+  { id: 'altitude_fl450', cat: 'flughoehe', icon: '🛫' },
 
-  { id: 'lowalt_1000m', cat: 'niedrigueberflug', icon: '📉', title: 'Unter 1000 m' },
-  { id: 'lowalt_500m', cat: 'niedrigueberflug', icon: '📉', title: 'Unter 500 m' },
-  { id: 'lowalt_250m', cat: 'niedrigueberflug', icon: '📉', title: 'Unter 250 m' },
-  { id: 'lowalt_100m', cat: 'niedrigueberflug', icon: '📉', title: 'Unter 100 m' },
+  { id: 'lowalt_1000m', cat: 'niedrigueberflug', icon: '📉' },
+  { id: 'lowalt_500m', cat: 'niedrigueberflug', icon: '📉' },
+  { id: 'lowalt_250m', cat: 'niedrigueberflug', icon: '📉' },
+  { id: 'lowalt_100m', cat: 'niedrigueberflug', icon: '📉' },
 
-  { id: 'country_de', cat: 'laender', icon: '🇩🇪', title: 'Erstes Flugzeug aus Deutschland' },
-  { id: 'country_us', cat: 'laender', icon: '🇺🇸', title: 'Erstes Flugzeug aus den USA' },
-  { id: 'country_gb', cat: 'laender', icon: '🇬🇧', title: 'Erstes Flugzeug aus Großbritannien' },
-  { id: 'country_fr', cat: 'laender', icon: '🇫🇷', title: 'Erstes Flugzeug aus Frankreich' },
-  { id: 'country_it', cat: 'laender', icon: '🇮🇹', title: 'Erstes Flugzeug aus Italien' },
-  { id: 'country_es', cat: 'laender', icon: '🇪🇸', title: 'Erstes Flugzeug aus Spanien' },
-  { id: 'country_nl', cat: 'laender', icon: '🇳🇱', title: 'Erstes Flugzeug aus den Niederlanden' },
-  { id: 'country_pl', cat: 'laender', icon: '🇵🇱', title: 'Erstes Flugzeug aus Polen' },
-  { id: 'country_ch', cat: 'laender', icon: '🇨🇭', title: 'Erstes Flugzeug aus der Schweiz' },
-  { id: 'country_at', cat: 'laender', icon: '🇦🇹', title: 'Erstes Flugzeug aus Österreich' },
-  { id: 'country_ru', cat: 'laender', icon: '🇷🇺', title: 'Erstes Flugzeug aus Russland' },
-  { id: 'country_cn', cat: 'laender', icon: '🇨🇳', title: 'Erstes Flugzeug aus China' },
-  { id: 'country_jp', cat: 'laender', icon: '🇯🇵', title: 'Erstes Flugzeug aus Japan' },
-  { id: 'country_ae', cat: 'laender', icon: '🇦🇪', title: 'Erstes Flugzeug aus den VAE' },
-  { id: 'country_tr', cat: 'laender', icon: '🇹🇷', title: 'Erstes Flugzeug aus der Türkei' },
-  { id: 'countries_50', cat: 'laender', icon: '🌎', title: '50 Länder entdeckt' },
+  { id: 'country_de', cat: 'laender', icon: '🇩🇪' },
+  { id: 'country_us', cat: 'laender', icon: '🇺🇸' },
+  { id: 'country_gb', cat: 'laender', icon: '🇬🇧' },
+  { id: 'country_fr', cat: 'laender', icon: '🇫🇷' },
+  { id: 'country_it', cat: 'laender', icon: '🇮🇹' },
+  { id: 'country_es', cat: 'laender', icon: '🇪🇸' },
+  { id: 'country_nl', cat: 'laender', icon: '🇳🇱' },
+  { id: 'country_pl', cat: 'laender', icon: '🇵🇱' },
+  { id: 'country_ch', cat: 'laender', icon: '🇨🇭' },
+  { id: 'country_at', cat: 'laender', icon: '🇦🇹' },
+  { id: 'country_ru', cat: 'laender', icon: '🇷🇺' },
+  { id: 'country_cn', cat: 'laender', icon: '🇨🇳' },
+  { id: 'country_jp', cat: 'laender', icon: '🇯🇵' },
+  { id: 'country_ae', cat: 'laender', icon: '🇦🇪' },
+  { id: 'country_tr', cat: 'laender', icon: '🇹🇷' },
+  { id: 'countries_50', cat: 'laender', icon: '🌎' },
 
-  { id: 'first_concorde', cat: 'selten', icon: '⭐', title: 'Concorde' },
-  { id: 'first_a380', cat: 'selten', icon: '⭐', title: 'A380' },
-  { id: 'rare_a340', cat: 'selten', icon: '⭐', title: 'A340' },
-  { id: 'first_osprey', cat: 'selten', icon: '⭐', title: 'Osprey (V-22)' },
-  { id: 'first_chinook', cat: 'selten', icon: '⭐', title: 'Chinook' },
-  { id: 'rare_antonov', cat: 'selten', icon: '⭐', title: 'Antonov entdeckt' },
-  { id: 'rare_beluga', cat: 'selten', icon: '⭐', title: 'Beluga' },
-  { id: 'rare_dreamlifter', cat: 'selten', icon: '⭐', title: 'Dreamlifter' },
-  { id: 'rare_vc25', cat: 'selten', icon: '⭐', title: 'VC-25 (Air Force One)' },
-  { id: 'rare_e3sentry', cat: 'selten', icon: '⭐', title: 'E-3 Sentry (AWACS)' },
-  { id: 'rare_u2', cat: 'selten', icon: '⭐', title: 'U-2' },
-  { id: 'rare_sr71', cat: 'selten', icon: '⭐', title: 'SR-71 (historisch)' },
-  { id: 'rare_b2spirit', cat: 'selten', icon: '⭐', title: 'B-2 Spirit' },
-  { id: 'rare_b52', cat: 'selten', icon: '⭐', title: 'B-52' },
-  { id: 'rare_c17', cat: 'selten', icon: '⭐', title: 'C-17' },
-  { id: 'rare_f35', cat: 'selten', icon: '⭐', title: 'F-35' },
-  { id: 'rare_eurofighter', cat: 'selten', icon: '⭐', title: 'Eurofighter' },
-  { id: 'rare_fa18', cat: 'selten', icon: '⭐', title: 'F/A-18' },
-  { id: 'rare_p8', cat: 'selten', icon: '⭐', title: 'P-8 Poseidon' },
-  { id: 'rare_kc46', cat: 'selten', icon: '⭐', title: 'KC-46' },
-  { id: 'rare_kc135', cat: 'selten', icon: '⭐', title: 'KC-135' },
-  { id: 'rare_e6mercury', cat: 'selten', icon: '⭐', title: 'E-6 Mercury' },
-  { id: 'rare_nasa', cat: 'selten', icon: '⭐', title: 'NASA-Flugzeug' },
+  { id: 'first_concorde', cat: 'selten', icon: '⭐' },
+  { id: 'first_a380', cat: 'selten', icon: '⭐' },
+  { id: 'rare_a340', cat: 'selten', icon: '⭐' },
+  { id: 'first_osprey', cat: 'selten', icon: '⭐' },
+  { id: 'first_chinook', cat: 'selten', icon: '⭐' },
+  { id: 'rare_antonov', cat: 'selten', icon: '⭐' },
+  { id: 'rare_beluga', cat: 'selten', icon: '⭐' },
+  { id: 'rare_dreamlifter', cat: 'selten', icon: '⭐' },
+  { id: 'rare_vc25', cat: 'selten', icon: '⭐' },
+  { id: 'rare_e3sentry', cat: 'selten', icon: '⭐' },
+  { id: 'rare_u2', cat: 'selten', icon: '⭐' },
+  { id: 'rare_sr71', cat: 'selten', icon: '⭐' },
+  { id: 'rare_b2spirit', cat: 'selten', icon: '⭐' },
+  { id: 'rare_b52', cat: 'selten', icon: '⭐' },
+  { id: 'rare_c17', cat: 'selten', icon: '⭐' },
+  { id: 'rare_f35', cat: 'selten', icon: '⭐' },
+  { id: 'rare_eurofighter', cat: 'selten', icon: '⭐' },
+  { id: 'rare_fa18', cat: 'selten', icon: '⭐' },
+  { id: 'rare_p8', cat: 'selten', icon: '⭐' },
+  { id: 'rare_kc46', cat: 'selten', icon: '⭐' },
+  { id: 'rare_kc135', cat: 'selten', icon: '⭐' },
+  { id: 'rare_e6mercury', cat: 'selten', icon: '⭐' },
+  { id: 'rare_nasa', cat: 'selten', icon: '⭐' },
 
-  { id: 'night_watchman', cat: 'zeit', icon: '🕒', title: 'Nachtwächter (02–04 Uhr)' },
-  { id: 'early_bird', cat: 'zeit', icon: '🌅', title: 'Frühaufsteher (vor Sonnenaufgang)' },
-  { id: 'night_owl', cat: 'zeit', icon: '🌙', title: 'Nachteule (100 Nachtflüge)' },
+  { id: 'night_watchman', cat: 'zeit', icon: '🕒' },
+  { id: 'early_bird', cat: 'zeit', icon: '🌅' },
+  { id: 'night_owl', cat: 'zeit', icon: '🌙' },
 
-  { id: 'anniversary_1', cat: 'jubilaeen', icon: '🎂', title: '1 Tag Radar online' },
-  { id: 'anniversary_7', cat: 'jubilaeen', icon: '🎂', title: '7 Tage Radar online' },
-  { id: 'anniversary_30', cat: 'jubilaeen', icon: '🎂', title: '30 Tage Radar online' },
-  { id: 'anniversary_100', cat: 'jubilaeen', icon: '🎂', title: '100 Tage Radar online' },
-  { id: 'anniversary_365', cat: 'jubilaeen', icon: '🎂', title: '365 Tage Radar online' },
+  { id: 'anniversary_1', cat: 'jubilaeen', icon: '🎂' },
+  { id: 'anniversary_7', cat: 'jubilaeen', icon: '🎂' },
+  { id: 'anniversary_30', cat: 'jubilaeen', icon: '🎂' },
+  { id: 'anniversary_100', cat: 'jubilaeen', icon: '🎂' },
+  { id: 'anniversary_365', cat: 'jubilaeen', icon: '🎂' },
 
-  { id: 'types_10', cat: 'flugzeugtypen', icon: '✈️', title: '10 verschiedene Flugzeugtypen' },
-  { id: 'types_25', cat: 'flugzeugtypen', icon: '✈️', title: '25 verschiedene Flugzeugtypen' },
-  { id: 'types_50', cat: 'flugzeugtypen', icon: '✈️', title: '50 verschiedene Flugzeugtypen' },
-  { id: 'types_100', cat: 'flugzeugtypen', icon: '✈️', title: '100 verschiedene Flugzeugtypen' },
+  { id: 'types_10', cat: 'flugzeugtypen', icon: '✈️' },
+  { id: 'types_25', cat: 'flugzeugtypen', icon: '✈️' },
+  { id: 'types_50', cat: 'flugzeugtypen', icon: '✈️' },
+  { id: 'types_100', cat: 'flugzeugtypen', icon: '✈️' },
 
-  { id: 'aircraft_100', cat: 'gesamtflugzeuge', icon: '📶', title: '100 Flugzeuge insgesamt' },
-  { id: 'aircraft_500', cat: 'gesamtflugzeuge', icon: '📶', title: '500 Flugzeuge insgesamt' },
-  { id: 'aircraft_1000', cat: 'gesamtflugzeuge', icon: '📶', title: '1.000 Flugzeuge insgesamt' },
-  { id: 'aircraft_2500', cat: 'gesamtflugzeuge', icon: '📶', title: '2.500 Flugzeuge insgesamt' },
-  { id: 'aircraft_5000', cat: 'gesamtflugzeuge', icon: '📶', title: '5.000 Flugzeuge insgesamt' },
-  { id: 'aircraft_10000', cat: 'gesamtflugzeuge', icon: '📶', title: '10.000 Flugzeuge insgesamt' }
+  { id: 'aircraft_100', cat: 'gesamtflugzeuge', icon: '📶' },
+  { id: 'aircraft_500', cat: 'gesamtflugzeuge', icon: '📶' },
+  { id: 'aircraft_1000', cat: 'gesamtflugzeuge', icon: '📶' },
+  { id: 'aircraft_2500', cat: 'gesamtflugzeuge', icon: '📶' },
+  { id: 'aircraft_5000', cat: 'gesamtflugzeuge', icon: '📶' },
+  { id: 'aircraft_10000', cat: 'gesamtflugzeuge', icon: '📶' }
 ];
-const RECORD_LABELS = {
-  max_alt: 'Höchste Flughöhe', max_dist: 'Weiteste Entfernung',
-  max_speed: 'Höchste Geschwindigkeit', min_alt: 'Niedrigster Überflug'
+
+function achTitle(id) { return t('ach.' + id); }
+function achCatTitle(catId) { return t('achcat.' + catId); }
+function achGroupTitle(groupId) { return t('achgroup.' + groupId); }
+const RECORD_LABEL_KEYS = {
+  max_alt: 'stats.maxAltitude', max_dist: 'stats.maxDistance',
+  max_speed: 'stats.maxSpeed', min_alt: 'stats.lowestOverflight'
 };
+function recordLabel(cat) { return t(RECORD_LABEL_KEYS[cat] || cat); }
 function fmtRecordValue(cat, v) {
   if (cat === 'max_dist') return fmtDist(v);
   if (cat === 'max_speed') return fmtSpeed(v);
@@ -2001,7 +2111,7 @@ function checkMilitaryNotification(a) {
   if (classifyAircraft(a) !== 'militaer') return;
   notifiedMilitaryHexes.add(a.hex);
   const label = (a.flight || a.hex || '').trim();
-  showBrowserNotification('🪖 Militärflugzeug entdeckt', `${label}${a.t ? ' · ' + a.t : ''}`.trim());
+  showBrowserNotification('🪖 ' + t('notif.militaryDetected'), `${label}${a.t ? ' · ' + a.t : ''}`.trim());
 }
 
 function showAchievementToast(icon, title, sub, xp) {
@@ -2053,11 +2163,11 @@ const ACHIEVEMENT_XP = {
 };
 
 function rarityForXp(xp) {
-  if (xp >= 800) return 'Legendär';
-  if (xp >= 300) return 'Episch';
-  if (xp >= 100) return 'Selten';
-  if (xp >= 30) return 'Ungewöhnlich';
-  return 'Häufig';
+  if (xp >= 800) return t('rarity.legendary');
+  if (xp >= 300) return t('rarity.epic');
+  if (xp >= 100) return t('rarity.rare');
+  if (xp >= 30) return t('rarity.uncommon');
+  return t('rarity.common');
 }
 
 const ACH_CATEGORY_KIND = {
@@ -2070,18 +2180,14 @@ const ACH_CATEGORY_KIND = {
 // Aggregate count milestones (not individual collectibles) get pulled out of the
 // chip grid and shown as their own small row above it instead.
 const ACH_MILESTONE_IDS = new Set(['countries_50', 'airlines_100', 'airlines_250', 'airlines_500']);
-const COUNTRY_CHIP_NAMES = {
-  country_de: 'Deutschland', country_us: 'USA', country_gb: 'Großbritannien', country_fr: 'Frankreich',
-  country_it: 'Italien', country_es: 'Spanien', country_nl: 'Niederlande', country_pl: 'Polen',
-  country_ch: 'Schweiz', country_at: 'Österreich', country_ru: 'Russland', country_cn: 'China',
-  country_jp: 'Japan', country_ae: 'VAE', country_tr: 'Türkei'
-};
 const MEDAL_ICONS = ['🥉', '🥈', '🥇', '🏆', '💎'];
 const ACH_MSG_THRESHOLDS = { msg_100000: 100000, msg_1000000: 1000000, msg_10000000: 10000000, msg_100000000: 100000000 };
 
 function chipLabel(a) {
-  if (COUNTRY_CHIP_NAMES[a.id]) return COUNTRY_CHIP_NAMES[a.id];
-  return a.title.replace(/^Erste[rs]?\s+/, '').replace(/\s*\([^)]*\)/, '').replace(/\s+entdeckt$/, '');
+  const shortKey = 'achshort.' + a.id;
+  const short = t(shortKey);
+  if (short !== shortKey) return short;
+  return achTitle(a.id).replace(/^(Erste[rs]?|First)\s+/, '').replace(/\s*\([^)]*\)/, '').replace(/\s+(entdeckt|Spotted)$/, '');
 }
 
 let achOpenCategory = null;
@@ -2110,10 +2216,10 @@ function renderAchCategoryList(unlockedMap) {
     const items = ACHIEVEMENTS_CATALOG.filter(a => a.cat === cat.id);
     const unlockedCount = items.filter(a => unlockedMap[a.id]).length;
     const pct = items.length ? Math.round((unlockedCount / items.length) * 100) : 0;
-    const groupHeaderHtml = cat.group !== lastGroup ? `<div class="ach-group-title">${ACHIEVEMENT_GROUPS[cat.group]}</div>` : '';
+    const groupHeaderHtml = cat.group !== lastGroup ? `<div class="ach-group-title">${achGroupTitle(cat.group)}</div>` : '';
     lastGroup = cat.group;
     return `${groupHeaderHtml}<button class="ach-list-row" onclick="event.stopPropagation(); openAchCategory('${cat.id}')">
-      <span>${cat.icon} ${cat.title}</span>
+      <span>${cat.icon} ${achCatTitle(cat.id)}</span>
       <span class="ach-list-progress">${unlockedCount}/${items.length}<span class="ach-list-progress-track"><span class="ach-list-progress-fill" style="width:${pct}%"></span></span><span class="ach-list-arrow">›</span></span>
     </button>`;
   }).join('');
@@ -2134,8 +2240,8 @@ function renderAchChipGrid(catId, items, unlockedMap) {
     const u = unlockedMap[sel.id];
     const xp = ACHIEVEMENT_XP[sel.id] || 0;
     const sub = (u
-      ? '✔ Freigeschaltet am ' + new Date(u.unlockedAt * 1000).toLocaleDateString('de-DE') + (u.callsign ? ' · ' + u.callsign : '')
-      : '🔒 Noch nicht entdeckt') + ` · ${rarityForXp(xp)} · ${xp} XP`;
+      ? '✔ ' + t('ach.unlockedOn') + ' ' + new Date(u.unlockedAt * 1000).toLocaleDateString(uiLocale()) + (u.callsign ? ' · ' + u.callsign : '')
+      : '🔒 ' + t('ach.notDiscoveredYet')) + ` · ${rarityForXp(xp)} · ${xp} XP`;
     detailHtml = `<div class="ach-chip-detail"><span class="ach-chip-detail-icon">${sel.icon}</span><div><div class="ach-chip-detail-title">${chipLabel(sel)}</div><div class="ach-chip-detail-sub">${sub}</div></div></div>`;
   }
   return `<div class="ach-chip-grid">${chips}</div>${detailHtml}`;
@@ -2144,7 +2250,7 @@ function renderAchChipGrid(catId, items, unlockedMap) {
 function renderAchLadder(items, unlockedMap) {
   const rows = items.map(a => {
     const u = unlockedMap[a.id];
-    return `<div class="ach-ladder-row${u ? '' : ' locked'}"><span>${a.title} <span class="ach-xp-tag">· ${ACHIEVEMENT_XP[a.id] || 0} XP</span></span><span class="ach-ladder-mark">${u ? '✔' : '🔒'}</span></div>`;
+    return `<div class="ach-ladder-row${u ? '' : ' locked'}"><span>${achTitle(a.id)} <span class="ach-xp-tag">· ${ACHIEVEMENT_XP[a.id] || 0} XP</span></span><span class="ach-ladder-mark">${u ? '✔' : '🔒'}</span></div>`;
   }).join('');
   return `<div class="ach-ladder">${rows}</div>`;
 }
@@ -2153,7 +2259,7 @@ function renderAchMedals(items, unlockedMap) {
   return items.map((a, i) => {
     const u = unlockedMap[a.id];
     const icon = MEDAL_ICONS[i] || '🏅';
-    return `<div class="ach-medal-row${u ? '' : ' locked'}"><span class="ach-medal-icon">${icon}</span><span class="ach-medal-title">${a.title} <span class="ach-xp-tag">· ${ACHIEVEMENT_XP[a.id] || 0} XP</span></span><span>${u ? '✔' : ''}</span></div>`;
+    return `<div class="ach-medal-row${u ? '' : ' locked'}"><span class="ach-medal-icon">${icon}</span><span class="ach-medal-title">${achTitle(a.id)} <span class="ach-xp-tag">· ${ACHIEVEMENT_XP[a.id] || 0} XP</span></span><span>${u ? '✔' : ''}</span></div>`;
   }).join('');
 }
 
@@ -2165,7 +2271,7 @@ function renderAchMsgBar(items, unlockedMap, cumMessages) {
     const pct = u ? 100 : Math.max(0, Math.min(100, Math.round(100 * (cumMessages - prevThreshold) / (threshold - prevThreshold))));
     const mark = u ? '✔' : (pct > 0 ? pct + '%' : '🔒');
     prevThreshold = threshold;
-    return `<div class="ach-msgbar-row${u ? '' : ' locked'}"><div class="ach-msgbar-label"><span>${a.title} <span class="ach-xp-tag">· ${ACHIEVEMENT_XP[a.id] || 0} XP</span></span><span>${mark}</span></div><div class="ach-msgbar-track"><div class="ach-msgbar-fill" style="width:${pct}%"></div></div></div>`;
+    return `<div class="ach-msgbar-row${u ? '' : ' locked'}"><div class="ach-msgbar-label"><span>${achTitle(a.id)} <span class="ach-xp-tag">· ${ACHIEVEMENT_XP[a.id] || 0} XP</span></span><span>${mark}</span></div><div class="ach-msgbar-track"><div class="ach-msgbar-fill" style="width:${pct}%"></div></div></div>`;
   }).join('');
 }
 
@@ -2174,8 +2280,8 @@ function renderAchCards(items, unlockedMap) {
     const u = unlockedMap[a.id];
     const cls = u ? 'achievement unlocked' : 'achievement locked';
     const xp = ACHIEVEMENT_XP[a.id] || 0;
-    const sub = (u ? new Date(u.unlockedAt * 1000).toLocaleDateString('de-DE') : 'Noch nicht freigeschaltet') + ` · ${rarityForXp(xp)} · ${xp} XP`;
-    return `<div class="${cls}"><span class="ach-icon">${a.icon}</span><div><div class="ach-title">${a.title}</div><div class="ach-sub">${sub}</div></div></div>`;
+    const sub = (u ? new Date(u.unlockedAt * 1000).toLocaleDateString(uiLocale()) : t('ach.notUnlockedYet')) + ` · ${rarityForXp(xp)} · ${xp} XP`;
+    return `<div class="${cls}"><span class="ach-icon">${a.icon}</span><div><div class="ach-title">${achTitle(a.id)}</div><div class="ach-sub">${sub}</div></div></div>`;
   }).join('');
 }
 
@@ -2191,8 +2297,8 @@ function renderAchCategoryDetail(catId, unlockedMap, cumMessages) {
   const milestonesHtml = milestones.map(a => {
     const u = unlockedMap[a.id];
     const xp = ACHIEVEMENT_XP[a.id] || 0;
-    const sub = (u ? '✔ ' + new Date(u.unlockedAt * 1000).toLocaleDateString('de-DE') : '🔒 Noch nicht erreicht') + ` · ${rarityForXp(xp)} · ${xp} XP`;
-    return `<div class="ach-milestone-row achievement"><span class="ach-icon">${a.icon}</span><div><div class="ach-title">${a.title}</div><div class="ach-sub">${sub}</div></div></div>`;
+    const sub = (u ? '✔ ' + new Date(u.unlockedAt * 1000).toLocaleDateString(uiLocale()) : '🔒 ' + t('ach.notReachedYet')) + ` · ${rarityForXp(xp)} · ${xp} XP`;
+    return `<div class="ach-milestone-row achievement"><span class="ach-icon">${a.icon}</span><div><div class="ach-title">${achTitle(a.id)}</div><div class="ach-sub">${sub}</div></div></div>`;
   }).join('');
 
   let bodyHtml;
@@ -2202,9 +2308,9 @@ function renderAchCategoryDetail(catId, unlockedMap, cumMessages) {
   else if (kind === 'msgbar') bodyHtml = renderAchMsgBar(items, unlockedMap, cumMessages);
   else bodyHtml = renderAchCards(items, unlockedMap);
 
-  return `<button class="ach-back-btn" onclick="event.stopPropagation(); closeAchCategory()">← Zurück</button>
-    <div class="ach-detail-title">${cat.icon} ${cat.title}</div>
-    <div class="ach-detail-progress">${unlockedCount}/${allItems.length} freigeschaltet</div>
+  return `<button class="ach-back-btn" onclick="event.stopPropagation(); closeAchCategory()">← ${t('common.back')}</button>
+    <div class="ach-detail-title">${cat.icon} ${achCatTitle(cat.id)}</div>
+    <div class="ach-detail-progress">${unlockedCount}/${allItems.length} ${t('ach.unlocked')}</div>
     ${milestonesHtml}
     ${bodyHtml}`;
 }
@@ -2291,27 +2397,27 @@ function achievementProgress(a) {
     return { current, target: num * 100, unit: 'ft' };
   }
   if (id.startsWith('types_') && !isNaN(num)) {
-    return { current: lastProgressCounts.typeCount, target: num, unit: 'Typen' };
+    return { current: lastProgressCounts.typeCount, target: num, unit: t('ach.unitTypes') };
   }
   if (id.startsWith('aircraft_') && !isNaN(num)) {
-    return { current: lastProgressCounts.aircraftCount, target: num, unit: 'Flugzeuge' };
+    return { current: lastProgressCounts.aircraftCount, target: num, unit: t('ach.unitAircraft') };
   }
   if (id.startsWith('msg_') && !isNaN(num)) {
-    return { current: lastAchCumMessages, target: num, unit: 'Nachrichten' };
+    return { current: lastAchCumMessages, target: num, unit: t('ach.unitMessages') };
   }
   if (id.startsWith('airlines_') && !isNaN(num)) {
-    return { current: lastProgressCounts.airlineCount, target: num, unit: 'Airlines' };
+    return { current: lastProgressCounts.airlineCount, target: num, unit: t('ach.unitAirlines') };
   }
   if (id === 'countries_50') {
-    return { current: lastProgressCounts.countryCount, target: 50, unit: 'Länder' };
+    return { current: lastProgressCounts.countryCount, target: 50, unit: t('ach.unitCountries') };
   }
   return null;
 }
 
 function xpSuggestionSubline(a) {
   const p = achievementProgress(a);
-  if (!p) return 'Noch nicht gesichtet';
-  return `${p.current.toLocaleString('de-DE')} / ${p.target.toLocaleString('de-DE')} ${p.unit}`;
+  if (!p) return t('ach.notSpottedYet');
+  return `${p.current.toLocaleString(uiLocale())} / ${p.target.toLocaleString(uiLocale())} ${p.unit}`;
 }
 
 function renderLevelProfile() {
@@ -2326,24 +2432,24 @@ function renderLevelProfile() {
 
   const suggestions = buildXpSuggestions(lastAchUnlockedMap, 6);
   const suggestionsHtml = suggestions.length
-    ? suggestions.map(a => `<div class="xp-suggestion-row"><span>☐ ${a.icon} ${a.title}<span class="xp-suggestion-sub">${xpSuggestionSubline(a)}</span></span><span class="xp-suggestion-value">+${ACHIEVEMENT_XP[a.id] || 0} XP</span></div>`).join('')
-    : '<div class="xp-suggestion-row" style="opacity:.6">Alle Meilensteine erreicht! 🎉</div>';
+    ? suggestions.map(a => `<div class="xp-suggestion-row"><span>☐ ${a.icon} ${achTitle(a.id)}<span class="xp-suggestion-sub">${xpSuggestionSubline(a)}</span></span><span class="xp-suggestion-value">+${ACHIEVEMENT_XP[a.id] || 0} XP</span></div>`).join('')
+    : `<div class="xp-suggestion-row" style="opacity:.6">${t('ach.allUnlocked')}</div>`;
 
-  return `<button class="ach-back-btn" onclick="closeAchCategory()">← Zurück</button>
+  return `<button class="ach-back-btn" onclick="closeAchCategory()">← ${t('common.back')}</button>
     <div class="level-profile">
-      <div class="level-profile-title">🛰️ Radar-Level ${li.level}</div>
-      <div class="level-profile-sub">Radar-Operator</div>
+      <div class="level-profile-title">🛰️ ${t('level.badgeLabel')} ${li.level}</div>
+      <div class="level-profile-sub">${t('level.operator')}</div>
       <div class="level-profile-bar-track"><div class="level-profile-bar-fill" style="width:${barPct}%"></div></div>
-      <div class="level-profile-xp">${li.totalXp.toLocaleString('de-DE')} / ${barMaxXp.toLocaleString('de-DE')} Erfahrung</div>
-      <div class="level-profile-achcount">${unlockedCount} / ${totalCount} Achievements <span class="level-profile-pct">· ${pct}%</span></div>
+      <div class="level-profile-xp">${li.totalXp.toLocaleString(uiLocale())} / ${barMaxXp.toLocaleString(uiLocale())} ${t('level.experience')}</div>
+      <div class="level-profile-achcount">${unlockedCount} / ${totalCount} ${t('level.achievements')} <span class="level-profile-pct">· ${pct}%</span></div>
       ${maxed
-        ? `<div class="level-profile-maxed">Max-Level erreicht${li.bonusXp > 0 ? ` · +${li.bonusXp.toLocaleString('de-DE')} Bonus-Erfahrung` : ''}</div>`
+        ? `<div class="level-profile-maxed">${t('level.maxLevelReached')}${li.bonusXp > 0 ? ` · +${li.bonusXp.toLocaleString(uiLocale())} ${t('level.bonusExperience')}` : ''}</div>`
         : closeToNext
-          ? `<div class="level-profile-next-title">🎯 Kurz vor Level ${li.level + 1}</div>
-             <div class="level-profile-next">Noch ${li.xpToNext.toLocaleString('de-DE')} Erfahrung</div>`
-          : `<div class="level-profile-next-title">Nächstes Level</div>
-             <div class="level-profile-next">Level ${li.level + 1} · noch ${li.xpToNext.toLocaleString('de-DE')} Erfahrung</div>`}
-      <div class="level-profile-sources-title">Mögliche XP-Quellen</div>
+          ? `<div class="level-profile-next-title">🎯 ${t('level.closeToLevel')} ${li.level + 1}</div>
+             <div class="level-profile-next">${t('level.stillNeed')} ${li.xpToNext.toLocaleString(uiLocale())} ${t('level.experience')}</div>`
+          : `<div class="level-profile-next-title">${t('level.nextLevel')}</div>
+             <div class="level-profile-next">${t('level.levelWord')} ${li.level + 1} · ${t('level.stillNeedLower')} ${li.xpToNext.toLocaleString(uiLocale())} ${t('level.experience')}</div>`}
+      <div class="level-profile-sources-title">${t('level.xpSources')}</div>
       ${suggestionsHtml}
     </div>`;
 }
@@ -2411,21 +2517,26 @@ function parseChangelogMd(text) {
 }
 
 function renderChangelogPanel() {
-  document.getElementById('panel-changelog').innerHTML = `<button class="ach-back-btn" onclick="closeChangelogView()">← Zurück</button>
+  document.getElementById('panel-changelog').innerHTML = `<button class="ach-back-btn" onclick="closeChangelogView()">← ${t('common.back')}</button>
     <div class="changelog-view">
-      <div class="changelog-title">Änderungsprotokoll</div>
-      ${changelogHtml || '<div class="changelog-intro">Lade…</div>'}
+      <div class="changelog-title">${t('changelog.title')}</div>
+      ${changelogHtml || `<div class="changelog-intro">${t('common.loading')}</div>`}
     </div>`;
 }
 
+// English changelog entries only exist from the point i18n shipped onward (older
+// entries stay German-only, as decided) - fall back to the German file if an
+// English one doesn't exist yet for some reason.
 async function loadChangelog() {
+  const file = currentLang === 'en' ? '/CHANGELOG.en.md' : '/CHANGELOG.md';
   try {
-    const res = await fetch('/CHANGELOG.md', { cache: 'no-store' });
+    let res = await fetch(file, { cache: 'no-store' });
+    if (!res.ok && file !== '/CHANGELOG.md') res = await fetch('/CHANGELOG.md', { cache: 'no-store' });
     const text = await res.text();
     changelogHtml = parseChangelogMd(text);
     if (document.getElementById('panel-changelog').classList.contains('show')) renderChangelogPanel();
   } catch (e) {
-    changelogHtml = '<div class="changelog-intro">Änderungsprotokoll konnte nicht geladen werden.</div>';
+    changelogHtml = `<div class="changelog-intro">${t('changelog.loadError')}</div>`;
   }
 }
 
@@ -2464,8 +2575,8 @@ async function fetchAndRenderAchievements() {
         if (!achievementsFirstLoad) {
           const meta = ACHIEVEMENTS_CATALOG.find(a => a.id === u.id);
           if (meta) {
-            showAchievementToast(meta.icon, 'Meilenstein freigeschaltet!', meta.title, ACHIEVEMENT_XP[u.id] || 0);
-            showBrowserNotification('🎯 Meilenstein freigeschaltet!', meta.title);
+            showAchievementToast(meta.icon, t('ach.toastUnlocked'), achTitle(u.id), ACHIEVEMENT_XP[u.id] || 0);
+            showBrowserNotification('🎯 ' + t('ach.toastUnlocked'), achTitle(u.id));
           }
         }
       }
@@ -2477,7 +2588,7 @@ async function fetchAndRenderAchievements() {
       const rec = records[cat];
       if (rec.brokenAt && knownRecordBrokenAt[cat] !== rec.brokenAt) {
         if (!recordsFirstLoad) {
-          showAchievementToast('🏆', 'Neuer persönlicher Rekord', `${RECORD_LABELS[cat] || cat}: ${fmtRecordValue(cat, rec.value)}`);
+          showAchievementToast('🏆', t('ach.newRecord'), `${recordLabel(cat)}: ${fmtRecordValue(cat, rec.value)}`);
         }
         knownRecordBrokenAt[cat] = rec.brokenAt;
       }
@@ -2501,7 +2612,7 @@ async function fetchAndRenderDbStats() {
     document.getElementById('s-uniquecount').textContent = d.uniqueCount != null ? d.uniqueCount : '—';
     document.getElementById('s-militarycount').textContent = d.militaryCount != null ? d.militaryCount : '—';
     document.getElementById('s-msgstoday-row').style.display = d.messagesToday != null ? 'flex' : 'none';
-    document.getElementById('s-msgstoday').textContent = d.messagesToday != null ? d.messagesToday.toLocaleString('de-DE') : '—';
+    document.getElementById('s-msgstoday').textContent = d.messagesToday != null ? d.messagesToday.toLocaleString(uiLocale()) : '—';
     document.getElementById('s-avgdist').textContent = d.avgDist != null ? fmtDist(d.avgDist) : '—';
     document.getElementById('s-avgalt').textContent = d.avgAlt != null ? fmtAlt(d.avgAlt) : '—';
     document.getElementById('s-maxalt').textContent = d.maxAlt
@@ -2536,7 +2647,7 @@ function renderDirectionChart(directions) {
   const maxVal = vals.length ? Math.max(...vals) : 0;
 
   if (maxVal <= 0) {
-    container.innerHTML = '<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:8px 0;">Noch keine Richtungsdaten</div>';
+    container.innerHTML = `<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:8px 0;">${t('stats.noDirectionData')}</div>`;
     return;
   }
 
@@ -2673,8 +2784,8 @@ function renderList(withPos) {
     const callsignClass = cls === 'militaer' ? ' callsign-mil' : (cls === 'einsatz' ? ' callsign-einsatz' : '');
     row.innerHTML = `
       <div>
-        <div class="callsign${callsignClass}">${flag}${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${(a.flight || a.hex || '—').trim()}${isRareAircraft(a) ? '<span class="rare-badge" title="Seltenes Flugzeug">⭐</span>' : ''}${a._external ? '<span class="external-tag">extern</span>' : ''}</div>
-        <div class="type">${a.t || 'Typ unbekannt'}</div>
+        <div class="callsign${callsignClass}">${flag}${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${(a.flight || a.hex || '—').trim()}${isRareAircraft(a) ? `<span class="rare-badge" title="${t('list.rareAircraft')}">⭐</span>` : ''}${a._external ? `<span class="external-tag">${t('list.externalTag')}</span>` : ''}</div>
+        <div class="type">${a.t || t('common.unknownType')}</div>
       </div>
       <div class="metrics">
         <div class="alt">${vRateArrow(a)}${fmtAlt(a.alt_baro)}</div>
@@ -2685,41 +2796,47 @@ function renderList(withPos) {
   }
 }
 
-if (sidebarCollapsed) {
-  document.getElementById('sidebar').classList.add('collapsed');
-  document.getElementById('app').classList.add('collapsed');
-  document.getElementById('collapse-btn').innerHTML = '&#9654;';
-}
-updateMapThemeButtons();
-updateNotificationButtons();
-updateSpeedUnitButtons();
-updateAltUnitButtons();
-updateRangeUnitButtons();
-updateTrailButtons();
-updateTrailsShowAllButtons();
-updateExternalButtons();
-updateRadiusUI();
-updateRadiusRingButtons();
-updateRadiusRing();
-updateRadarSweepButtons();
-startRadarSweep();
-updateRangeOutlineButtons();
-updateRangeOutlineFillButtons();
-updateAirportButtons();
-if (showAirports) setAirports(true);
-updateStatsRangeButtons();
-updateMarkerSizeButtons();
-updateRememberViewButtons();
-updateAnimationsButtons();
-document.body.classList.toggle('no-animations', !animationsEnabled);
-updatePhotosEnabledButtons();
-updateRefreshRateButtons();
-document.getElementById('app-version').textContent = 'v' + APP_VERSION;
-renderLegend();
-loadStationName();
-loadChangelog();
-refresh();
-refreshTimer = setInterval(refresh, refreshRateMs);
+// Everything below reads translated strings (achievement titles, legend, list
+// rows, ...) during its very first render, so it has to wait for locale data to
+// actually be loaded - otherwise the first paint would briefly show raw
+// translation keys instead of text.
+initI18n().then(() => {
+  if (sidebarCollapsed) {
+    document.getElementById('sidebar').classList.add('collapsed');
+    document.getElementById('app').classList.add('collapsed');
+    document.getElementById('collapse-btn').innerHTML = '&#9654;';
+  }
+  updateMapThemeButtons();
+  updateNotificationButtons();
+  updateSpeedUnitButtons();
+  updateAltUnitButtons();
+  updateRangeUnitButtons();
+  updateTrailButtons();
+  updateTrailsShowAllButtons();
+  updateExternalButtons();
+  updateRadiusUI();
+  updateRadiusRingButtons();
+  updateRadiusRing();
+  updateRadarSweepButtons();
+  startRadarSweep();
+  updateRangeOutlineButtons();
+  updateRangeOutlineFillButtons();
+  updateAirportButtons();
+  if (showAirports) setAirports(true);
+  updateStatsRangeButtons();
+  updateMarkerSizeButtons();
+  updateRememberViewButtons();
+  updateAnimationsButtons();
+  document.body.classList.toggle('no-animations', !animationsEnabled);
+  updatePhotosEnabledButtons();
+  updateRefreshRateButtons();
+  document.getElementById('app-version').textContent = 'v' + APP_VERSION;
+  renderLegend();
+  loadStationName();
+  loadChangelog();
+  refresh();
+  refreshTimer = setInterval(refresh, refreshRateMs);
+});
 </script>
 </body>
 </html>
