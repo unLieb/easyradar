@@ -2,6 +2,15 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.51.0 – 2026-08-04
+- Radar Mode: reworked the visual hierarchy so aircraft stay the focus instead of competing with the reception contour
+- The reception contour is now a filled area with a thin edge in its own cyan-green instead of a dominant line
+- The sweep is noticeably toned down (less opacity) so it doesn't outshine the targets
+- Range rings now alternate stronger/weaker (primary/secondary rings), desaturated green, labels cycle through North/East/South/West instead of always sitting on top
+- Terrain is about 10% darker
+- Aircraft now have a subtle halo, making them feel more alive against the dark center
+- The station icon at the center now includes a small mast glyph
+
 ## 0.50.1 – 2026-08-04
 - Radar Mode: rings, reception contour, sweep, and targets were invisible (hidden behind the map layer) – fixed with explicit layer ordering
 - Radar Mode: fixed an incorrect zoom level that kept the map from matching the configured range

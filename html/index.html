@@ -579,7 +579,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.50.1';
+const APP_VERSION = '0.51.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 // --- i18n --------------------------------------------------------------------
@@ -974,13 +974,15 @@ function applyRadarMapStyle(mlMap) {
       || id === 'rail' || id === 'rail_dash';
     try {
       if (hide) { mlMap.setLayoutProperty(id, 'visibility', 'none'); continue; }
+      // Landflächen ~10% dunkler als zuvor, damit sie bei vielen Zielen nicht zu unruhig
+      // wirken; Wasser bleibt unverändert, um genug Kontrast zur Landschaft zu behalten.
       if (id === 'background') mlMap.setPaintProperty(id, 'background-color', '#04120a');
-      else if (id === 'landcover') mlMap.setPaintProperty(id, 'fill-color', '#0a2a18');
-      else if (id === 'landuse_residential') { mlMap.setPaintProperty(id, 'fill-color', '#123522'); mlMap.setPaintProperty(id, 'fill-opacity', 0.5); }
-      else if (id === 'landuse') mlMap.setPaintProperty(id, 'fill-color', '#0d2f1c');
-      else if (id === 'park_national_park' || id === 'park_nature_reserve') mlMap.setPaintProperty(id, 'fill-color', '#134526');
+      else if (id === 'landcover') mlMap.setPaintProperty(id, 'fill-color', '#092616');
+      else if (id === 'landuse_residential') { mlMap.setPaintProperty(id, 'fill-color', '#0f2f1e'); mlMap.setPaintProperty(id, 'fill-opacity', 0.5); }
+      else if (id === 'landuse') mlMap.setPaintProperty(id, 'fill-color', '#0b2a18');
+      else if (id === 'park_national_park' || id === 'park_nature_reserve') mlMap.setPaintProperty(id, 'fill-color', '#113e22');
       else if (id === 'water' || id === 'water_shadow') mlMap.setPaintProperty(id, 'fill-color', '#051f16');
-      else if (id === 'waterway') { mlMap.setPaintProperty(id, 'line-color', '#3a9c6e'); mlMap.setPaintProperty(id, 'line-opacity', 0.7); }
+      else if (id === 'waterway') { mlMap.setPaintProperty(id, 'line-color', '#3a9c6e'); mlMap.setPaintProperty(id, 'line-opacity', 0.75); }
       else if (sl === 'boundary') { mlMap.setPaintProperty(id, 'line-color', '#5ac89c'); mlMap.setPaintProperty(id, 'line-opacity', 0.15); }
     } catch (e) { /* Layer unterstützt die Eigenschaft nicht - einfach überspringen */ }
   }
@@ -1145,41 +1147,48 @@ function drawRadarScopeFrame() {
   ctx.fillStyle = fog;
   ctx.fillRect(0, 0, w, h);
 
-  // Reichweitenringe mit gut lesbarer Beschriftung (dunkles Schild hinter dem Text,
-  // sonst verschwindet es zwischen Kartenlinien und Zielen). Gepunktet statt durchgezogen,
+  // Reichweitenringe: abwechselnd kräftiger/schwächer (Primär-/Sekundärringe), entsättigtes
+  // Grün statt Sweep-/Kontur-Farbton, damit das Auge die Ebenen automatisch trennt. Labels
+  // wandern reihum über N/O/S/W statt immer oben zu kleben. Gepunktet statt durchgezogen,
   // damit sie sich in die Landschaft "einbrennen" statt einfach darüberzuliegen.
-  ctx.strokeStyle = 'rgba(60,220,140,0.28)';
   ctx.lineWidth = 1;
-  ctx.setLineDash([1, 5]);
   ctx.font = 'bold 10px monospace';
   ctx.textBaseline = 'middle';
   const rings = 6;
+  const labelDirs = [0, 90, 180, 270];
   for (let i = 1; i <= rings; i++) {
     const ringKm = radarScopeMaxRangeKm * i / rings;
+    const primary = i % 2 === 0;
+    ctx.strokeStyle = primary ? 'rgba(150,190,175,0.32)' : 'rgba(150,190,175,0.16)';
+    ctx.setLineDash(primary ? [1, 4] : [1, 6]);
     ctx.stroke(radarRingPath(ringKm));
+
+    const labelDeg = labelDirs[i % 4];
     const label = Math.round(ringKm) + ' km';
-    const [lx, ly] = projectRadarPoint(0, ringKm);
+    const [lx, ly] = projectRadarPoint(labelDeg, ringKm);
     const tw = ctx.measureText(label).width;
     ctx.setLineDash([]);
+    ctx.textAlign = labelDeg === 270 ? 'right' : 'center';
+    const boxX = labelDeg === 270 ? lx - tw - 8 : lx - tw / 2 - 4;
     ctx.fillStyle = 'rgba(2,12,7,0.75)';
-    ctx.fillRect(lx + 4, ly - 7, tw + 4, 14);
-    ctx.fillStyle = 'rgba(150,255,195,0.95)';
-    ctx.textAlign = 'left';
-    ctx.fillText(label, lx + 6, ly);
-    ctx.setLineDash([1, 5]);
+    ctx.fillRect(boxX, ly - 7, tw + 8, 14);
+    ctx.fillStyle = 'rgba(180,220,205,0.9)';
+    ctx.fillText(label, labelDeg === 270 ? lx - 4 : lx, ly);
   }
   ctx.setLineDash([]);
+  ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
 
+  ctx.strokeStyle = 'rgba(150,220,195,0.4)';
   ctx.beginPath();
   ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy);
   ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R);
   ctx.stroke();
 
-  // Echte, unregelmäßige Empfangskontur (falls schon Messdaten vorliegen) - leuchtend
-  // statt nur kräftig, damit sie sich klar von den gepunkteten Orientierungsringen
-  // abhebt: das hier ist der tatsächliche Luftraum, kein bloßer Orientierungskreis.
-  // Zusätzlich zum schnellen Leucht-Puls ein sehr langsamer "Herzschlag" (~20s) in der Linienbreite.
+  // Echte, unregelmäßige Empfangskontur ("Radar Coverage") - als Fläche mit dünnem Rand
+  // statt einer dominanten Linie, damit sie den Blick nicht von den Flugzeugen abzieht.
+  // Eigener Cyan-Grünton trennt sie klar vom neongrünen Sweep. Sehr langsamer "Herzschlag"
+  // (~20s) in der Randbreite statt eines auffälligen Leucht-Effekts.
   if (radarScopeContourPoints) {
     ctx.beginPath();
     radarScopeContourPoints.forEach(([brg, dist], i) => {
@@ -1187,16 +1196,11 @@ function drawRadarScopeFrame() {
       if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });
     ctx.closePath();
-    const pulse = 0.5 + 0.5 * Math.sin(now / 900);
     const heartbeat = Math.max(0, Math.sin(2 * Math.PI * now / 20000));
-    // Günstige Glow-Näherung statt ctx.shadowBlur: das ist bei 60fps notorisch teuer
-    // und hat hier zu spürbaren Renderer-Hängern geführt. Ein breiterer, blasserer Strich
-    // unter dem eigentlichen simuliert das Leuchten fast ohne zusätzliche Kosten.
-    ctx.strokeStyle = `rgba(120,255,190,${(0.16 + 0.1 * pulse).toFixed(2)})`;
-    ctx.lineWidth = 7 + heartbeat * 2;
-    ctx.stroke();
-    ctx.strokeStyle = `rgba(150,255,210,${(0.7 + 0.3 * pulse).toFixed(2)})`;
-    ctx.lineWidth = 2.2 + heartbeat * 1.2;
+    ctx.fillStyle = 'rgba(80,220,210,0.10)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(100,230,215,0.55)';
+    ctx.lineWidth = 1.3 + heartbeat * 0.6;
     ctx.stroke();
   }
 
@@ -1236,16 +1240,18 @@ function drawRadarScopeFrame() {
   ctx.moveTo(cx, cy);
   ctx.arc(cx, cy, R, a0, a1, false);
   ctx.closePath();
+  // Deutlich zurückgenommen gegenüber der Vorversion - der Sweep soll die Flugzeuge
+  // betonen, nicht überstrahlen.
   const wedgeGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
-  wedgeGlow.addColorStop(0, 'rgba(160,255,210,0.45)');
-  wedgeGlow.addColorStop(1, 'rgba(160,255,210,0.12)');
+  wedgeGlow.addColorStop(0, 'rgba(160,255,210,0.22)');
+  wedgeGlow.addColorStop(1, 'rgba(160,255,210,0.06)');
   ctx.fillStyle = wedgeGlow;
   ctx.fill();
   ctx.restore();
 
   const [sx, sy] = projectRadarPoint(radarScopeSweepDeg, radarScopeMaxRangeKm);
-  ctx.strokeStyle = 'rgba(150,255,190,0.9)';
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(150,255,190,0.55)';
+  ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(cx, cy);
   ctx.lineTo(sx, sy);
@@ -1265,6 +1271,20 @@ function drawRadarScopeFrame() {
     ctx.arc(cx, cy, phase * 28, 0, Math.PI * 2);
     ctx.stroke();
   }
+
+  // Kleines Mast-Glyph unter dem Puls-Kern, damit die Station wie ein Sender wirkt statt
+  // nur ein Punkt zu sein.
+  ctx.strokeStyle = 'rgba(150,255,195,0.7)';
+  ctx.lineWidth = 1.3;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 2);
+  ctx.lineTo(cx, cy + 10);
+  ctx.moveTo(cx - 5, cy + 10);
+  ctx.lineTo(cx + 5, cy + 10);
+  ctx.moveTo(cx - 3, cy + 4);
+  ctx.lineTo(cx, cy - 2);
+  ctx.lineTo(cx + 3, cy + 4);
+  ctx.stroke();
 
   const pulseR = 3 + Math.sin(now / 500);
   ctx.fillStyle = 'rgba(150,255,195,0.9)';
@@ -1286,6 +1306,17 @@ function drawRadarScopeFrame() {
     // binären Ein/Aus - Ziele bleiben dauerhaft sichtbar, leuchten aber beim Überstreichen kurz auf.
     const sweepBoost = Math.max(0, 1 - angularDelta(a.bearingDeg, radarScopeSweepDeg) / 25);
     const blipR = (selected ? 7 : 6) + sweepBoost * 3;
+
+    // Dauerhafter, dezenter Halo statt eines reinen Punkts - wirkt lebendiger, besonders
+    // im dunklen Zentrum wo sonst wenig Kontrast zum Hintergrund besteht. altColor() liefert
+    // Hex-Werte, daher Transparenz über globalAlpha statt String-Manipulation.
+    ctx.save();
+    ctx.globalAlpha = 0.22;
+    ctx.fillStyle = altColor(a.alt);
+    ctx.beginPath();
+    ctx.arc(bx, by, blipR * 1.9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
 
     if (sweepBoost > 0.15) {
       ctx.save();

@@ -2,6 +2,15 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.51.0 – 2026-08-04
+- Radar-Modus: visuelle Hierarchie überarbeitet, damit die Flugzeuge im Blick stehen statt mit der Empfangskontur zu konkurrieren
+- Empfangskontur jetzt als Fläche mit dünnem Rand in eigenem Cyan-Grün statt dominanter Linie
+- Sweep deutlich zurückgenommen (weniger Deckkraft), damit er die Ziele nicht überstrahlt
+- Reichweitenringe abwechselnd kräftiger/schwächer (Primär-/Sekundärringe), entsättigtes Grün, Beschriftung wandert über Nord/Ost/Süd/West statt immer oben zu kleben
+- Landschaft ca. 10 % dunkler
+- Flugzeuge haben jetzt einen dezenten Halo, wirken lebendiger im dunklen Zentrum
+- Stationssymbol im Zentrum um ein kleines Mast-Glyph ergänzt
+
 ## 0.50.1 – 2026-08-04
 - Radar-Modus: Ringe, Empfangskontur, Sweep und Ziele waren unsichtbar (von der Kartenebene verdeckt) – behoben durch explizite Ebenen-Reihenfolge
 - Radar-Modus: falsche Zoomstufe behoben, die die Karte nicht zur eingestellten Reichweite passen ließ
