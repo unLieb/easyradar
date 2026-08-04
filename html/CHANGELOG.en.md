@@ -2,6 +2,13 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.50.0 – 2026-08-04
+- Radar Mode: real terrain instead of a plain green screen – the same map data as Map mode, restyled for radar (roads/buildings/place names hidden, water/forests/land use in monochrome green)
+- Every user automatically sees their own surroundings – no location setup needed, since it's the same live map data used in Map mode
+- The map now fades out circularly toward the edge instead of a hard cutoff
+- The sweep cone visibly brightens the terrain showing through as it passes
+- Rings, the reception contour, and targets now use the same map projection as the real terrain beneath them – exact alignment instead of an approximation
+
 ## 0.49.0 – 2026-08-04
 - Radar Mode: targets now glide between updates instead of jumping
 - Radar Mode: targets briefly flash as the sweep needle passes over them, while staying permanently visible otherwise

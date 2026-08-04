@@ -2,7 +2,12 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
-## 0.49.0 – 2026-08-04
+## 0.50.0 – 2026-08-04
+- Radar-Modus: echte Landschaft statt reinem Grünbildschirm – dieselben Kartendaten wie im Kartenmodus, aber im Radar-Stil eingefärbt (Straßen/Gebäude/Ortsnamen ausgeblendet, Wasser/Wälder/Landnutzung monochrom grün)
+- Jeder Nutzer sieht automatisch seine eigene Umgebung – keine Standortkonfiguration nötig, da dieselben Live-Kartendaten wie im Kartenmodus verwendet werden
+- Karte blendet zum Rand hin kreisförmig aus, statt hart abzuschneiden
+- Sweep-Kegel hellt die durchscheinende Landschaft beim Überstreichen sichtbar auf
+- Ringe, Empfangskontur und Ziele nutzen jetzt dieselbe Kartenprojektion wie die echte Landschaft darunter – exakte Deckungsgleichheit statt Näherung
 - Radar-Modus: Ziele bewegen sich jetzt gleitend zwischen zwei Aktualisierungen statt zu springen
 - Radar-Modus: Ziele leuchten kurz auf, wenn die Sweep-Nadel sie überstreicht – bleiben aber weiterhin dauerhaft sichtbar
 - Radar-Modus: echte, unregelmäßige Empfangskontur (aus den ohnehin gesammelten Messdaten) jetzt sichtbar und leicht pulsierend

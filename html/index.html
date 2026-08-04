@@ -124,9 +124,11 @@
   .detail-rows .section-title:first-child { margin-top: 8px; }
 
   #map { flex: 1; height: 100%; }
-  #radar-scope-canvas { flex: 1; height: 100%; display: none; background: #04120a; cursor: pointer; }
+  #radar-scope-wrap { flex: 1; height: 100%; position: relative; display: none; }
+  #radar-scope-map { position: absolute; inset: 0; }
+  #radar-scope-canvas { position: absolute; inset: 0; width: 100%; height: 100%; background: transparent; cursor: pointer; }
   #app.radar-mode #map { display: none; }
-  #app.radar-mode #radar-scope-canvas { display: block; }
+  #app.radar-mode #radar-scope-wrap { display: block; }
 
   #radar-mode-switcher { width: 130px; flex-shrink: 0; box-shadow: 0 2px 10px rgba(0,0,0,0.12); background: var(--card); }
   #radar-mode-switcher button { padding: 8px 0; }
@@ -386,7 +388,10 @@
     <div id="sidebar-peek" onclick="toggleSidebar()"><span class="peek-handle">&#9656;</span></div>
 
     <div id="map"></div>
-    <canvas id="radar-scope-canvas"></canvas>
+    <div id="radar-scope-wrap">
+      <div id="radar-scope-map"></div>
+      <canvas id="radar-scope-canvas"></canvas>
+    </div>
 
     <div id="status-bar-wrap">
       <div id="status-bar">
@@ -567,7 +572,6 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
 <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.3/leaflet-maplibre-gl.js"></script>
-<script src="https://unpkg.com/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="tar1090-shapes.js"></script>
 <script src="countries.js"></script>
 <script>
@@ -575,7 +579,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.49.0';
+const APP_VERSION = '0.50.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 // --- i18n --------------------------------------------------------------------
@@ -820,13 +824,13 @@ let radarScopeAircraftByHex = new Map();
 let radarScopeHoveredHex = null;
 let radarScopeSweepDeg = 0;
 let radarScopeAnimHandle = null;
-// Landesgrenzen/Küste, einmalig geladen: je Ring eine Liste aus [Peilung, Distanz] -
-// unabhängig von Canvas-Pixeln, damit ein Resize nur die Projektion neu baut, nicht die Daten neu lädt.
-let radarScopeMapRings = null;
-let radarScopeMapPath = null;
 // Echte, unregelmäßige Empfangskontur (aus rangeOutlineData, das ohnehin schon für die
 // Karte gepflegt wird) - geglättete [Peilung, Distanz]-Punkte, nur bei neuen Daten neu gebaut.
 let radarScopeContourPoints = null;
+// Zweite, nicht-interaktive Leaflet/MapLibre-Karte hinter dem transparenten Canvas -
+// echte Landschaft (Wasser/Wälder/Landuse) im Radar-Grünton statt selbstgezeichneter
+// Länderumrisse. Lazy erzeugt bei der ersten Aktivierung des Radar-Modus.
+let radarScopeMap = null;
 const radarScopeCanvas = document.getElementById('radar-scope-canvas');
 const radarScopeCtx = radarScopeCanvas.getContext('2d');
 
@@ -841,6 +845,19 @@ function bearingBetween(lat1, lon1, lat2, lon2) {
 function radarScopePoint(cx, cy, r, bearingDeg) {
   const rad = bearingDeg * Math.PI / 180;
   return [cx + r * Math.sin(rad), cy - r * Math.cos(rad)];
+}
+
+// Projiziert Peilung+Distanz über die echte Kartenprojektion (Mercator via Leaflet), damit
+// Ringe/Sweep/Ziele exakt mit der darunterliegenden Landschaft übereinstimmen. Fällt auf die
+// flache Näherung zurück, solange die Kartenebene noch nicht geladen ist.
+function projectRadarPoint(bearingDeg, distKm) {
+  if (radarScopeMap) {
+    const [lat, lon] = destPoint(SITE_LAT, SITE_LON, bearingDeg, distKm);
+    const p = radarScopeMap.latLngToContainerPoint([lat, lon]);
+    return [p.x, p.y];
+  }
+  const { cx, cy, R } = radarScopeGeometry();
+  return radarScopePoint(cx, cy, R * distKm / radarScopeMaxRangeKm, bearingDeg);
 }
 
 // Kürzester Drehweg für Peilungs-Interpolation (350° -> 10° geht über 0°, nicht über 180°).
@@ -887,12 +904,10 @@ function interpolatedRadarScopeAircraft() {
 }
 
 function hitTestRadarScope(mx, my) {
-  const { cx, cy, R } = radarScopeGeometry();
   let hitHex = null, hitDist = 16;
   for (const a of interpolatedRadarScopeAircraft()) {
     if (a.distKm > radarScopeMaxRangeKm) continue;
-    const r = R * a.distKm / radarScopeMaxRangeKm;
-    const [bx, by] = radarScopePoint(cx, cy, r, a.bearingDeg);
+    const [bx, by] = projectRadarPoint(a.bearingDeg, a.distKm);
     const d = Math.hypot(mx - bx, my - by);
     if (d < hitDist) { hitDist = d; hitHex = a.hex; }
   }
@@ -901,26 +916,26 @@ function hitTestRadarScope(mx, my) {
 
 function radarScopeGeometry() {
   const w = radarScopeCanvas.clientWidth, h = radarScopeCanvas.clientHeight;
-  const cx = w / 2, cy = h / 2;
   const R = Math.min(w, h) / 2 * 0.88;
-  return { w, h, cx, cy, R };
+  // SITE_LAT/SITE_LON ist immer exakt der Kartenmittelpunkt (siehe updateRadarScopeMapView),
+  // daher liegt die Station immer bei w/2,h/2 - keine Projektion für den Mittelpunkt nötig.
+  return { w, h, cx: w / 2, cy: h / 2, R };
 }
 
-function buildRadarScopeMapPath() {
-  if (!radarScopeMapRings) { radarScopeMapPath = null; return; }
-  const { w, h, cx, cy, R } = radarScopeGeometry();
+// Setzt Zoom passend zu radarScopeMaxRangeKm (über die Meter-pro-Pixel-Formel der
+// Web-Mercator-Projektion) und die kreisförmige Ausblendung zum Rand hin.
+function updateRadarScopeMapView() {
+  if (!radarScopeMap) return;
+  const { w, h, R } = radarScopeGeometry();
   if (!w || !h) return;
-  const path = new Path2D();
-  for (const ring of radarScopeMapRings) {
-    let first = true;
-    for (const [bearingDeg, distKm] of ring) {
-      const r = R * distKm / radarScopeMaxRangeKm;
-      const [x, y] = radarScopePoint(cx, cy, r, bearingDeg);
-      if (first) { path.moveTo(x, y); first = false; }
-      else path.lineTo(x, y);
-    }
-  }
-  radarScopeMapPath = path;
+  radarScopeMap.invalidateSize();
+  const metersPerPixel = radarScopeMaxRangeKm * 1000 / R;
+  const zoom = Math.log2(156543.03392 * Math.cos(SITE_LAT * Math.PI / 180) / metersPerPixel);
+  radarScopeMap.setView([SITE_LAT, SITE_LON], zoom, { animate: false });
+  const grad = `radial-gradient(circle ${R}px at ${w / 2}px ${h / 2}px, black 0%, black 65%, transparent 100%)`;
+  const mapDiv = document.getElementById('radar-scope-map');
+  mapDiv.style.maskImage = grad;
+  mapDiv.style.webkitMaskImage = grad;
 }
 
 function resizeRadarScopeCanvas() {
@@ -929,7 +944,7 @@ function resizeRadarScopeCanvas() {
   radarScopeCanvas.width = Math.round(rect.width * dpr);
   radarScopeCanvas.height = Math.round(rect.height * dpr);
   radarScopeCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  buildRadarScopeMapPath();
+  updateRadarScopeMapView();
 }
 window.addEventListener('resize', () => { if (radarScopeActive) resizeRadarScopeCanvas(); });
 
@@ -941,32 +956,54 @@ async function initRadarScopeRange() {
       radarScopeMaxRangeKm = Math.max(20, Math.ceil(d.maxDist.value * 1.1 / 10) * 10);
     }
   } catch (e) { /* Fallback-Reichweite bleibt bestehen */ }
+  updateRadarScopeMapView();
 }
 
-// Weltweite, grob vereinfachte Landesgrenzen (110m, ~gleiche CDN wie Leaflet/MapLibre oben)
-// einmalig laden, in Peilung/Distanz von der Station umrechnen und Ringe außerhalb des
-// dreifachen Radarradius verwerfen - spart Speicher/Zeichenzeit für weit entfernte Länder.
+// Blendet Straßen/Gebäude/POI/Ortsnamen komplett aus und färbt Wasser/Wälder/Landnutzung/
+// Grenzen in Radar-Grüntönen ein - per Mustererkennung auf id/source-layer statt einer
+// starren Liste, damit es auch überlebt, wenn CartoDB den Style leicht ändert.
+function applyRadarMapStyle(mlMap) {
+  const style = mlMap.getStyle();
+  if (!style) return;
+  for (const layer of style.layers) {
+    const id = layer.id;
+    const sl = layer['source-layer'] || '';
+    const hide = layer.type === 'symbol'
+      || sl === 'transportation' || sl === 'transportation_name'
+      || sl === 'building' || sl === 'poi' || sl === 'housenumber' || sl === 'aeroway'
+      || (sl === 'boundary' && id.includes('county'))
+      || id.startsWith('tunnel_') || id.startsWith('road_') || id.startsWith('bridge_')
+      || id === 'rail' || id === 'rail_dash';
+    try {
+      if (hide) { mlMap.setLayoutProperty(id, 'visibility', 'none'); continue; }
+      if (id === 'background') mlMap.setPaintProperty(id, 'background-color', '#04120a');
+      else if (id === 'landcover') mlMap.setPaintProperty(id, 'fill-color', '#0a2a18');
+      else if (id === 'landuse_residential') { mlMap.setPaintProperty(id, 'fill-color', '#123522'); mlMap.setPaintProperty(id, 'fill-opacity', 0.5); }
+      else if (id === 'landuse') mlMap.setPaintProperty(id, 'fill-color', '#0d2f1c');
+      else if (id === 'park_national_park' || id === 'park_nature_reserve') mlMap.setPaintProperty(id, 'fill-color', '#134526');
+      else if (id === 'water' || id === 'water_shadow') mlMap.setPaintProperty(id, 'fill-color', '#051f16');
+      else if (id === 'waterway') { mlMap.setPaintProperty(id, 'line-color', '#3a9c6e'); mlMap.setPaintProperty(id, 'line-opacity', 0.7); }
+      else if (sl === 'boundary') { mlMap.setPaintProperty(id, 'line-color', '#5ac89c'); mlMap.setPaintProperty(id, 'line-opacity', 0.15); }
+    } catch (e) { /* Layer unterstützt die Eigenschaft nicht - einfach überspringen */ }
+  }
+}
+
+// Zweite, nicht-interaktive Leaflet/MapLibre-Karte hinter dem transparenten Radar-Canvas:
+// dieselben CartoDB-Vektor-Kacheln wie im Kartenmodus, aber zur Laufzeit in den Radar-Stil
+// umgefärbt (siehe applyRadarMapStyle). Lazy erzeugt bei der ersten Aktivierung.
 async function initRadarScopeMap() {
+  if (radarScopeMap) return;
+  radarScopeMap = L.map('radar-scope-map', {
+    zoomControl: false, dragging: false, scrollWheelZoom: false, doubleClickZoom: false,
+    boxZoom: false, keyboard: false, attributionControl: false, touchZoom: false, zoomAnimation: false,
+  }).setView([SITE_LAT, SITE_LON], 8);
   try {
-    const res = await fetch('https://unpkg.com/world-atlas@2/countries-110m.json', { cache: 'force-cache' });
-    const topology = await res.json();
-    const geo = topojson.feature(topology, topology.objects.countries);
-    const rings = [];
-    for (const feature of geo.features) {
-      const polys = feature.geometry.type === 'Polygon' ? [feature.geometry.coordinates] : feature.geometry.coordinates;
-      for (const poly of polys) {
-        for (const ring of poly) {
-          const pts = ring.map(([lon, lat]) => [bearingBetween(SITE_LAT, SITE_LON, lat, lon), haversine(SITE_LAT, SITE_LON, lat, lon)]);
-          let minDist = Infinity;
-          for (const p of pts) if (p[1] < minDist) minDist = p[1];
-          if (minDist > radarScopeMaxRangeKm * 3) continue;
-          rings.push(pts);
-        }
-      }
-    }
-    radarScopeMapRings = rings;
-    buildRadarScopeMapPath();
+    const res = await fetch('https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json');
+    const style = await res.json();
+    const radarLayer = L.maplibreGL({ style }).addTo(radarScopeMap);
+    radarLayer.getMaplibreMap().on('load', () => applyRadarMapStyle(radarLayer.getMaplibreMap()));
   } catch (e) { /* Radar funktioniert auch ohne Kartenhintergrund */ }
+  updateRadarScopeMapView();
 }
 
 function updateRadarScopeAircraft(withPos) {
@@ -1008,6 +1045,7 @@ function setRadarScopeMode(active) {
   if (radarScopeActive) {
     if (selectedHex) closeDetail();
     updateRadarScopeAircraft(lastWithPos || []);
+    initRadarScopeMap().then(resizeRadarScopeCanvas);
     resizeRadarScopeCanvas();
     startRadarScopeLoop();
   } else {
@@ -1073,27 +1111,27 @@ function drawRadarBlipShape(ctx, shape, x, y, r, color) {
   ctx.fill();
 }
 
+// Zeichnet einen Kreis mit Radius distKm über die echte Kartenprojektion (leicht
+// vieleckig statt mathematisch perfekt rund, aber exakt deckungsgleich mit der Landschaft
+// darunter statt einer flachen Näherung).
+function radarRingPath(distKm) {
+  const path = new Path2D();
+  for (let deg = 0; deg <= 360; deg += 6) {
+    const [x, y] = projectRadarPoint(deg, distKm);
+    if (deg === 0) path.moveTo(x, y); else path.lineTo(x, y);
+  }
+  return path;
+}
+
 function drawRadarScopeFrame() {
   const { w, h, cx, cy, R } = radarScopeGeometry();
   if (!w || !h) return;
   const ctx = radarScopeCtx;
   const now = Date.now();
 
-  ctx.fillStyle = '#04120a';
-  ctx.fillRect(0, 0, w, h);
-
-  if (radarScopeMapPath) {
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.clip();
-    ctx.fillStyle = 'rgba(50,140,90,0.16)';
-    ctx.fill(radarScopeMapPath);
-    ctx.strokeStyle = 'rgba(70,200,130,0.45)';
-    ctx.lineWidth = 1;
-    ctx.stroke(radarScopeMapPath);
-    ctx.restore();
-  }
+  // Kein deckender Hintergrund mehr - die echte, im Radar-Stil eingefärbte Karte
+  // (#radar-scope-map) scheint durch das transparente Canvas hindurch.
+  ctx.clearRect(0, 0, w, h);
 
   // Reichweitenringe mit gut lesbarer Beschriftung (dunkles Schild hinter dem Text,
   // sonst verschwindet es zwischen Kartenlinien und Zielen).
@@ -1103,18 +1141,16 @@ function drawRadarScopeFrame() {
   ctx.textBaseline = 'middle';
   const rings = 6;
   for (let i = 1; i <= rings; i++) {
-    const r = R * i / rings;
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.stroke();
-    const label = Math.round(radarScopeMaxRangeKm * i / rings) + ' km';
-    const lx = cx + 6, ly = cy - r;
+    const ringKm = radarScopeMaxRangeKm * i / rings;
+    ctx.stroke(radarRingPath(ringKm));
+    const label = Math.round(ringKm) + ' km';
+    const [lx, ly] = projectRadarPoint(0, ringKm);
     const tw = ctx.measureText(label).width;
     ctx.fillStyle = 'rgba(2,12,7,0.75)';
-    ctx.fillRect(lx - 2, ly - 7, tw + 4, 14);
+    ctx.fillRect(lx + 4, ly - 7, tw + 4, 14);
     ctx.fillStyle = 'rgba(150,255,195,0.95)';
     ctx.textAlign = 'left';
-    ctx.fillText(label, lx, ly);
+    ctx.fillText(label, lx + 6, ly);
   }
   ctx.textBaseline = 'alphabetic';
 
@@ -1127,14 +1163,9 @@ function drawRadarScopeFrame() {
   // kräftiger und leicht pulsierend, damit sie sich klar von den gleichmäßigen
   // Orientierungsringen abhebt: das hier ist der tatsächliche Empfangsbereich.
   if (radarScopeContourPoints) {
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.clip();
     ctx.beginPath();
     radarScopeContourPoints.forEach(([brg, dist], i) => {
-      const rr = R * Math.min(dist, radarScopeMaxRangeKm) / radarScopeMaxRangeKm;
-      const [x, y] = radarScopePoint(cx, cy, rr, brg);
+      const [x, y] = projectRadarPoint(brg, Math.min(dist, radarScopeMaxRangeKm));
       if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });
     ctx.closePath();
@@ -1142,7 +1173,6 @@ function drawRadarScopeFrame() {
     ctx.strokeStyle = `rgba(90,255,170,${(0.5 + 0.3 * pulse).toFixed(2)})`;
     ctx.lineWidth = 2.5;
     ctx.stroke();
-    ctx.restore();
   }
 
   // Kompassrose: Hauptrichtungen kräftig, Zwischenrichtungen sehr dezent.
@@ -1167,7 +1197,8 @@ function drawRadarScopeFrame() {
 
   // Sweep-Kegel: ein gefüllter Sektor hinter der Nadel her, wie bei einem klassischen
   // Röhrenradar - unabhängig von der Framerate, da jeden Frame komplett neu gezeichnet
-  // statt aus verblassenden Frames zusammengesetzt.
+  // statt aus verblassenden Frames zusammengesetzt. 'lighten' sorgt zusätzlich dafür, dass
+  // die echte Landschaft darunter im Kegel kurz heller aufscheint statt nur überdeckt zu werden.
   const WEDGE_SPAN_DEG = 40;
   const a0 = (radarScopeSweepDeg - WEDGE_SPAN_DEG - 90) * Math.PI / 180;
   const a1 = (radarScopeSweepDeg - 90) * Math.PI / 180;
@@ -1175,15 +1206,16 @@ function drawRadarScopeFrame() {
   ctx.beginPath();
   ctx.arc(cx, cy, R, 0, Math.PI * 2);
   ctx.clip();
+  ctx.globalCompositeOperation = 'lighten';
   ctx.beginPath();
   ctx.moveTo(cx, cy);
   ctx.arc(cx, cy, R, a0, a1, false);
   ctx.closePath();
-  ctx.fillStyle = 'rgba(120,255,180,0.10)';
+  ctx.fillStyle = 'rgba(120,255,180,0.16)';
   ctx.fill();
   ctx.restore();
 
-  const [sx, sy] = radarScopePoint(cx, cy, R, radarScopeSweepDeg);
+  const [sx, sy] = projectRadarPoint(radarScopeSweepDeg, radarScopeMaxRangeKm);
   ctx.strokeStyle = 'rgba(150,255,190,0.9)';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -1205,8 +1237,7 @@ function drawRadarScopeFrame() {
 
   for (const a of interpolatedRadarScopeAircraft()) {
     if (a.distKm > radarScopeMaxRangeKm) continue;
-    const r = R * a.distKm / radarScopeMaxRangeKm;
-    const [bx, by] = radarScopePoint(cx, cy, r, a.bearingDeg);
+    const [bx, by] = projectRadarPoint(a.bearingDeg, a.distKm);
     const selected = a.hex === selectedHex;
     const hovered = a.hex === radarScopeHoveredHex;
     // Kontinuierlicher Helligkeits-/Größenboost nahe der Sweep-Position statt eines
@@ -3315,14 +3346,15 @@ initI18n().then(() => {
   updateRadiusRing();
   updateRadarSweepButtons();
   startRadarSweep();
-  initRadarScopeRange().then(initRadarScopeMap);
   if (radarScopeActive) {
     document.getElementById('app').classList.add('radar-mode');
     document.getElementById('radar-switch-map').classList.remove('active');
     document.getElementById('radar-switch-radar').classList.add('active');
     resizeRadarScopeCanvas();
+    initRadarScopeMap().then(resizeRadarScopeCanvas);
     startRadarScopeLoop();
   }
+  initRadarScopeRange();
   updateRangeOutlineButtons();
   updateRangeOutlineFillButtons();
   updateAirportButtons();
