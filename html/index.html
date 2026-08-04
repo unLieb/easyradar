@@ -124,6 +124,10 @@
   .detail-rows .section-title:first-child { margin-top: 8px; }
 
   #map { flex: 1; height: 100%; }
+  #radar-scope-canvas { flex: 1; height: 100%; display: none; background: #04120a; cursor: pointer; }
+  #app.radar-mode #map { display: none; }
+  #app.radar-mode #radar-scope-canvas { display: block; }
+  #app.radar-mode #legend { display: none; }
 
   .selected-glow { filter: drop-shadow(0 0 3px #1a73e8) drop-shadow(0 0 8px #1a73e8) drop-shadow(0 0 14px #1a73e8); animation: glow-pulse 1.6s ease-in-out infinite; }
   @keyframes glow-pulse {
@@ -154,8 +158,8 @@
   #legend .legend-row { display: flex; align-items: center; gap: 6px; margin: 3px 0; white-space: nowrap; }
   #legend .swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
-  #settings-btn-float, #stats-btn-float { width: 40px; height: 40px; border-radius: 50%; background: var(--card); border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.12); cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  #settings-btn-float:hover, #settings-btn-float.active, #stats-btn-float:hover, #stats-btn-float.active { color: var(--blue); }
+  #settings-btn-float, #stats-btn-float, #radar-mode-btn-float { width: 40px; height: 40px; border-radius: 50%; background: var(--card); border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.12); cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  #settings-btn-float:hover, #settings-btn-float.active, #stats-btn-float:hover, #stats-btn-float.active, #radar-mode-btn-float:hover, #radar-mode-btn-float.active { color: var(--blue); }
 
   .plane-icon { transition: transform 0.4s linear; }
 
@@ -379,6 +383,7 @@
     <div id="sidebar-peek" onclick="toggleSidebar()"><span class="peek-handle">&#9656;</span></div>
 
     <div id="map"></div>
+    <canvas id="radar-scope-canvas"></canvas>
 
     <div id="status-bar-wrap">
       <div id="status-bar">
@@ -393,6 +398,9 @@
 
     <div id="map-controls-bottom">
       <div id="legend"></div>
+      <button id="radar-mode-btn-float" onclick="toggleRadarScope()" aria-label="Radar Mode" data-i18n-title="radar.toggleTooltip" title="Radar-Modus">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5" opacity="0.5"/><line x1="12" y1="12" x2="12" y2="3.5"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg>
+      </button>
       <button id="settings-btn-float" onclick="toggleSettings()" aria-label="Settings">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
@@ -562,7 +570,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.46.2';
+const APP_VERSION = '0.47.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 // --- i18n --------------------------------------------------------------------
@@ -793,6 +801,193 @@ function destPoint(lat, lon, bearingDeg, distKm) {
   const lon2 = lon1 + Math.atan2(Math.sin(brg) * Math.sin(distKm / R) * Math.cos(lat1), Math.cos(distKm / R) - Math.sin(lat1) * Math.sin(lat2));
   return [lat2 * 180 / Math.PI, lon2 * 180 / Math.PI];
 }
+
+// --- Radar-Modus: eigene kreisförmige Radarschirm-Ansicht anstelle der Karte
+// (unabhängig von der kosmetischen Sweep-Nadel oben, die weiterhin auf der Karte läuft).
+let radarScopeActive = localStorage.getItem('radarScopeActive') === 'true';
+let radarScopeMaxRangeKm = 150;
+let radarScopeAircraft = [];
+let radarScopeSweepDeg = 0;
+let radarScopeAnimHandle = null;
+const radarScopeCanvas = document.getElementById('radar-scope-canvas');
+const radarScopeCtx = radarScopeCanvas.getContext('2d');
+
+function bearingBetween(lat1, lon1, lat2, lon2) {
+  const phi1 = lat1 * Math.PI / 180, phi2 = lat2 * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const y = Math.sin(dLon) * Math.cos(phi2);
+  const x = Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(dLon);
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+}
+
+// Prüft, ob 'angle' auf dem Bogen liegt, den der Sweep in diesem Frame von 'from' nach 'to'
+// überstrichen hat - robuster als ein fester Toleranzbereich um die aktuelle Sweep-Position,
+// da so kein Ziel je übersprungen wird, egal wie unregelmäßig requestAnimationFrame tickt.
+function angleInArc(angle, from, to) {
+  const a = ((angle - from) % 360 + 360) % 360;
+  const span = ((to - from) % 360 + 360) % 360;
+  return a <= span;
+}
+
+function radarScopePoint(cx, cy, r, bearingDeg) {
+  const rad = bearingDeg * Math.PI / 180;
+  return [cx + r * Math.sin(rad), cy - r * Math.cos(rad)];
+}
+
+function resizeRadarScopeCanvas() {
+  const rect = radarScopeCanvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  radarScopeCanvas.width = Math.round(rect.width * dpr);
+  radarScopeCanvas.height = Math.round(rect.height * dpr);
+  radarScopeCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', () => { if (radarScopeActive) resizeRadarScopeCanvas(); });
+
+async function initRadarScopeRange() {
+  try {
+    const res = await fetch(`\stats-api\summary?range=alltime`, { cache: 'no-store' });
+    const d = await res.json();
+    if (d.maxDist && d.maxDist.value) {
+      radarScopeMaxRangeKm = Math.max(20, Math.ceil(d.maxDist.value * 1.1 / 10) * 10);
+    }
+  } catch (e) { /* Fallback-Reichweite bleibt bestehen */ }
+}
+
+function updateRadarScopeAircraft(withPos) {
+  radarScopeAircraft = withPos.filter(a => a.lat != null && a.lon != null).map(a => ({
+    hex: a.hex,
+    distKm: haversine(SITE_LAT, SITE_LON, a.lat, a.lon),
+    bearingDeg: bearingBetween(SITE_LAT, SITE_LON, a.lat, a.lon),
+  }));
+}
+
+function toggleRadarScope() {
+  radarScopeActive = !radarScopeActive;
+  localStorage.setItem('radarScopeActive', radarScopeActive);
+  document.getElementById('app').classList.toggle('radar-mode', radarScopeActive);
+  document.getElementById('radar-mode-btn-float').classList.toggle('active', radarScopeActive);
+  if (radarScopeActive) {
+    if (selectedHex) closeDetail();
+    updateRadarScopeAircraft(lastWithPos || []);
+    resizeRadarScopeCanvas();
+    startRadarScopeLoop();
+  } else {
+    stopRadarScopeLoop();
+    setTimeout(() => map.invalidateSize(), 0);
+  }
+}
+
+function startRadarScopeLoop() {
+  const ROTATION_MS = 4000;
+  let lastTs = performance.now();
+  function frame(ts) {
+    if (!radarScopeActive) return;
+    const dt = ts - lastTs; lastTs = ts;
+    const prevDeg = radarScopeSweepDeg;
+    radarScopeSweepDeg = (radarScopeSweepDeg + 360 * dt / ROTATION_MS) % 360;
+    drawRadarScopeFrame(prevDeg);
+    radarScopeAnimHandle = requestAnimationFrame(frame);
+  }
+  radarScopeAnimHandle = requestAnimationFrame(frame);
+}
+
+function stopRadarScopeLoop() {
+  if (radarScopeAnimHandle) cancelAnimationFrame(radarScopeAnimHandle);
+  radarScopeAnimHandle = null;
+}
+
+function drawRadarScopeFrame(prevSweepDeg) {
+  const w = radarScopeCanvas.clientWidth, h = radarScopeCanvas.clientHeight;
+  if (!w || !h) return;
+  const cx = w / 2, cy = h / 2;
+  const R = Math.min(w, h) / 2 * 0.88;
+  const ctx = radarScopeCtx;
+
+  // Kein vollständiges Löschen, sondern ein leicht durchsichtiges Overlay: alles vorher
+  // Gezeichnete verblasst dadurch von selbst über mehrere Frames - klassischer
+  // Phosphor-Nachleucht-Effekt, ohne pro Ziel eine eigene Helligkeit verwalten zu müssen.
+  ctx.fillStyle = 'rgba(2,12,7,0.15)';
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.strokeStyle = 'rgba(60,220,140,0.28)';
+  ctx.fillStyle = 'rgba(90,240,160,0.75)';
+  ctx.lineWidth = 1;
+  ctx.font = '10px monospace';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+  const rings = 4;
+  for (let i = 1; i <= rings; i++) {
+    const r = R * i / rings;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillText(Math.round(radarScopeMaxRangeKm * i / rings) + ' km', cx + 4, cy - r + 11);
+  }
+  ctx.beginPath();
+  ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy);
+  ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R);
+  ctx.stroke();
+
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(t('radar.dirN'), cx, cy - R - 8);
+  ctx.fillText(t('radar.dirS'), cx, cy + R + 16);
+  ctx.textAlign = 'left';
+  ctx.fillText(t('radar.dirE'), cx + R + 8, cy + 4);
+  ctx.textAlign = 'right';
+  ctx.fillText(t('radar.dirW'), cx - R - 8, cy + 4);
+  ctx.textAlign = 'left';
+
+  const [sx, sy] = radarScopePoint(cx, cy, R, radarScopeSweepDeg);
+  const grad = ctx.createLinearGradient(cx, cy, sx, sy);
+  grad.addColorStop(0, 'rgba(120,255,180,0.05)');
+  grad.addColorStop(1, 'rgba(120,255,180,0.85)');
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(sx, sy);
+  ctx.stroke();
+
+  for (const a of radarScopeAircraft) {
+    if (a.distKm > radarScopeMaxRangeKm) continue;
+    const r = R * a.distKm / radarScopeMaxRangeKm;
+    const [bx, by] = radarScopePoint(cx, cy, r, a.bearingDeg);
+    const selected = a.hex === selectedHex;
+    const swept = angleInArc(a.bearingDeg, prevSweepDeg, radarScopeSweepDeg);
+    if (swept || selected) {
+      ctx.fillStyle = '#7dffb0';
+      ctx.beginPath();
+      ctx.arc(bx, by, selected ? 4.5 : 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (selected) {
+      ctx.strokeStyle = '#7dffb0';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(bx, by, 9, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+}
+
+radarScopeCanvas.addEventListener('click', (e) => {
+  const rect = radarScopeCanvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  const w = radarScopeCanvas.clientWidth, h = radarScopeCanvas.clientHeight;
+  const cx = w / 2, cy = h / 2;
+  const R = Math.min(w, h) / 2 * 0.88;
+  let hitHex = null, hitDist = 14;
+  for (const a of radarScopeAircraft) {
+    if (a.distKm > radarScopeMaxRangeKm) continue;
+    const r = R * a.distKm / radarScopeMaxRangeKm;
+    const [bx, by] = radarScopePoint(cx, cy, r, a.bearingDeg);
+    const d = Math.hypot(mx - bx, my - by);
+    if (d < hitDist) { hitDist = d; hitHex = a.hex; }
+  }
+  if (hitHex) selectPlane(hitHex);
+  else if (selectedHex) closeDetail();
+});
 
 // Chaikin corner-cutting on the closed loop: replaces each vertex pair with two
 // points 1/4 and 3/4 along the segment between them, rounding every corner a bit.
@@ -2762,6 +2957,7 @@ async function refresh() {
 
   withPos.sort((a, b) => haversine(SITE_LAT, SITE_LON, a.lat, a.lon) - haversine(SITE_LAT, SITE_LON, b.lat, b.lon));
   lastWithPos = withPos;
+  if (radarScopeActive) updateRadarScopeAircraft(withPos);
   renderList(withPos);
 
   if (selectedHex && seen.has(selectedHex)) { showDetail(selectedHex); }
@@ -2819,6 +3015,13 @@ initI18n().then(() => {
   updateRadiusRing();
   updateRadarSweepButtons();
   startRadarSweep();
+  initRadarScopeRange();
+  if (radarScopeActive) {
+    document.getElementById('app').classList.add('radar-mode');
+    document.getElementById('radar-mode-btn-float').classList.add('active');
+    resizeRadarScopeCanvas();
+    startRadarScopeLoop();
+  }
   updateRangeOutlineButtons();
   updateRangeOutlineFillButtons();
   updateAirportButtons();

@@ -2,6 +2,13 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.47.0 – 2026-08-04
+- New: 🎯 Radar Mode – a dedicated circular radar scope in place of the map, switchable via the new button at the bottom left
+- Aircraft appear as plain green dots (bearing/distance from your receiver station), no place names or airports shown
+- A genuine sweep needle with afterglow, like a classic CRT radar – dots flash as the sweep passes and fade afterward
+- The outer ring matches your all-time distance record (+10% headroom) instead of a fixed value
+- Clicking a dot opens the aircraft's detail view, same as on the map
+
 ## 0.46.2 – 2026-08-04
 - Replaced the drop shadow under the sticky section headers in Settings with a subtle divider line – the shadow looked like a stray bar rather than depth when scroll distance was short
 

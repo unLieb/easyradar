@@ -33,6 +33,11 @@
 
   "status.online": "Online",
   "status.offline": "Offline",
+  "radar.toggleTooltip": "Radar Mode",
+  "radar.dirN": "N",
+  "radar.dirE": "E",
+  "radar.dirS": "S",
+  "radar.dirW": "W",
   "status.aircraft": "aircraft",
   "status.updatedAgoPrefix": "Updated",
 
