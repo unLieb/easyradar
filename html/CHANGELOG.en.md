@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.46.1 – 2026-08-04
+- Added a drop shadow under the sticky section headers in Settings, so it's clearer while scrolling that they sit above the content instead of blending into it
+
 ## 0.46.0 – 2026-08-04
 - Added English language support – full switcher between German and English in Settings, covering the Radar Level, achievements, stats, and changelog
 - Language choice is remembered permanently; without a saved preference, the browser language is detected (German browsers → German, everything else → English)
