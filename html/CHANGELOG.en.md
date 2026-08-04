@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.46.2 – 2026-08-04
+- Replaced the drop shadow under the sticky section headers in Settings with a subtle divider line – the shadow looked like a stray bar rather than depth when scroll distance was short
+
 ## 0.46.1 – 2026-08-04
 - Added a drop shadow under the sticky section headers in Settings, so it's clearer while scrolling that they sit above the content instead of blending into it
 

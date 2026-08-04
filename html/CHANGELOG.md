@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.46.2 – 2026-08-04
+- Schlagschatten unter den fixierten Abschnittsüberschriften in den Einstellungen durch eine dezente Trennlinie ersetzt – wirkte bei kurzer Scrolldistanz wie ein loser Balken statt wie eine Tiefenwirkung
+
 ## 0.46.1 – 2026-08-04
 - Schlagschatten unter den fixierten Abschnittsüberschriften in den Einstellungen, damit beim Scrollen klar erkennbar ist, dass sie über dem Inhalt liegen statt mit ihm zu verschmelzen
 
