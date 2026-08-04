@@ -2,6 +2,11 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.47.1 – 2026-08-04
+- Reworked Radar Mode: aircraft now stay permanently visible instead of only flashing as the sweep passes, noticeably bigger dots, callsign shown above each dot
+- Real country borders/coastlines in the background – correctly projected by bearing/distance from your station, no place names or other labels
+- The sweep needle now draws a trailing light cone instead of a pure afterglow effect
+
 ## 0.47.0 – 2026-08-04
 - New: 🎯 Radar Mode – a dedicated circular radar scope in place of the map, switchable via the new button at the bottom left
 - Aircraft appear as plain green dots (bearing/distance from your receiver station), no place names or airports shown

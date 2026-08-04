@@ -2,6 +2,11 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.47.1 – 2026-08-04
+- Radar-Modus überarbeitet: Flugzeuge bleiben jetzt dauerhaft sichtbar statt nur beim Sweep-Durchlauf aufzuleuchten, deutlich größere Punkte, Rufzeichen wird über jedem Punkt angezeigt
+- Echte Landesgrenzen/Küstenlinien im Hintergrund – korrekt nach Peilung/Entfernung von deiner Station projiziert, keine Ortsnamen oder sonstige Beschriftung
+- Sweep-Nadel zeichnet jetzt einen nachziehenden Lichtkegel statt eines reinen Nachleucht-Effekts
+
 ## 0.47.0 – 2026-08-04
 - Neu: 🎯 Radar-Modus – eigener kreisförmiger Radarschirm anstelle der Karte, umschaltbar über den neuen Knopf unten links
 - Flugzeuge erscheinen als schlichte grüne Punkte (Peilung/Entfernung von deiner Empfangsstation), keine Ortsnamen oder Flughäfen
