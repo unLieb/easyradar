@@ -2,6 +2,16 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.53.0 – 2026-08-04
+- Radar-Modus: Empfangskontur entfernt – passt für ein reines Radarbild nicht, bleibt aber wie gewohnt auf der normalen Karte verfügbar
+- Radar-Modus: Reichweitenringe um 50 % sichtbarer
+- Radar-Modus: Karte/Radar-Umschalter durch einen runden Knopf passend zu Einstellungen/Statistik ersetzt – leuchtet grün, solange der Radar-Modus aktiv ist
+
+## 0.52.0 – 2026-08-04
+- Radar-Modus: Seitenleiste, Legende und Buttons werden jetzt passend dunkel eingefärbt, solange der Radar-Modus aktiv ist
+- Radar-Modus: Statusleiste (ADS-B-Status, Nachrichtenrate, Standort) wird im Radar-Modus ausgeblendet, da sie dort nicht zum Bild passt
+- Alte "Rotierende Radar-Nadel"-Einstellung entfernt – überflüssig geworden durch den vollwertigen Radar-Modus
+
 ## 0.51.1 – 2026-08-04
 - Radar-Modus: echter Nachzieheffekt für den Sweep (Winkel-Gradient, hell am Sweep-Strahl, nach hinten ausfadend) statt eines gleichmäßig gefüllten Kreissegments
 

@@ -2,6 +2,16 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.53.0 – 2026-08-04
+- Radar Mode: removed the reception contour – doesn't fit a pure radar picture, but remains available on the regular map as before
+- Radar Mode: range rings are 50% more visible
+- Radar Mode: replaced the Map/Radar switcher with a round button matching Settings/Stats – glows green while Radar Mode is active
+
+## 0.52.0 – 2026-08-04
+- Radar Mode: sidebar, legend, and buttons are now dark-themed to match while Radar Mode is active
+- Radar Mode: the status bar (ADS-B status, message rate, location) is hidden in Radar Mode since it doesn't fit the picture there
+- Removed the old "Rotating radar sweep" setting – made redundant by the full Radar Mode
+
 ## 0.51.1 – 2026-08-04
 - Radar Mode: a real afterglow trail for the sweep (angular gradient, bright at the sweep line, fading toward the tail) instead of a uniformly filled pie slice
 

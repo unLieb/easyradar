@@ -33,8 +33,7 @@
 
   "status.online": "Online",
   "status.offline": "Offline",
-  "radar.mapTab": "Karte",
-  "radar.radarTab": "Radar",
+  "radar.toggleTooltip": "Radar-Modus",
   "radar.legendType": "Zieltyp",
   "radar.dirN": "N",
   "radar.dirE": "O",
@@ -101,8 +100,6 @@
   "settings.receptionRadiusTooltip": "Begrenzt nur die externe Quelle (adsb.fi), damit die Karte nicht mit weit entfernten Flugzeugen vollläuft. Deine eigenen ADS-B-Empfangsdaten werden dadurch nicht gefiltert.",
   "settings.unlimited": "unbegrenzt",
   "settings.showRadiusRing": "Empfangsradius auf Karte anzeigen",
-  "settings.radarSweep": "Rotierende Radar-Nadel",
-  "settings.radarSweepTooltip": "Rotierende Linie um deinen Standort, deren Länge dem eingestellten Empfangsradius entspricht - reine Optik, keine echte Messung.",
   "settings.showRangeOutline": "Empfangskontur auf Karte anzeigen",
   "settings.rangeOutlineTooltip": "Zeigt, wie weit dein Empfänger tatsächlich in jede Richtung reicht - berechnet aus den bisher empfangenen Positionen, nicht aus dem Empfangsradius oben.",
   "settings.rangeOutlineFill": "Empfangskontur als Fläche füllen",

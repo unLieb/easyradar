@@ -130,8 +130,25 @@
   #app.radar-mode #map { display: none; }
   #app.radar-mode #radar-scope-wrap { display: block; }
 
-  #radar-mode-switcher { width: 130px; flex-shrink: 0; box-shadow: 0 2px 10px rgba(0,0,0,0.12); background: var(--card); }
-  #radar-mode-switcher button { padding: 8px 0; }
+  /* Seitenleiste, Legende, Panels und Buttons dunkel einfärben, solange der Radar-Modus
+     aktiv ist - alle betroffenen Elemente nutzen bereits diese CSS-Variablen, daher reicht
+     eine Umdefinition hier statt jedes Element einzeln anfassen zu müssen. */
+  #app.radar-mode {
+    --bg: #03100a;
+    --card: #0c2318;
+    --text: #d8f5e6;
+    --text-muted: #7fa895;
+    --border: #1c3d2a;
+    /* color wird von body vorberechnet geerbt (nicht pro Element neu über var(--text)
+       aufgelöst) - ohne diese Zeile bleiben reine Text-Werte, die color nie selbst setzen
+       (z. B. Detail-Panel-Werte), bei der hellen Body-Farbe hängen und sind auf dunklem
+       Grund unsichtbar. */
+    color: var(--text);
+  }
+  #app.radar-mode .plane-row:hover, #app.radar-mode .plane-row.radar-hover-linked { background: rgba(150,255,195,0.08); }
+  #app.radar-mode #status-bar-wrap { display: none; }
+
+  #radar-mode-btn-float.active { color: #7dffb0; box-shadow: 0 2px 10px rgba(0,0,0,0.12), 0 0 10px rgba(125,255,176,0.65); }
 
   .selected-glow { filter: drop-shadow(0 0 3px #1a73e8) drop-shadow(0 0 8px #1a73e8) drop-shadow(0 0 14px #1a73e8); animation: glow-pulse 1.6s ease-in-out infinite; }
   @keyframes glow-pulse {
@@ -163,8 +180,9 @@
   #legend .swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   #legend .swatch-shape { width: 12px; height: 12px; flex-shrink: 0; color: var(--text-muted); display: inline-flex; }
 
-  #settings-btn-float, #stats-btn-float { width: 40px; height: 40px; border-radius: 50%; background: var(--card); border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.12); cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  #settings-btn-float, #stats-btn-float, #radar-mode-btn-float { width: 40px; height: 40px; border-radius: 50%; background: var(--card); border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.12); cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: color 0.15s, box-shadow 0.15s; }
   #settings-btn-float:hover, #settings-btn-float.active, #stats-btn-float:hover, #stats-btn-float.active { color: var(--blue); }
+  #radar-mode-btn-float:hover { color: var(--blue); }
 
   .plane-icon { transition: transform 0.4s linear; }
 
@@ -406,10 +424,9 @@
 
     <div id="map-controls-bottom">
       <div id="legend"></div>
-      <div id="radar-mode-switcher" class="segmented">
-        <button id="radar-switch-map" class="active" onclick="setRadarScopeMode(false)" data-i18n="radar.mapTab">Karte</button>
-        <button id="radar-switch-radar" onclick="setRadarScopeMode(true)" data-i18n="radar.radarTab">Radar</button>
-      </div>
+      <button id="radar-mode-btn-float" onclick="setRadarScopeMode(!radarScopeActive)" aria-label="Radar Mode" data-i18n-title="radar.toggleTooltip" title="Radar-Modus">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5" opacity="0.5"/><line x1="12" y1="12" x2="12" y2="3.5"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg>
+      </button>
       <button id="settings-btn-float" onclick="toggleSettings()" aria-label="Settings">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
@@ -536,10 +553,6 @@
           <span class="label" style="margin:0" data-i18n="settings.showRadiusRing">Empfangsradius auf Karte anzeigen</span>
           <span class="toggle-switch"><input type="checkbox" id="radius-ring-toggle" onchange="setRadiusRing(this.checked)"><span class="toggle-slider"></span></span>
         </label>
-        <label class="toggle-row" data-i18n-title="settings.radarSweepTooltip" title="Rotierende Linie um deinen Standort, deren Länge dem eingestellten Empfangsradius entspricht - reine Optik, keine echte Messung.">
-          <span class="label" style="margin:0" data-i18n="settings.radarSweep">Rotierende Radar-Nadel</span>
-          <span class="toggle-switch"><input type="checkbox" id="radar-sweep-toggle" onchange="setRadarSweep(this.checked)"><span class="toggle-slider"></span></span>
-        </label>
       </div>
       <label class="toggle-row" style="margin-top:12px" data-i18n-title="settings.rangeOutlineTooltip" title="Zeigt, wie weit dein Empfänger tatsächlich in jede Richtung reicht - berechnet aus den bisher empfangenen Positionen, nicht aus dem Empfangsradius oben.">
         <span class="label" style="margin:0" data-i18n="settings.showRangeOutline">Empfangskontur auf Karte anzeigen</span>
@@ -579,7 +592,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.51.1';
+const APP_VERSION = '0.53.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 // --- i18n --------------------------------------------------------------------
@@ -824,9 +837,6 @@ let radarScopeAircraftByHex = new Map();
 let radarScopeHoveredHex = null;
 let radarScopeSweepDeg = 0;
 let radarScopeAnimHandle = null;
-// Echte, unregelmäßige Empfangskontur (aus rangeOutlineData, das ohnehin schon für die
-// Karte gepflegt wird) - geglättete [Peilung, Distanz]-Punkte, nur bei neuen Daten neu gebaut.
-let radarScopeContourPoints = null;
 // Zweite, nicht-interaktive Leaflet/MapLibre-Karte hinter dem transparenten Canvas -
 // echte Landschaft (Wasser/Wälder/Landuse) im Radar-Grünton statt selbstgezeichneter
 // Länderumrisse. Lazy erzeugt bei der ersten Aktivierung des Radar-Modus.
@@ -869,18 +879,6 @@ function lerpBearing(from, to, frac) {
 function angularDelta(a, b) {
   const d = Math.abs(a - b) % 360;
   return d > 180 ? 360 - d : d;
-}
-
-function updateRadarScopeContour() {
-  if (!rangeOutlineData) { radarScopeContourPoints = null; return; }
-  const numBuckets = 360 / rangeOutlineBucketDeg;
-  const points = [];
-  for (let b = 0; b < numBuckets; b++) {
-    const dist = rangeOutlineData[b];
-    if (dist == null) continue;
-    points.push([b * rangeOutlineBucketDeg + rangeOutlineBucketDeg / 2, dist]);
-  }
-  radarScopeContourPoints = points.length >= 3 ? chaikinSmoothClosed(points, 3) : null;
 }
 
 // Aktuelle, zeitlich interpolierte Positionen für Zeichnen und Hit-Testing - liest nie
@@ -1042,8 +1040,7 @@ function setRadarScopeMode(active) {
   radarScopeActive = active;
   localStorage.setItem('radarScopeActive', radarScopeActive);
   document.getElementById('app').classList.toggle('radar-mode', radarScopeActive);
-  document.getElementById('radar-switch-map').classList.toggle('active', !radarScopeActive);
-  document.getElementById('radar-switch-radar').classList.toggle('active', radarScopeActive);
+  document.getElementById('radar-mode-btn-float').classList.toggle('active', radarScopeActive);
   updateStatusAircraftLabel();
   renderLegend();
   if (radarScopeActive) {
@@ -1159,7 +1156,7 @@ function drawRadarScopeFrame() {
   for (let i = 1; i <= rings; i++) {
     const ringKm = radarScopeMaxRangeKm * i / rings;
     const primary = i % 2 === 0;
-    ctx.strokeStyle = primary ? 'rgba(150,190,175,0.32)' : 'rgba(150,190,175,0.16)';
+    ctx.strokeStyle = primary ? 'rgba(150,190,175,0.48)' : 'rgba(150,190,175,0.24)';
     ctx.setLineDash(primary ? [1, 4] : [1, 6]);
     ctx.stroke(radarRingPath(ringKm));
 
@@ -1184,25 +1181,6 @@ function drawRadarScopeFrame() {
   ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy);
   ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R);
   ctx.stroke();
-
-  // Echte, unregelmäßige Empfangskontur ("Radar Coverage") - als Fläche mit dünnem Rand
-  // statt einer dominanten Linie, damit sie den Blick nicht von den Flugzeugen abzieht.
-  // Eigener Cyan-Grünton trennt sie klar vom neongrünen Sweep. Sehr langsamer "Herzschlag"
-  // (~20s) in der Randbreite statt eines auffälligen Leucht-Effekts.
-  if (radarScopeContourPoints) {
-    ctx.beginPath();
-    radarScopeContourPoints.forEach(([brg, dist], i) => {
-      const [x, y] = projectRadarPoint(brg, Math.min(dist, radarScopeMaxRangeKm));
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    });
-    ctx.closePath();
-    const heartbeat = Math.max(0, Math.sin(2 * Math.PI * now / 20000));
-    ctx.fillStyle = 'rgba(80,220,210,0.10)';
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(100,230,215,0.55)';
-    ctx.lineWidth = 1.3 + heartbeat * 0.6;
-    ctx.stroke();
-  }
 
   // Kompassrose: Hauptrichtungen kräftig, Zwischenrichtungen sehr dezent.
   ctx.font = 'bold 11px monospace';
@@ -1924,54 +1902,7 @@ function setRadius(value) {
   radiusKm = km;
   localStorage.setItem('radiusKm', radiusKm);
   updateRadiusRing();
-  startRadarSweep();
   updateRadiusUI();
-}
-
-// Rotating radar sweep needle, length = configured reception radius. Drawn as
-// several trailing lines at decreasing opacity behind the leading edge, to get
-// the classic fading-wedge look of a real radar display cheaply (no SVG
-// gradients needed, just a handful of plain polylines).
-let showRadarSweep = localStorage.getItem('showRadarSweep') === 'true';
-let radarSweepAngle = 0;
-let radarSweepLayer = null;
-let radarSweepTimer = null;
-
-function updateRadarSweepButtons() {
-  document.getElementById('radar-sweep-toggle').checked = showRadarSweep;
-}
-
-function stopRadarSweep() {
-  if (radarSweepTimer) { clearInterval(radarSweepTimer); radarSweepTimer = null; }
-  if (radarSweepLayer) { map.removeLayer(radarSweepLayer); radarSweepLayer = null; }
-}
-
-function drawRadarSweep() {
-  if (radarSweepLayer) map.removeLayer(radarSweepLayer);
-  radarSweepAngle = (radarSweepAngle + 4) % 360;
-  const group = L.layerGroup();
-  const trailSteps = 24;
-  for (let i = 0; i < trailSteps; i++) {
-    const a = (radarSweepAngle - i * 2.5 + 360) % 360;
-    const opacity = 0.55 * (1 - i / trailSteps);
-    const [lat, lon] = destPoint(SITE_LAT, SITE_LON, a, radiusKm);
-    L.polyline([[SITE_LAT, SITE_LON], [lat, lon]], { color: '#00e676', weight: i === 0 ? 2.5 : 1.5, opacity }).addTo(group);
-  }
-  group.addTo(map);
-  radarSweepLayer = group;
-}
-
-function startRadarSweep() {
-  stopRadarSweep();
-  if (!showRadarSweep || !animationsEnabled || !radiusKm || radiusKm <= 0) return;
-  radarSweepTimer = setInterval(drawRadarSweep, 60);
-}
-
-function setRadarSweep(on) {
-  showRadarSweep = on;
-  localStorage.setItem('showRadarSweep', on);
-  updateRadarSweepButtons();
-  startRadarSweep();
 }
 
 function updateExternalButtons() {
@@ -2019,7 +1950,6 @@ function setAnimations(on) {
   localStorage.setItem('animationsEnabled', on);
   document.body.classList.toggle('no-animations', !on);
   updateAnimationsButtons();
-  startRadarSweep();
 }
 
 function updatePhotosEnabledButtons() {
@@ -3239,7 +3169,6 @@ async function fetchAndRenderDbStats() {
       rangeOutlineData = d.rangeOutline;
       rangeOutlineBucketDeg = d.rangeBucketDeg || 5;
       updateRangeOutline();
-      updateRadarScopeContour();
     }
   } catch (e) { /* db stats optional, ignore failures */ }
 
@@ -3428,12 +3357,9 @@ initI18n().then(() => {
   updateRadiusUI();
   updateRadiusRingButtons();
   updateRadiusRing();
-  updateRadarSweepButtons();
-  startRadarSweep();
   if (radarScopeActive) {
     document.getElementById('app').classList.add('radar-mode');
-    document.getElementById('radar-switch-map').classList.remove('active');
-    document.getElementById('radar-switch-radar').classList.add('active');
+    document.getElementById('radar-mode-btn-float').classList.add('active');
     resizeRadarScopeCanvas();
     initRadarScopeMap().then(resizeRadarScopeCanvas);
     startRadarScopeLoop();

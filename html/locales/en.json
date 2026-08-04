@@ -33,8 +33,7 @@
 
   "status.online": "Online",
   "status.offline": "Offline",
-  "radar.mapTab": "Map",
-  "radar.radarTab": "Radar",
+  "radar.toggleTooltip": "Radar Mode",
   "radar.legendType": "Target Type",
   "radar.dirN": "N",
   "radar.dirE": "E",
@@ -101,8 +100,6 @@
   "settings.receptionRadiusTooltip": "Only limits the external source (adsb.fi), so the map doesn't fill up with distant aircraft. Your own ADS-B reception data isn't filtered by this.",
   "settings.unlimited": "unlimited",
   "settings.showRadiusRing": "Show reception radius on map",
-  "settings.radarSweep": "Rotating radar sweep",
-  "settings.radarSweepTooltip": "Rotating line around your location, its length matches the configured reception radius - purely visual, not an actual measurement.",
   "settings.showRangeOutline": "Show reception outline on map",
   "settings.rangeOutlineTooltip": "Shows how far your receiver actually reaches in each direction - calculated from positions received so far, not from the reception radius above.",
   "settings.rangeOutlineFill": "Fill reception outline area",
