@@ -2,6 +2,10 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.54.0 – 2026-08-04
+- A sidebar that was automatically opened by clicking an aircraft now also automatically closes again once no aircraft is selected – manually opening/closing it is unaffected
+- New "Auto-collapse sidebar" setting to turn this behavior off
+
 ## 0.53.0 – 2026-08-04
 - Radar Mode: removed the reception contour – doesn't fit a pure radar picture, but remains available on the regular map as before
 - Radar Mode: range rings are 50% more visible

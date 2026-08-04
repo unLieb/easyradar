@@ -2,6 +2,10 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.54.0 – 2026-08-04
+- Seitenleiste, die durch Anklicken eines Flugzeugs automatisch aufgeklappt wurde, klappt jetzt auch wieder automatisch zu, sobald kein Flugzeug mehr ausgewählt ist – manuelles Auf-/Zuklappen bleibt davon unberührt
+- Neue Einstellung "Seitenleiste automatisch zuklappen" zum Abschalten dieses Verhaltens
+
 ## 0.53.0 – 2026-08-04
 - Radar-Modus: Empfangskontur entfernt – passt für ein reines Radarbild nicht, bleibt aber wie gewohnt auf der normalen Karte verfügbar
 - Radar-Modus: Reichweitenringe um 50 % sichtbarer

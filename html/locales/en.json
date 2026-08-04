@@ -84,6 +84,8 @@
   "settings.medium": "Medium",
   "settings.large": "Large",
   "settings.rememberView": "Remember last map position on start",
+  "settings.sidebarAutoCollapse": "Auto-collapse sidebar",
+  "settings.sidebarAutoCollapseTooltip": "The sidebar opens automatically when you click an aircraft and closes itself again once none is selected. Manually opening/closing it is unaffected.",
   "settings.rememberViewTooltip": "Remembers map center and zoom level between visits, instead of always centering on the receiver on start.",
   "settings.animations": "Animations",
   "settings.animationsTooltip": "Disables the rotating radar sweep and other motion effects in the interface.",

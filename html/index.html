@@ -513,7 +513,11 @@
         <span class="label" style="margin:0" data-i18n="settings.rememberView">Beim Start letzte Kartenposition merken</span>
         <span class="toggle-switch"><input type="checkbox" id="remember-view-toggle" onchange="setRememberView(this.checked)"><span class="toggle-slider"></span></span>
       </label>
-      <label class="toggle-row" data-i18n-title="settings.animationsTooltip" title="Deaktiviert die rotierende Radar-Nadel und andere Bewegungseffekte in der Oberfläche.">
+      <label class="toggle-row" data-i18n-title="settings.sidebarAutoCollapseTooltip" title="Seitenleiste öffnet sich automatisch beim Anklicken eines Flugzeugs und schließt sich danach von selbst wieder, sobald keins mehr ausgewählt ist. Manuelles Öffnen/Schließen bleibt davon unberührt.">
+        <span class="label" style="margin:0" data-i18n="settings.sidebarAutoCollapse">Seitenleiste automatisch zuklappen</span>
+        <span class="toggle-switch"><input type="checkbox" id="sidebar-auto-collapse-toggle" onchange="setSidebarAutoCollapse(this.checked)"><span class="toggle-slider"></span></span>
+      </label>
+      <label class="toggle-row" data-i18n-title="settings.animationsTooltip" title="Deaktiviert Bewegungseffekte in der Oberfläche.">
         <span class="label" style="margin:0" data-i18n="settings.animations">Animationen</span>
         <span class="toggle-switch"><input type="checkbox" id="animations-toggle" onchange="setAnimations(this.checked)"><span class="toggle-slider"></span></span>
       </label>
@@ -592,7 +596,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.53.0';
+const APP_VERSION = '0.54.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 // --- i18n --------------------------------------------------------------------
@@ -1436,6 +1440,11 @@ const trailPoints = {};
 const MAX_TRAIL_POINTS = 1800;
 let selectedHex = null;
 let sidebarCollapsed = window.innerWidth <= 768;
+// Nur eine automatisch (durch Flugzeug-Auswahl) geöffnete Seitenleiste soll sich auch
+// wieder automatisch schließen - manuelles Öffnen über den Klapp-Knopf gilt als Absicht
+// und bleibt unangetastet.
+let sidebarAutoCollapse = localStorage.getItem('sidebarAutoCollapse') !== 'false';
+let sidebarAutoOpened = false;
 let speedUnit = localStorage.getItem('speedUnit') || 'kmh';
 let altUnit = localStorage.getItem('altUnit') || 'm';
 let rangeUnit = localStorage.getItem('rangeUnit') || 'km';
@@ -1622,11 +1631,16 @@ function toggleFavoritesOnly() {
   refresh();
 }
 
+function applySidebarCollapsed(collapsed) {
+  document.getElementById('sidebar').classList.toggle('collapsed', collapsed);
+  document.getElementById('app').classList.toggle('collapsed', collapsed);
+  document.getElementById('collapse-btn').innerHTML = collapsed ? '&#9654;' : '&#9664;';
+}
+
 function toggleSidebar() {
   sidebarCollapsed = !sidebarCollapsed;
-  document.getElementById('sidebar').classList.toggle('collapsed', sidebarCollapsed);
-  document.getElementById('app').classList.toggle('collapsed', sidebarCollapsed);
-  document.getElementById('collapse-btn').innerHTML = sidebarCollapsed ? '&#9654;' : '&#9664;';
+  sidebarAutoOpened = false; // manuelles Ein-/Ausklappen ist immer Absicht
+  applySidebarCollapsed(sidebarCollapsed);
 }
 
 // On mobile the sidebar covers the whole screen when open, so instead of a
@@ -1941,6 +1955,16 @@ function setRememberView(on) {
   updateRememberViewButtons();
 }
 
+function updateSidebarAutoCollapseButtons() {
+  document.getElementById('sidebar-auto-collapse-toggle').checked = sidebarAutoCollapse;
+}
+
+function setSidebarAutoCollapse(on) {
+  sidebarAutoCollapse = on;
+  localStorage.setItem('sidebarAutoCollapse', on);
+  updateSidebarAutoCollapseButtons();
+}
+
 function updateAnimationsButtons() {
   document.getElementById('animations-toggle').checked = animationsEnabled;
 }
@@ -2200,7 +2224,11 @@ function selectPlane(hex) {
   selectedHex = hex;
   document.getElementById('panel-list').classList.add('hidden');
   document.getElementById('panel-detail').classList.add('show');
-  if (sidebarCollapsed) toggleSidebar();
+  if (sidebarCollapsed) {
+    sidebarCollapsed = false;
+    sidebarAutoOpened = true;
+    applySidebarCollapsed(false);
+  }
   showDetail(hex);
   refreshMarkerGlow();
   refreshAllTrailVisibility();
@@ -2214,6 +2242,11 @@ function closeDetail() {
   document.getElementById('panel-list').classList.remove('hidden');
   refreshMarkerGlow();
   refreshAllTrailVisibility();
+  if (sidebarAutoOpened && sidebarAutoCollapse && !sidebarCollapsed) {
+    sidebarCollapsed = true;
+    sidebarAutoOpened = false;
+    applySidebarCollapsed(true);
+  }
 }
 
 let lastDetailHex = null;
@@ -3372,6 +3405,7 @@ initI18n().then(() => {
   updateStatsRangeButtons();
   updateMarkerSizeButtons();
   updateRememberViewButtons();
+  updateSidebarAutoCollapseButtons();
   updateAnimationsButtons();
   document.body.classList.toggle('no-animations', !animationsEnabled);
   updatePhotosEnabledButtons();

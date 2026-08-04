@@ -84,6 +84,8 @@
   "settings.medium": "Mittel",
   "settings.large": "Groß",
   "settings.rememberView": "Beim Start letzte Kartenposition merken",
+  "settings.sidebarAutoCollapse": "Seitenleiste automatisch zuklappen",
+  "settings.sidebarAutoCollapseTooltip": "Seitenleiste öffnet sich automatisch beim Anklicken eines Flugzeugs und schließt sich danach von selbst wieder, sobald keins mehr ausgewählt ist. Manuelles Öffnen/Schließen bleibt davon unberührt.",
   "settings.rememberViewTooltip": "Merkt sich Kartenausschnitt und Zoomstufe zwischen Besuchen, statt beim Start immer auf den Empfänger zu zentrieren.",
   "settings.animations": "Animationen",
   "settings.animationsTooltip": "Deaktiviert die rotierende Radar-Nadel und andere Bewegungseffekte in der Oberfläche.",
