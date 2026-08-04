@@ -2,6 +2,13 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.48.0 – 2026-08-04
+- Radar-Modus: Punkte jetzt farbcodiert nach Flughöhe (gleiche Farben wie auf der Karte) statt einheitlich grün
+- Radar-Modus: Zielform je Flugzeugkategorie (Kreis/Raute/Quadrat/Dreieck/Stern) statt einheitlicher Punkte
+- Landkarte im Radar-Modus jetzt mit leichter Flächenfüllung statt reiner Umrisslinie
+- Neuer Karte/Radar-Umschalter unten links statt einzelnem Radar-Knopf
+- Legende zeigt im Radar-Modus zusätzlich zur Höhenfarbe auch die Zieltyp-Symbole
+
 ## 0.47.1 – 2026-08-04
 - Radar-Modus überarbeitet: Flugzeuge bleiben jetzt dauerhaft sichtbar statt nur beim Sweep-Durchlauf aufzuleuchten, deutlich größere Punkte, Rufzeichen wird über jedem Punkt angezeigt
 - Echte Landesgrenzen/Küstenlinien im Hintergrund – korrekt nach Peilung/Entfernung von deiner Station projiziert, keine Ortsnamen oder sonstige Beschriftung

@@ -2,6 +2,13 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.48.0 – 2026-08-04
+- Radar Mode: dots are now colour-coded by altitude (same colours as on the map) instead of plain green
+- Radar Mode: target shape now varies by aircraft category (circle/diamond/square/triangle/star) instead of uniform dots
+- The background map in Radar Mode now has a light area fill instead of just an outline
+- New Map/Radar switcher at the bottom left instead of a single radar button
+- The legend now also shows target-type symbols alongside altitude colours while in Radar Mode
+
 ## 0.47.1 – 2026-08-04
 - Reworked Radar Mode: aircraft now stay permanently visible instead of only flashing as the sweep passes, noticeably bigger dots, callsign shown above each dot
 - Real country borders/coastlines in the background – correctly projected by bearing/distance from your station, no place names or other labels

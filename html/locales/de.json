@@ -33,7 +33,9 @@
 
   "status.online": "Online",
   "status.offline": "Offline",
-  "radar.toggleTooltip": "Radar-Modus",
+  "radar.mapTab": "Karte",
+  "radar.radarTab": "Radar",
+  "radar.legendType": "Zieltyp",
   "radar.dirN": "N",
   "radar.dirE": "O",
   "radar.dirS": "S",
