@@ -598,13 +598,15 @@
 <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.3/leaflet-maplibre-gl.js"></script>
 <script src="tar1090-shapes.js"></script>
 <script src="countries.js"></script>
+<script src="site-config.js"></script>
 <script>
 // tar1090-shapes.js's getBaseMarker() references these tar1090 UI-setting globals
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
 const APP_VERSION = '0.56.0';
-const SITE_LAT = 52.52319, SITE_LON = 13.35822;
+// SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
+// only on the deployed host) - see site-config.example.js for the template.
 
 // --- i18n --------------------------------------------------------------------
 // English is the reference/complete locale: every key must exist there. Other
