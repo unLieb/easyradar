@@ -88,6 +88,7 @@
   .plane-row .type { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
   .plane-row .metrics { text-align: right; font-size: 12px; color: var(--text-muted); }
   .plane-row .metrics .alt { font-weight: 600; color: var(--text); font-size: 13px; }
+  .plane-row .route { flex: 1; min-width: 0; text-align: center; font-size: 12px; color: var(--text-muted); padding: 0 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   #panel-detail { display: none; flex: 1; overflow-y: auto; flex-direction: column; overflow-anchor: none; }
   #panel-detail.show { display: flex; }
@@ -604,7 +605,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.56.0';
+const APP_VERSION = '0.57.0';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2193,6 +2194,38 @@ function renderRoute(route) {
     <div class="airport"><div class="code">${d.icao_code || d.iata_code || '?'}</div><div class="name">${d.name || ''}</div></div>`;
 }
 
+// Warms routeCache for aircraft that are merely visible in the sidebar list,
+// not just the selected one - same cache/API as loadRoute() above, so a plane
+// looked up via either path stays cached for both. routeFetchInFlight guards
+// against firing a second request for a callsign whose first lookup hasn't
+// resolved yet (renderList() re-runs every poll cycle).
+const routeFetchInFlight = new Set();
+async function warmRouteCache(cs) {
+  routeFetchInFlight.add(cs);
+  try {
+    const res = await fetch(`https://api.adsbdb.com/v0/callsign/${cs}`);
+    if (!res.ok) throw new Error('unbekannt');
+    const data = await res.json();
+    routeCache[cs] = (data.response && data.response.flightroute) || null;
+  } catch (e) {
+    routeCache[cs] = null;
+  } finally {
+    routeFetchInFlight.delete(cs);
+  }
+}
+
+// Read-only: returns '' whenever there's nothing cached yet (unknown, still
+// loading, or no route found) so the row simply stays blank instead of
+// showing a loading state for every one of potentially dozens of aircraft.
+function routeListLabel(cs) {
+  const route = routeCache[cs];
+  if (!route) return '';
+  const o = route.origin, d = route.destination;
+  const oCode = (o && (o.iata_code || o.icao_code)) || '?';
+  const dCode = (d && (d.iata_code || d.icao_code)) || '?';
+  return `${oCode} → ${dCode}`;
+}
+
 async function loadRoute(hex, flight) {
   const cs = (flight || '').trim();
   const el = document.getElementById('d-route');
@@ -3398,6 +3431,11 @@ function renderList(withPos) {
   setStatusValue('status-count', withPos.length);
   const list = document.getElementById('panel-list');
   list.innerHTML = '';
+  // Caps how many new (uncached) callsigns can start a route lookup per render
+  // pass, so a burst of dozens of aircraft at once doesn't fire dozens of
+  // parallel requests at api.adsbdb.com - the rest simply get picked up on the
+  // next poll cycle a few seconds later, once earlier lookups have resolved.
+  let newRouteFetches = 0;
   for (const a of withPos) {
     const row = document.createElement('div');
     row.className = 'plane-row';
@@ -3405,11 +3443,17 @@ function renderList(withPos) {
     const flag = flagForHex(a.hex);
     const cls = classifyAircraft(a);
     const callsignClass = cls === 'militaer' ? ' callsign-mil' : (cls === 'einsatz' ? ' callsign-einsatz' : '');
+    const cs = (a.flight || '').trim();
+    if (cs && routeCache[cs] === undefined && !routeFetchInFlight.has(cs) && newRouteFetches < 5) {
+      warmRouteCache(cs);
+      newRouteFetches++;
+    }
     row.innerHTML = `
       <div>
         <div class="callsign${callsignClass}">${flag}${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${(a.flight || a.hex || '—').trim()}${isRareAircraft(a) ? `<span class="rare-badge" title="${t('list.rareAircraft')}">⭐</span>` : ''}${a._external ? `<span class="external-tag">${t('list.externalTag')}</span>` : ''}</div>
         <div class="type">${a.t || t('common.unknownType')}</div>
       </div>
+      <div class="route">${cs ? routeListLabel(cs) : ''}</div>
       <div class="metrics">
         <div class="alt">${vRateArrow(a)}${fmtAlt(a.alt_baro)}</div>
         <div>${fmtDist(haversine(SITE_LAT, SITE_LON, a.lat, a.lon))}</div>

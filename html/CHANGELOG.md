@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.57.0 – 2026-08-07
+- Flugzeugliste zeigt jetzt Herkunft → Ziel (z. B. "FRA → JFK") in der Mitte jeder Zeile, sofern für den Callsign eine Route bekannt ist
+
 ## 0.56.0 – 2026-08-07
 - Neu: 🏛️ Luftfahrt-Legenden-Galerie in den Meilensteinen – Concorde, SR-71 und die Spruce Goose mit kurzen historischen Fakten, rein informativ und ohne Einfluss auf Level oder XP
 

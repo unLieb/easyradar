@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.57.0 – 2026-08-07
+- The aircraft list now shows origin → destination (e.g. "FRA → JFK") in the middle of each row, whenever a route is known for that callsign
+
 ## 0.56.0 – 2026-08-07
 - New: 🏛️ Aviation Legends gallery in Milestones – Concorde, SR-71, and the Spruce Goose with short historical facts, purely informational with no effect on level or XP
 
