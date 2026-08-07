@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.61.4 – 2026-08-07
+- Detail view: the airplane icon in the route progress bar was invisible (wrong viewBox scale, rendered as a sub-pixel dot) – now shows up correctly
+
 ## 0.61.3 – 2026-08-07
 - Detail view: the route progress marker now uses a detailed airplane icon instead of the simple arrow
 

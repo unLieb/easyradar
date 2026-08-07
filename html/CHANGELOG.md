@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.61.4 – 2026-08-07
+- Detailansicht: Flugzeug-Icon im Routen-Fortschrittsbalken war unsichtbar (falsches viewBox-Seitenverhältnis, Icon wurde als Sub-Pixel-Punkt dargestellt) – jetzt korrekt sichtbar
+
 ## 0.61.3 – 2026-08-07
 - Detailansicht: Routen-Fortschrittsmarker nutzt jetzt ein detailliertes Flugzeug-Icon statt des einfachen Pfeils
 
