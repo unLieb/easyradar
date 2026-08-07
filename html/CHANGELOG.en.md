@@ -2,6 +2,10 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.60.2 – 2026-08-07
+- Aircraft list: significantly shrank the route font size – at 18px, even the first city name sometimes didn't fit on the line
+- Detail view: removed airport codes from the route box, city names only now
+
 ## 0.60.1 – 2026-08-07
 - Aircraft list: corrected the route display to the actually-intended look – large, blue-highlighted route centered in a single row instead of its own third line; rows with a known route now get a subtle blue border/background
 

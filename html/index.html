@@ -93,7 +93,7 @@
   .plane-row .type { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
   .plane-row .metrics { text-align: right; font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
   .plane-row .metrics .alt { font-weight: 600; color: var(--text); font-size: 13px; }
-  .plane-row .route { flex: 1; min-width: 0; text-align: center; color: var(--blue); font-weight: 700; font-size: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 4px; }
+  .plane-row .route { flex: 1; min-width: 0; text-align: center; color: var(--blue); font-weight: 700; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 4px; }
 
   #panel-detail { display: none; flex: 1; overflow-y: auto; flex-direction: column; overflow-anchor: none; }
   #panel-detail.show { display: flex; }
@@ -121,7 +121,6 @@
   #d-route { padding: 10px 18px; margin: 0 18px 4px; border-radius: 12px; background: var(--bg); display: flex; align-items: center; justify-content: center; gap: 10px; }
   #d-route .airport { text-align: center; flex: 1; }
   #d-route .airport .name { font-size: 14px; font-weight: 600; color: var(--text); }
-  #d-route .airport .code { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
   #d-route .arrow { color: var(--text-muted); font-size: 16px; }
 
   .detail-rows { padding: 4px 0 18px; }
@@ -611,7 +610,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.60.1';
+const APP_VERSION = '0.60.2';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2208,11 +2207,9 @@ function renderRoute(route) {
   const o = route.origin, d = route.destination;
   const oName = shortenAirportName(o.name) || o.municipality || '?';
   const dName = shortenAirportName(d.name) || d.municipality || '?';
-  const oCodes = [o.iata_code, o.icao_code].filter(Boolean).join(' / ');
-  const dCodes = [d.iata_code, d.icao_code].filter(Boolean).join(' / ');
-  el.innerHTML = `<div class="airport"><div class="name">${oName}</div>${oCodes ? `<div class="code">(${oCodes})</div>` : ''}</div>
+  el.innerHTML = `<div class="airport"><div class="name">${oName}</div></div>
     <div class="arrow">✈️</div>
-    <div class="airport"><div class="name">${dName}</div>${dCodes ? `<div class="code">(${dCodes})</div>` : ''}</div>`;
+    <div class="airport"><div class="name">${dName}</div></div>`;
 }
 
 // Warms routeCache for aircraft that are merely visible in the sidebar list,

@@ -2,6 +2,10 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.60.2 – 2026-08-07
+- Flugzeugliste: Route-Schrift deutlich verkleinert – bei 18px passte teilweise nicht mal die erste Stadt in die Zeile
+- Detailansicht: Flughafencodes in der Routenbox entfernt, nur noch Städtenamen
+
 ## 0.60.1 – 2026-08-07
 - Flugzeugliste: Route korrigiert auf die eigentlich gewünschte Darstellung – große, blau hervorgehobene Route mittig in einer Zeile statt eigener dritter Zeile; Zeilen mit bekannter Route bekommen jetzt einen dezenten blauen Rahmen/Hintergrund
 
