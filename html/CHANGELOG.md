@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.59.0 – 2026-08-07
+- Flugzeugliste: Route bekommt eine eigene Zeile mit Flugzeug-Icon, blau hervorgehoben (z. B. "✈️ Berlin → Stockholm"), Codes nur noch im Tooltip beim Hovern
+
 ## 0.58.0 – 2026-08-07
 - Route in der Flugzeugliste zeigt jetzt Städtenamen statt bloßer Flughafencodes (z. B. "London (STN) → Budapest (BUD)"), mit Code nur als Klammerzusatz – wird bei wenig Platz automatisch auf reine Städtenamen gekürzt, volle Angabe als Tooltip beim Hovern
 

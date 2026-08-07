@@ -80,15 +80,17 @@
   .plane-row .flag-icon, .flag-icon { width: 16px; height: auto; margin-right: 6px; border-radius: 2px; vertical-align: middle; box-shadow: 0 0 0 1px rgba(0,0,0,0.08); }
   .plane-row .star { cursor: pointer; margin-right: 4px; color: var(--border); }
   .plane-row .star.on { color: #f9a825; }
-  .plane-row { padding: 12px 16px; margin: 2px 8px; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.15s; }
+  .plane-row { padding: 12px 16px; margin: 2px 8px; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: stretch; gap: 10px; transition: background 0.15s; }
   .plane-row:hover, .plane-row.radar-hover-linked { background: #f0f4f8; }
+  .plane-row .info { min-width: 0; display: flex; flex-direction: column; }
   .plane-row .callsign { font-weight: 600; font-size: 14px; }
   .plane-row .callsign.callsign-mil { color: #2e7d32; }
   .plane-row .callsign.callsign-einsatz { color: #d32f2f; }
   .plane-row .type { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-  .plane-row .metrics { text-align: right; font-size: 12px; color: var(--text-muted); }
+  .plane-row .metrics { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; text-align: right; font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
   .plane-row .metrics .alt { font-weight: 600; color: var(--text); font-size: 13px; }
-  .plane-row .route { flex: 1; min-width: 0; text-align: center; font-size: 12px; color: var(--text-muted); padding: 0 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .plane-row .route { margin-top: 3px; color: var(--blue); font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .plane-row .route .route-icon { flex-shrink: 0; font-size: 12px; }
 
   #panel-detail { display: none; flex: 1; overflow-y: auto; flex-direction: column; overflow-anchor: none; }
   #panel-detail.show { display: flex; }
@@ -605,7 +607,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.58.0';
+const APP_VERSION = '0.59.0';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2220,11 +2222,11 @@ async function warmRouteCache(cs) {
 // Bare airport codes aren't meaningful to most people - lead with the city
 // name (adsbdb's "municipality") and add the code only as a parenthetical,
 // dropping it first if the row is too narrow. CSS ellipsis (see .plane-row
-// .route) is the last-resort fallback if even the city-only version doesn't
-// fit, so this never needs to measure actual pixel width.
-// full is always the richest version (for the title tooltip), display is what
-// actually fits inline - falls back from "City (CODE) → City (CODE)" to just
-// "City → City" once the row gets too narrow for a given pair of names.
+// The route now gets its own full-width row (see .plane-row .route), so city
+// names always have room - no length-based fallback needed, CSS ellipsis is
+// enough of a safety net for pathological cases. Codes are dropped from the
+// inline display entirely (not meaningful at a glance) but stay available in
+// the title tooltip for anyone who wants them.
 function routeDisplayInfo(cs) {
   const route = routeCache[cs];
   if (!route) return null;
@@ -2233,9 +2235,9 @@ function routeDisplayInfo(cs) {
   const dCity = (d && (d.municipality || d.iata_code || d.icao_code)) || '?';
   const oCode = o && (o.iata_code || o.icao_code);
   const dCode = d && (d.iata_code || d.icao_code);
-  const short = `${oCity} → ${dCity}`;
-  const full = oCode && dCode ? `${oCity} (${oCode}) → ${dCity} (${dCode})` : short;
-  return { display: full.length <= 30 ? full : short, full };
+  const display = `${oCity} → ${dCity}`;
+  const full = oCode && dCode ? `${oCity} (${oCode}) → ${dCity} (${dCode})` : display;
+  return { display, full };
 }
 
 async function loadRoute(hex, flight) {
@@ -3461,12 +3463,13 @@ function renderList(withPos) {
       newRouteFetches++;
     }
     const routeInfo = cs ? routeDisplayInfo(cs) : null;
+    const routeHtml = routeInfo ? `<div class="route" title="${routeInfo.full}"><span class="route-icon">✈️</span>${routeInfo.display}</div>` : '';
     row.innerHTML = `
-      <div>
+      <div class="info">
         <div class="callsign${callsignClass}">${flag}${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${(a.flight || a.hex || '—').trim()}${isRareAircraft(a) ? `<span class="rare-badge" title="${t('list.rareAircraft')}">⭐</span>` : ''}${a._external ? `<span class="external-tag">${t('list.externalTag')}</span>` : ''}</div>
         <div class="type">${a.t || t('common.unknownType')}</div>
+        ${routeHtml}
       </div>
-      <div class="route"${routeInfo ? ` title="${routeInfo.full}"` : ''}>${routeInfo ? routeInfo.display : ''}</div>
       <div class="metrics">
         <div class="alt">${vRateArrow(a)}${fmtAlt(a.alt_baro)}</div>
         <div>${fmtDist(haversine(SITE_LAT, SITE_LON, a.lat, a.lon))}</div>
