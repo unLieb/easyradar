@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.57.1 – 2026-08-07
+- Route in der Flugzeugliste zeigt jetzt wie in der Detailansicht ICAO-Codes (z. B. "EGSS → LHBP" statt "STN → BUD") – vorher unterschiedliche Codes an zwei Stellen für denselben Flughafen
+
 ## 0.57.0 – 2026-08-07
 - Flugzeugliste zeigt jetzt Herkunft → Ziel (z. B. "FRA → JFK") in der Mitte jeder Zeile, sofern für den Callsign eine Route bekannt ist
 

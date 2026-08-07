@@ -605,7 +605,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.57.0';
+const APP_VERSION = '0.57.1';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2221,8 +2221,11 @@ function routeListLabel(cs) {
   const route = routeCache[cs];
   if (!route) return '';
   const o = route.origin, d = route.destination;
-  const oCode = (o && (o.iata_code || o.icao_code)) || '?';
-  const dCode = (d && (d.iata_code || d.icao_code)) || '?';
+  // Same icao_code-first priority as renderRoute() below - otherwise the list
+  // and the detail panel show different codes for the same airport (e.g. list
+  // "STN" vs detail "EGSS"), which just looks like a bug.
+  const oCode = (o && (o.icao_code || o.iata_code)) || '?';
+  const dCode = (d && (d.icao_code || d.iata_code)) || '?';
   return `${oCode} → ${dCode}`;
 }
 

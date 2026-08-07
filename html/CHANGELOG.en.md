@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.57.1 – 2026-08-07
+- The aircraft list's route now shows ICAO codes like the detail view does (e.g. "EGSS → LHBP" instead of "STN → BUD") – previously showed different codes for the same airport in two places
+
 ## 0.57.0 – 2026-08-07
 - The aircraft list now shows origin → destination (e.g. "FRA → JFK") in the middle of each row, whenever a route is known for that callsign
 
