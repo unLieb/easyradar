@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.61.2 – 2026-08-07
+- Detail view: replaced the plane emoji in the route progress bar with a slim blue icon that reliably points toward the destination – emoji looked different per device and couldn't be oriented cleanly
+
 ## 0.61.1 – 2026-08-07
 - Aircraft list: the left border on each row now shows climbing (green) / descending (red) / level flight (gray), favorites always gold – it previously marked whether a route was known, which is already obvious from the blue route text itself
 

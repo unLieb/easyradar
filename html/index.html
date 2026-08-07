@@ -124,7 +124,7 @@
   #d-route .airport .name { font-size: 14px; font-weight: 600; color: var(--text); }
   #d-route .route-track { flex: 1; position: relative; height: 4px; background: rgba(0,0,0,0.08); border-radius: 2px; margin: 0 6px; }
   #d-route .route-track-fill { position: absolute; top: 0; left: 0; height: 100%; width: 50%; background: var(--blue); border-radius: 2px; transition: width 1s ease; }
-  #d-route .route-track-plane { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 16px; line-height: 1; transition: left 1s ease; }
+  #d-route .route-track-plane { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--blue); line-height: 0; transition: left 1s ease; }
 
   .detail-rows { padding: 4px 0 18px; }
   .detail-rows .row { display: flex; justify-content: space-between; padding: 8px 18px; border-top: 1px solid var(--border); font-size: 13px; }
@@ -613,7 +613,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.61.1';
+const APP_VERSION = '0.61.2';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2240,6 +2240,13 @@ function updateRouteProgress(aircraft) {
   planeEl.style.left = pct + '%';
 }
 
+// A simple line-icon dart pointing right, drawn nose-first by construction -
+// no rotation guessing needed for "points toward destination" the way an
+// emoji glyph (inconsistent baseline angle per platform, fixed cartoon
+// colors that clash with the app's flat blue accent) would need. currentColor
+// picks up the blue set on .route-track-plane.
+const ROUTE_PLANE_ICON = '<svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M13.5 8 1.5 2.5 5.5 8 1.5 13.5Z"/></svg>';
+
 function renderRoute(route) {
   const el = document.getElementById('d-route');
   const titleEl = document.getElementById('d-route-title');
@@ -2260,7 +2267,7 @@ function renderRoute(route) {
   const oName = shortenAirportName(o.name) || o.municipality || '?';
   const dName = shortenAirportName(d.name) || d.municipality || '?';
   el.innerHTML = `<div class="airport"><div class="name">${oName}</div></div>
-    <div class="route-track"><div class="route-track-fill"></div><div class="route-track-plane">✈️</div></div>
+    <div class="route-track"><div class="route-track-fill"></div><div class="route-track-plane">${ROUTE_PLANE_ICON}</div></div>
     <div class="airport"><div class="name">${dName}</div></div>`;
   updateRouteProgress(window.currentAircraft && window.currentAircraft[selectedHex]);
 }

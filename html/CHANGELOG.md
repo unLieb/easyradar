@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.61.2 – 2026-08-07
+- Detailansicht: Flugzeug-Emoji im Routen-Fortschrittsbalken durch ein schlankes, blaues Icon ersetzt, das zuverlässig in Richtung Ziel zeigt – Emoji sahen je nach Gerät unterschiedlich aus und ließen sich nicht sauber ausrichten
+
 ## 0.61.1 – 2026-08-07
 - Flugzeugliste: der linke Rahmen an jeder Zeile zeigt jetzt Steigen (grün) / Sinken (rot) / Geradeausflug (grau), Favoriten immer gold – vorher zeigte er, ob eine Route bekannt ist (das steht jetzt schon eindeutig am blauen Routentext selbst)
 
