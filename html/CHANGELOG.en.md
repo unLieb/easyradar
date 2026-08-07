@@ -2,6 +2,11 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.55.0 – 2026-08-07
+- Removed Concorde and SR-71 from the active milestone list – no flightworthy example exists anywhere in the world anymore, so they were permanently unreachable for every new user
+- New "rare aircraft found" milestones (1/5/10/20) – reward the number of rare aircraft found rather than a specific type, so progress stays fair regardless of your own region
+- Individual rare aircraft remain collectible one by one and keep their existing XP
+
 ## 0.54.0 – 2026-08-04
 - A sidebar that was automatically opened by clicking an aircraft now also automatically closes again once no aircraft is selected – manually opening/closing it is unaffected
 - New "Auto-collapse sidebar" setting to turn this behavior off

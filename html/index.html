@@ -596,7 +596,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.54.0';
+const APP_VERSION = '0.55.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 // --- i18n --------------------------------------------------------------------
@@ -2575,7 +2575,10 @@ const ACHIEVEMENTS_CATALOG = [
   { id: 'country_tr', cat: 'laender', icon: '🇹🇷' },
   { id: 'countries_50', cat: 'laender', icon: '🌎' },
 
-  { id: 'first_concorde', cat: 'selten', icon: '⭐' },
+  // first_concorde/rare_sr71 deliberately removed (2026-08): kein flugfaehiges Exemplar
+  // existiert mehr irgendwo auf der Welt, waren also fuer jeden neuen Nutzer dauerhaft
+  // unerreichbarer toter Ballast. i18n-Titel bleiben fuer eine spaetere, XP-freie
+  // "Luftfahrt-Legenden"-Galerie erhalten, siehe stats-service.py fuer denselben Hinweis.
   { id: 'first_a380', cat: 'selten', icon: '⭐' },
   { id: 'rare_a340', cat: 'selten', icon: '⭐' },
   { id: 'first_osprey', cat: 'selten', icon: '⭐' },
@@ -2586,7 +2589,6 @@ const ACHIEVEMENTS_CATALOG = [
   { id: 'rare_vc25', cat: 'selten', icon: '⭐' },
   { id: 'rare_e3sentry', cat: 'selten', icon: '⭐' },
   { id: 'rare_u2', cat: 'selten', icon: '⭐' },
-  { id: 'rare_sr71', cat: 'selten', icon: '⭐' },
   { id: 'rare_b2spirit', cat: 'selten', icon: '⭐' },
   { id: 'rare_b52', cat: 'selten', icon: '⭐' },
   { id: 'rare_c17', cat: 'selten', icon: '⭐' },
@@ -2598,6 +2600,11 @@ const ACHIEVEMENTS_CATALOG = [
   { id: 'rare_kc135', cat: 'selten', icon: '⭐' },
   { id: 'rare_e6mercury', cat: 'selten', icon: '⭐' },
   { id: 'rare_nasa', cat: 'selten', icon: '⭐' },
+  // Seltenheiten-Sammlung: Anzahl statt Einzeltyp, siehe ACH_MILESTONE_IDS weiter unten.
+  { id: 'rare_collection_1', cat: 'selten', icon: '🏆' },
+  { id: 'rare_collection_5', cat: 'selten', icon: '🏆' },
+  { id: 'rare_collection_10', cat: 'selten', icon: '🏆' },
+  { id: 'rare_collection_20', cat: 'selten', icon: '🏆' },
 
   { id: 'night_watchman', cat: 'zeit', icon: '🕒' },
   { id: 'early_bird', cat: 'zeit', icon: '🌅' },
@@ -2727,7 +2734,9 @@ const ACHIEVEMENT_XP = {
   rare_e3sentry: 150, rare_u2: 400, rare_sr71: 1200,
   rare_b2spirit: 600, rare_b52: 200, rare_c17: 80, rare_f35: 150,
   rare_eurofighter: 60, rare_fa18: 120, rare_p8: 150, rare_kc46: 150,
-  rare_kc135: 100, rare_e6mercury: 300, rare_nasa: 250
+  rare_kc135: 100, rare_e6mercury: 300, rare_nasa: 250,
+  rare_collection_1: 50, rare_collection_5: 200,
+  rare_collection_10: 450, rare_collection_20: 900
 };
 
 function rarityForXp(xp) {
@@ -2747,7 +2756,10 @@ const ACH_CATEGORY_KIND = {
 };
 // Aggregate count milestones (not individual collectibles) get pulled out of the
 // chip grid and shown as their own small row above it instead.
-const ACH_MILESTONE_IDS = new Set(['countries_50', 'airlines_100', 'airlines_250', 'airlines_500']);
+const ACH_MILESTONE_IDS = new Set([
+  'countries_50', 'airlines_100', 'airlines_250', 'airlines_500',
+  'rare_collection_1', 'rare_collection_5', 'rare_collection_10', 'rare_collection_20',
+]);
 const MEDAL_ICONS = ['🥉', '🥈', '🥇', '🏆', '💎'];
 const ACH_MSG_THRESHOLDS = { msg_100000: 100000, msg_1000000: 1000000, msg_10000000: 10000000, msg_100000000: 100000000 };
 

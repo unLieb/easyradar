@@ -2,6 +2,11 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.55.0 – 2026-08-07
+- Concorde und SR-71 aus der aktiven Meilenstein-Liste entfernt – kein flugfähiges Exemplar existiert mehr irgendwo auf der Welt, waren also für jeden neuen Nutzer dauerhaft unerreichbar
+- Neue Meilensteine "Seltene Flugzeuge entdeckt" (1/5/10/20) – belohnen die Anzahl gefundener seltener Flugzeuge statt einzelner Typen, damit der Fortschritt unabhängig von der eigenen Region fair bleibt
+- Die einzelnen seltenen Flugzeuge bleiben weiterhin einzeln sammelbar und behalten ihre bisherige XP
+
 ## 0.54.0 – 2026-08-04
 - Seitenleiste, die durch Anklicken eines Flugzeugs automatisch aufgeklappt wurde, klappt jetzt auch wieder automatisch zu, sobald kein Flugzeug mehr ausgewählt ist – manuelles Auf-/Zuklappen bleibt davon unberührt
 - Neue Einstellung "Seitenleiste automatisch zuklappen" zum Abschalten dieses Verhaltens

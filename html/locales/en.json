@@ -238,6 +238,10 @@
   "ach.rare_kc135": "KC-135",
   "ach.rare_e6mercury": "E-6 Mercury",
   "ach.rare_nasa": "NASA Aircraft",
+  "ach.rare_collection_1": "First rare aircraft",
+  "ach.rare_collection_5": "5 rare aircraft found",
+  "ach.rare_collection_10": "10 rare aircraft found",
+  "ach.rare_collection_20": "20 rare aircraft found",
 
   "ach.night_watchman": "Night Watchman (2–4 AM)",
   "ach.early_bird": "Early Bird (before sunrise)",
