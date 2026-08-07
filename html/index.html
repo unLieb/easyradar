@@ -119,7 +119,9 @@
   #d-route { padding: 10px 18px; margin: 0 18px 4px; border-radius: 12px; background: var(--bg); display: flex; align-items: center; justify-content: center; gap: 10px; }
   #d-route .airport { text-align: center; flex: 1; }
   #d-route .airport .name { font-size: 14px; font-weight: 600; color: var(--text); }
-  #d-route .arrow { color: var(--text-muted); font-size: 16px; }
+  #d-route .route-track { flex: 1; position: relative; height: 4px; background: rgba(0,0,0,0.08); border-radius: 2px; margin: 0 6px; }
+  #d-route .route-track-fill { position: absolute; top: 0; left: 0; height: 100%; width: 50%; background: var(--blue); border-radius: 2px; transition: width 1s ease; }
+  #d-route .route-track-plane { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 16px; line-height: 1; transition: left 1s ease; }
 
   .detail-rows { padding: 4px 0 18px; }
   .detail-rows .row { display: flex; justify-content: space-between; padding: 8px 18px; border-top: 1px solid var(--border); font-size: 13px; }
@@ -608,7 +610,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.60.4';
+const APP_VERSION = '0.61.0';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2186,6 +2188,44 @@ function shortenAirportName(name) {
   return (name || '').replace(/\s+(International\s+)?Airport$/i, '').trim();
 }
 
+// Approximates how far along its route the aircraft currently is by
+// projecting its live position onto the straight origin->destination line -
+// a flat local-plane approximation (accurate enough at receiver range: legs
+// are typically 500-2000km, the aircraft is always within a few hundred km
+// of the station, so great-circle cross-track math would be overkill).
+// Clamped to 0-1: this is an orientation aid, not a reconstruction of the
+// actual flown path - SIDs/STARs, holding, and airways all bend away from
+// the direct line, especially right after departure or before arrival.
+function routeProgressFraction(route, aircraft) {
+  const o = route.origin, d = route.destination;
+  if (!o || !d || o.latitude == null || d.latitude == null) return null;
+  if (!aircraft || aircraft.lat == null) return null;
+  const kx = 111.32 * Math.cos(o.latitude * Math.PI / 180);
+  const ky = 111.32;
+  const dx = (d.longitude - o.longitude) * kx, dy = (d.latitude - o.latitude) * ky;
+  const ax = (aircraft.lon - o.longitude) * kx, ay = (aircraft.lat - o.latitude) * ky;
+  const lenSq = dx * dx + dy * dy;
+  if (!lenSq) return null;
+  return Math.max(0, Math.min(1, (ax * dx + ay * dy) / lenSq));
+}
+
+// Called on every refresh of the selected aircraft (not just when the route
+// first loads) so the marker keeps advancing as the aircraft moves - the CSS
+// transition on .route-track-fill/.route-track-plane turns each step into a
+// smooth glide instead of a jump. Falls back to the midpoint when a fraction
+// can't be computed (e.g. position not yet resolved).
+function updateRouteProgress(aircraft) {
+  const fillEl = document.querySelector('#d-route .route-track-fill');
+  const planeEl = document.querySelector('#d-route .route-track-plane');
+  if (!fillEl || !planeEl) return;
+  const cs = (aircraft && aircraft.flight || '').trim();
+  const route = cs && routeCache[cs];
+  const frac = route ? routeProgressFraction(route, aircraft) : null;
+  const pct = frac == null ? 50 : Math.round(frac * 1000) / 10;
+  fillEl.style.width = pct + '%';
+  planeEl.style.left = pct + '%';
+}
+
 function renderRoute(route) {
   const el = document.getElementById('d-route');
   const titleEl = document.getElementById('d-route-title');
@@ -2206,8 +2246,9 @@ function renderRoute(route) {
   const oName = shortenAirportName(o.name) || o.municipality || '?';
   const dName = shortenAirportName(d.name) || d.municipality || '?';
   el.innerHTML = `<div class="airport"><div class="name">${oName}</div></div>
-    <div class="arrow">✈️</div>
+    <div class="route-track"><div class="route-track-fill"></div><div class="route-track-plane">✈️</div></div>
     <div class="airport"><div class="name">${dName}</div></div>`;
+  updateRouteProgress(window.currentAircraft && window.currentAircraft[selectedHex]);
 }
 
 // Warms routeCache for aircraft that are merely visible in the sidebar list,
@@ -2420,6 +2461,7 @@ function showDetail(hex) {
     renderTimeline();
   }
   maybeGeocodeTimeline(a);
+  updateRouteProgress(a);
 }
 
 let geocodeTimeline = [];

@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.61.0 – 2026-08-07
+- Detailansicht: das Flugzeug-Icon in der Route-Box zeigt jetzt den ungefähren Streckenfortschritt – Position wird per Luftlinien-Projektion aus aktuellem Standort und Start-/Zielkoordinaten geschätzt, zurückgelegter Teil der Linie kräftiger dargestellt, sanfte Bewegung statt Sprüngen. Eine Näherung (Luftlinie, kein echter Flugpfad), keine exakte Rekonstruktion
+
 ## 0.60.4 – 2026-08-07
 - Flugzeugliste: alle Zeilen bekommen jetzt einheitlich den Karten-Schatten – vorher sahen Flugzeuge ohne bekannte Route sichtbar anders aus, und der Stilsprung war beim Nachladen der Route störend sichtbar. Nur der blaue Rahmen links markiert jetzt noch, ob eine Route bekannt ist
 

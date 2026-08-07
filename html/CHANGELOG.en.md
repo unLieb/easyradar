@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.61.0 – 2026-08-07
+- Detail view: the plane icon in the route box now shows approximate route progress – position is estimated by projecting the aircraft's current location onto the straight origin-destination line, the flown portion of the line is shown bolder, and the marker glides smoothly instead of jumping. An approximation (straight line, not the actual flight path), not an exact reconstruction
+
 ## 0.60.4 – 2026-08-07
 - Aircraft list: every row now gets the same card shadow – previously aircraft without a known route visibly looked different, and the style jump was jarring once the route loaded in. Only the blue left border still marks whether a route is known
 
