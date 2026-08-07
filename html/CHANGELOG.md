@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.58.0 – 2026-08-07
+- Route in der Flugzeugliste zeigt jetzt Städtenamen statt bloßer Flughafencodes (z. B. "London (STN) → Budapest (BUD)"), mit Code nur als Klammerzusatz – wird bei wenig Platz automatisch auf reine Städtenamen gekürzt, volle Angabe als Tooltip beim Hovern
+
 ## 0.57.1 – 2026-08-07
 - Route in der Flugzeugliste zeigt jetzt wie in der Detailansicht ICAO-Codes (z. B. "EGSS → LHBP" statt "STN → BUD") – vorher unterschiedliche Codes an zwei Stellen für denselben Flughafen
 

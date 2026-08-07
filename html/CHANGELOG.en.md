@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.58.0 – 2026-08-07
+- The aircraft list's route now shows city names instead of bare airport codes (e.g. "London (STN) → Budapest (BUD)"), with the code only as a parenthetical - automatically shortens to just city names when space is tight, full detail available as a hover tooltip
+
 ## 0.57.1 – 2026-08-07
 - The aircraft list's route now shows ICAO codes like the detail view does (e.g. "EGSS → LHBP" instead of "STN → BUD") – previously showed different codes for the same airport in two places
 
