@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.61.1 – 2026-08-07
+- Aircraft list: the left border on each row now shows climbing (green) / descending (red) / level flight (gray), favorites always gold – it previously marked whether a route was known, which is already obvious from the blue route text itself
+
 ## 0.61.0 – 2026-08-07
 - Detail view: the plane icon in the route box now shows approximate route progress – position is estimated by projecting the aircraft's current location onto the straight origin-destination line, the flown portion of the line is shown bolder, and the marker glides smoothly instead of jumping. An approximation (straight line, not the actual flight path), not an exact reconstruction
 

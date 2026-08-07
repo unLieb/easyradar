@@ -82,7 +82,10 @@
   .plane-row .star.on { color: #f9a825; }
   .plane-row { padding: 12px 16px; margin: 2px 8px; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; border-left: 4px solid transparent; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 8px rgba(0,0,0,0.06); transition: background 0.15s; }
   .plane-row:hover, .plane-row.radar-hover-linked { background: #f0f4f8; }
-  .plane-row.has-route { border-left-color: var(--blue); }
+  .plane-row.accent-favorite { border-left-color: #f9a825; }
+  .plane-row.accent-climb { border-left-color: #2e7d32; }
+  .plane-row.accent-descend { border-left-color: #c62828; }
+  .plane-row.accent-level { border-left-color: #9aa4af; }
   #app.radar-mode .plane-row { box-shadow: none; }
   .plane-row .info { min-width: 0; flex-shrink: 0; }
   .plane-row .callsign { font-weight: 600; font-size: 14px; }
@@ -610,7 +613,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.61.0';
+const APP_VERSION = '0.61.1';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2107,6 +2110,17 @@ function vRateArrow(a) {
   return fpm > 0 ? '<span style="color:#2e7d32">↑</span> ' : '<span style="color:#c62828">↓</span> ';
 }
 
+// List-row left border: favorites take priority (gold), otherwise mirrors
+// the same climb/descend/level classification and colors as vRateArrow()
+// above, so the border always agrees with the arrow shown in the metrics.
+function rowAccentClass(a) {
+  if (isFavorite(a.hex)) return 'accent-favorite';
+  const fpm = a.baro_rate != null ? a.baro_rate : a.geom_rate;
+  if (fpm == null) return '';
+  if (Math.abs(fpm) < 50) return 'accent-level';
+  return fpm > 0 ? 'accent-climb' : 'accent-descend';
+}
+
 function isaTempC(altFt) {
   if (altFt == null) return null;
   if (altFt <= 36089) return 15 - 1.98 * (altFt / 1000);
@@ -3522,7 +3536,8 @@ function renderList(withPos) {
       newRouteFetches++;
     }
     const routeInfo = cs ? routeDisplayInfo(cs) : null;
-    if (routeInfo) row.classList.add('has-route');
+    const accentClass = rowAccentClass(a);
+    if (accentClass) row.classList.add(accentClass);
     row.innerHTML = `
       <div class="info">
         <div class="callsign${callsignClass}">${flag}${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${(a.flight || a.hex || '—').trim()}${isRareAircraft(a) ? `<span class="rare-badge" title="${t('list.rareAircraft')}">⭐</span>` : ''}${a._external ? `<span class="external-tag">${t('list.externalTag')}</span>` : ''}</div>

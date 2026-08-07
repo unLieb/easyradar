@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.61.1 – 2026-08-07
+- Flugzeugliste: der linke Rahmen an jeder Zeile zeigt jetzt Steigen (grün) / Sinken (rot) / Geradeausflug (grau), Favoriten immer gold – vorher zeigte er, ob eine Route bekannt ist (das steht jetzt schon eindeutig am blauen Routentext selbst)
+
 ## 0.61.0 – 2026-08-07
 - Detailansicht: das Flugzeug-Icon in der Route-Box zeigt jetzt den ungefähren Streckenfortschritt – Position wird per Luftlinien-Projektion aus aktuellem Standort und Start-/Zielkoordinaten geschätzt, zurückgelegter Teil der Linie kräftiger dargestellt, sanfte Bewegung statt Sprüngen. Eine Näherung (Luftlinie, kein echter Flugpfad), keine exakte Rekonstruktion
 
