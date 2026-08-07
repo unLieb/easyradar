@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.61.7 – 2026-08-07
+- Detailansicht: Flugzeug-Icon exakt vermessen und Rumpf jetzt wirklich mittig auf der Linie (Icon-Form war nicht symmetrisch in ihrer eigenen Box); graue Reststrecke deutlich sichtbarer statt fast unsichtbar
+
 ## 0.61.6 – 2026-08-07
 - Detailansicht: Routen-Linie dünner, Flugzeug-Icon noch etwas größer
 

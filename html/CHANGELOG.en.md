@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.61.7 – 2026-08-07
+- Detail view: precisely measured the plane icon and centered its fuselage on the line for real (the icon shape wasn't symmetric within its own bounding box); the remaining gray portion of the route is now clearly visible instead of nearly invisible
+
 ## 0.61.6 – 2026-08-07
 - Detail view: thinner route line, slightly larger plane icon
 
