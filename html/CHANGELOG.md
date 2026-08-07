@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.60.4 – 2026-08-07
+- Flugzeugliste: alle Zeilen bekommen jetzt einheitlich den Karten-Schatten – vorher sahen Flugzeuge ohne bekannte Route sichtbar anders aus, und der Stilsprung war beim Nachladen der Route störend sichtbar. Nur der blaue Rahmen links markiert jetzt noch, ob eine Route bekannt ist
+
 ## 0.60.3 – 2026-08-07
 - Flugzeugliste: hellblauer Kartenhintergrund bei bekannter Route entfernt – Karte bleibt weiß, hebt sich nur noch über einen dezenten Schatten ab, blauer Rahmen links bleibt als Markierung
 

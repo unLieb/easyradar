@@ -80,10 +80,10 @@
   .plane-row .flag-icon, .flag-icon { width: 16px; height: auto; margin-right: 6px; border-radius: 2px; vertical-align: middle; box-shadow: 0 0 0 1px rgba(0,0,0,0.08); }
   .plane-row .star { cursor: pointer; margin-right: 4px; color: var(--border); }
   .plane-row .star.on { color: #f9a825; }
-  .plane-row { padding: 12px 16px; margin: 2px 8px; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; border-left: 4px solid transparent; transition: background 0.15s; }
+  .plane-row { padding: 12px 16px; margin: 2px 8px; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; border-left: 4px solid transparent; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 8px rgba(0,0,0,0.06); transition: background 0.15s; }
   .plane-row:hover, .plane-row.radar-hover-linked { background: #f0f4f8; }
-  .plane-row.has-route { border-left-color: var(--blue); box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 8px rgba(0,0,0,0.06); }
-  #app.radar-mode .plane-row.has-route { box-shadow: none; }
+  .plane-row.has-route { border-left-color: var(--blue); }
+  #app.radar-mode .plane-row { box-shadow: none; }
   .plane-row .info { min-width: 0; flex-shrink: 0; }
   .plane-row .callsign { font-weight: 600; font-size: 14px; }
   .plane-row .callsign.callsign-mil { color: #2e7d32; }
@@ -608,7 +608,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.60.3';
+const APP_VERSION = '0.60.4';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 

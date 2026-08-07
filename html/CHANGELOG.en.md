@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.60.4 – 2026-08-07
+- Aircraft list: every row now gets the same card shadow – previously aircraft without a known route visibly looked different, and the style jump was jarring once the route loaded in. Only the blue left border still marks whether a route is known
+
 ## 0.60.3 – 2026-08-07
 - Aircraft list: removed the light blue card background for rows with a known route – the card stays white and is set apart by a subtle shadow instead, the blue left border remains as the marker
 
