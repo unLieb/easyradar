@@ -2,6 +2,14 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.62.1 – 2026-08-07
+- Route (list + detail view): common city names are now localized for German ("Warsaw" -> "Warschau", "Tenerife" -> "Teneriffa") - previously always English regardless of the selected language
+
+## 0.62.0 – 2026-08-07
+- Radar Mode: range rings now staggered in three tiers instead of two – outermost ring strongest, halfway ring medium, the rest subtle
+- Radar Mode: small contact-count readout in the top-left corner ("● N Contacts")
+- Radar Mode: switching in now plays a short animation instead of a hard cut – map fades out, landscape fades in, rings/compass appear, only then does the sweep start moving (~500ms)
+
 ## 0.61.7 – 2026-08-07
 - Detail view: precisely measured the plane icon and centered its fuselage on the line for real (the icon shape wasn't symmetric within its own bounding box); the remaining gray portion of the route is now clearly visible instead of nearly invisible
 

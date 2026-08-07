@@ -137,8 +137,15 @@
   #radar-scope-wrap { flex: 1; height: 100%; position: relative; display: none; }
   #radar-scope-map { position: absolute; inset: 0; z-index: 1; }
   #radar-scope-canvas { position: absolute; inset: 0; width: 100%; height: 100%; background: transparent; cursor: pointer; z-index: 2; }
-  #app.radar-mode #map { display: none; }
-  #app.radar-mode #radar-scope-wrap { display: block; }
+  /* #radar-scope-wrap spans the full viewport width (the sidebar overlays it, it's not
+     a real flex sibling splitting the space) - same 356px/16px sidebar-offset convention
+     as #map-controls-bottom/#status-bar-wrap, not a plain 12px corner inset. */
+  #radar-contact-count { position: absolute; top: 16px; left: 368px; z-index: 3; font: bold 11px monospace; color: rgba(150,255,195,0.85); text-shadow: 0 0 4px rgba(0,0,0,0.6); pointer-events: none; transition: left 0.2s ease; }
+  #app.collapsed #radar-contact-count { left: 28px; }
+  /* Vom Kartentausch entkoppelt von .radar-mode (das sofort Sidebar/Legende einfärbt) -
+     wird erst nach dem Ausblenden der normalen Karte gesetzt, siehe playRadarScopeIntro(). */
+  #app.radar-scope-swapped #map { display: none; }
+  #app.radar-scope-swapped #radar-scope-wrap { display: block; }
 
   /* Seitenleiste, Legende, Panels und Buttons dunkel einfärben, solange der Radar-Modus
      aktiv ist - alle betroffenen Elemente nutzen bereits diese CSS-Variablen, daher reicht
@@ -336,7 +343,8 @@
     #legend { max-width: calc(100vw - 32px); box-sizing: border-box; }
     #status-bar-wrap { left: 16px !important; right: 16px; }
     #status-bar { white-space: normal; flex-wrap: wrap; row-gap: 6px; box-sizing: border-box; max-width: calc(100vw - 32px); justify-content: center; }
-    #app:not(.collapsed) #status-bar-wrap, #app:not(.collapsed) #map-controls-bottom { display: none; }
+    #radar-contact-count { left: 16px !important; }
+    #app:not(.collapsed) #status-bar-wrap, #app:not(.collapsed) #map-controls-bottom, #app:not(.collapsed) #radar-contact-count { display: none; }
     #settings-panel, #stats-panel { left: 16px !important; right: 16px; width: auto; max-width: calc(100vw - 32px); box-sizing: border-box; }
     .leaflet-control-zoom { display: none; }
   }
@@ -425,6 +433,7 @@
     <div id="radar-scope-wrap">
       <div id="radar-scope-map"></div>
       <canvas id="radar-scope-canvas"></canvas>
+      <div id="radar-contact-count"></div>
     </div>
 
     <div id="status-bar-wrap">
@@ -613,7 +622,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.61.7';
+const APP_VERSION = '0.62.1';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -851,6 +860,10 @@ function destPoint(lat, lon, bearingDeg, distKm) {
 // (unabhängig von der kosmetischen Sweep-Nadel oben, die weiterhin auf der Karte läuft).
 let radarScopeActive = localStorage.getItem('radarScopeActive') === 'true';
 let radarScopeMaxRangeKm = 150;
+// Gates the sweep wedge/needle in drawRadarScopeFrame() - false only for the brief
+// entry-animation window (see playRadarScopeIntro()), so rings/compass/station appear
+// before the sweep starts moving instead of everything popping in at once.
+let radarScopeSweepVisible = true;
 // Je Flugzeug wird sowohl die zuletzt bekannte (from*) als auch die neu gemeldete (to*)
 // Position gehalten - drawRadarScopeFrame() interpoliert dazwischen, statt bei jedem
 // Refresh hart zu springen. updateStart ist der performance.now()-Zeitpunkt des letzten
@@ -1061,6 +1074,9 @@ function updateStatusAircraftLabel() {
 function setRadarScopeMode(active) {
   radarScopeActive = active;
   localStorage.setItem('radarScopeActive', radarScopeActive);
+  // .radar-mode drives the instant chrome changes (sidebar/legend/status-bar theme) -
+  // those can snap immediately. The actual map<->scope swap is handled separately by
+  // playRadarScopeIntro() below so it can be staged instead of an instant cut.
   document.getElementById('app').classList.toggle('radar-mode', radarScopeActive);
   document.getElementById('radar-mode-btn-float').classList.toggle('active', radarScopeActive);
   updateStatusAircraftLabel();
@@ -1069,12 +1085,61 @@ function setRadarScopeMode(active) {
     if (selectedHex) closeDetail();
     updateRadarScopeAircraft(lastWithPos || []);
     initRadarScopeMap().then(resizeRadarScopeCanvas);
-    resizeRadarScopeCanvas();
-    startRadarScopeLoop();
+    playRadarScopeIntro();
   } else {
+    document.getElementById('app').classList.remove('radar-scope-swapped');
     stopRadarScopeLoop();
     setTimeout(() => map.invalidateSize(), 0);
   }
+}
+
+// Staged reveal instead of an instant cut, roughly 500ms total: the real map fades out
+// first, then the (already radar-styled) landscape fades in, then the rings/compass/
+// station fade in with the sweep still motionless, and only then does the sweep start
+// moving. Each stage bails out if the user toggled back out of radar mode mid-sequence.
+function playRadarScopeIntro() {
+  const appEl = document.getElementById('app');
+  const mapEl = document.getElementById('map');
+  const scopeMapEl = document.getElementById('radar-scope-map');
+  const countEl = document.getElementById('radar-contact-count');
+  const MAP_FADE_MS = 160, LANDSCAPE_FADE_MS = 180, SCOPE_FADE_MS = 160;
+
+  radarScopeSweepVisible = false;
+  mapEl.style.transition = `opacity ${MAP_FADE_MS}ms ease`;
+  mapEl.style.opacity = '0';
+
+  setTimeout(() => {
+    if (!radarScopeActive) return;
+    mapEl.style.transition = '';
+    mapEl.style.opacity = '';
+    appEl.classList.add('radar-scope-swapped');
+    resizeRadarScopeCanvas();
+    drawRadarScopeFrame();
+    scopeMapEl.style.opacity = '0';
+    radarScopeCanvas.style.opacity = '0';
+    countEl.style.opacity = '0';
+    requestAnimationFrame(() => {
+      scopeMapEl.style.transition = `opacity ${LANDSCAPE_FADE_MS}ms ease`;
+      scopeMapEl.style.opacity = '1';
+    });
+  }, MAP_FADE_MS);
+
+  setTimeout(() => {
+    if (!radarScopeActive) return;
+    radarScopeCanvas.style.transition = `opacity ${SCOPE_FADE_MS}ms ease`;
+    radarScopeCanvas.style.opacity = '1';
+    countEl.style.transition = `opacity ${SCOPE_FADE_MS}ms ease`;
+    countEl.style.opacity = '1';
+  }, MAP_FADE_MS + LANDSCAPE_FADE_MS);
+
+  setTimeout(() => {
+    if (!radarScopeActive) return;
+    scopeMapEl.style.transition = '';
+    radarScopeCanvas.style.transition = '';
+    countEl.style.transition = '';
+    radarScopeSweepVisible = true;
+    startRadarScopeLoop();
+  }, MAP_FADE_MS + LANDSCAPE_FADE_MS + SCOPE_FADE_MS);
 }
 
 function startRadarScopeLoop() {
@@ -1166,10 +1231,13 @@ function drawRadarScopeFrame() {
   ctx.fillStyle = fog;
   ctx.fillRect(0, 0, w, h);
 
-  // Reichweitenringe: abwechselnd kräftiger/schwächer (Primär-/Sekundärringe), entsättigtes
-  // Grün statt Sweep-/Kontur-Farbton, damit das Auge die Ebenen automatisch trennt. Labels
-  // wandern reihum über N/O/S/W statt immer oben zu kleben. Gepunktet statt durchgezogen,
-  // damit sie sich in die Landschaft "einbrennen" statt einfach darüberzuliegen.
+  // Reichweitenringe: drei statt zwei Stufen, damit die Hierarchie klarer wird - der
+  // äußerste Ring (definiert die Gesamtreichweite der Anzeige) am kräftigsten, der
+  // Halbwege-Ring als zweite Referenz mittelstark, die übrigen nur noch dezente
+  // Zwischenlinien. Entsättigtes Grün statt Sweep-/Kontur-Farbton, damit das Auge die
+  // Ebenen automatisch trennt. Labels wandern reihum über N/O/S/W statt immer oben zu
+  // kleben. Gepunktet statt durchgezogen, damit sie sich in die Landschaft "einbrennen"
+  // statt einfach darüberzuliegen.
   ctx.lineWidth = 1;
   ctx.font = 'bold 10px monospace';
   ctx.textBaseline = 'middle';
@@ -1177,9 +1245,12 @@ function drawRadarScopeFrame() {
   const labelDirs = [0, 90, 180, 270];
   for (let i = 1; i <= rings; i++) {
     const ringKm = radarScopeMaxRangeKm * i / rings;
-    const primary = i % 2 === 0;
-    ctx.strokeStyle = primary ? 'rgba(150,190,175,0.48)' : 'rgba(150,190,175,0.24)';
-    ctx.setLineDash(primary ? [1, 4] : [1, 6]);
+    let opacity, dash;
+    if (i === rings) { opacity = 0.62; dash = [2, 3]; }
+    else if (i === rings / 2) { opacity = 0.40; dash = [1, 4]; }
+    else { opacity = 0.20; dash = [1, 7]; }
+    ctx.strokeStyle = `rgba(150,190,175,${opacity})`;
+    ctx.setLineDash(dash);
     ctx.stroke(radarRingPath(ringKm));
 
     const labelDeg = labelDirs[i % 4];
@@ -1232,6 +1303,9 @@ function drawRadarScopeFrame() {
   // Winkel-Gradient (createConicGradient), der am Sweep-Strahl hell ist und nach hinten
   // ausfadet - wie das Nachleuchten eines echten Röhrenradars. Läuft in Browsern ohne
   // Unterstützung (sehr selten) auf die vorherige gleichmäßige Füllung zurück.
+  // Während der Einstiegs-Animation (radarScopeSweepVisible=false) noch nicht gezeichnet -
+  // Ringe/Kompass/Station sollen zuerst erscheinen, bevor sich die Nadel in Bewegung setzt.
+  if (radarScopeSweepVisible) {
   const WEDGE_SPAN_DEG = 60;
   const a0 = (radarScopeSweepDeg - WEDGE_SPAN_DEG - 90) * Math.PI / 180;
   const a1 = (radarScopeSweepDeg - 90) * Math.PI / 180;
@@ -1267,6 +1341,7 @@ function drawRadarScopeFrame() {
   ctx.moveTo(cx, cy);
   ctx.lineTo(sx, sy);
   ctx.stroke();
+  }
 
   // Stationssymbol im Zentrum: sanft pulsierender Kern plus zwei versetzte, verblassende
   // Impulsringe, die kontinuierlich nach außen laufen - wirkt wie ein aktiver Sender statt
@@ -1308,8 +1383,10 @@ function drawRadarScopeFrame() {
   ctx.arc(cx, cy, pulseR + 5, 0, Math.PI * 2);
   ctx.stroke();
 
+  let visibleContacts = 0;
   for (const a of interpolatedRadarScopeAircraft()) {
     if (a.distKm > radarScopeMaxRangeKm) continue;
+    visibleContacts++;
     const [bx, by] = projectRadarPoint(a.bearingDeg, a.distKm);
     const selected = a.hex === selectedHex;
     const hovered = a.hex === radarScopeHoveredHex;
@@ -1357,6 +1434,9 @@ function drawRadarScopeFrame() {
       ctx.stroke();
     }
   }
+
+  const contactCountEl = document.getElementById('radar-contact-count');
+  if (contactCountEl) contactCountEl.textContent = `● ${visibleContacts} ${t('status.contacts')}`;
 }
 
 function updateRadarHoverLinkedRow() {
@@ -2202,6 +2282,32 @@ function shortenAirportName(name) {
   return (name || '').replace(/\s+(International\s+)?Airport$/i, '').trim();
 }
 
+// adsbdb only ever returns English city/municipality names, even when the UI
+// is in German - "Warsaw", "Vienna", "Tenerife" etc, not their German
+// exonyms. Only translates the leading city-name token (so an airport name
+// like "Warsaw Chopin" becomes "Warschau Chopin", not just the bare city),
+// and only covers the common cases likely to show up as a route from a
+// Berlin-area receiver - anything not in the list just passes through as-is.
+const CITY_EXONYM_DE = {
+  'Warsaw': 'Warschau', 'Vienna': 'Wien', 'Prague': 'Prag', 'Moscow': 'Moskau',
+  'Munich': 'München', 'Cologne': 'Köln', 'Nuremberg': 'Nürnberg',
+  'Lisbon': 'Lissabon', 'Athens': 'Athen', 'Rome': 'Rom', 'Milan': 'Mailand',
+  'Venice': 'Venedig', 'Naples': 'Neapel', 'Florence': 'Florenz', 'Geneva': 'Genf',
+  'Zurich': 'Zürich', 'Brussels': 'Brüssel', 'The Hague': 'Den Haag',
+  'Gothenburg': 'Göteborg', 'Bucharest': 'Bukarest', 'Belgrade': 'Belgrad',
+  'Kiev': 'Kiew', 'Kyiv': 'Kiew', 'Cairo': 'Kairo', 'Beijing': 'Peking',
+  'Mexico City': 'Mexiko-Stadt', 'Tenerife': 'Teneriffa', 'Marrakesh': 'Marrakesch',
+  'Algiers': 'Algier', 'Damascus': 'Damaskus', 'Antwerp': 'Antwerpen',
+  'Constance': 'Konstanz'
+};
+function localizedCityName(name) {
+  if (!name || currentLang !== 'de') return name || '';
+  for (const en in CITY_EXONYM_DE) {
+    if (name === en || name.startsWith(en + ' ')) return CITY_EXONYM_DE[en] + name.slice(en.length);
+  }
+  return name;
+}
+
 // Approximates how far along its route the aircraft currently is by
 // projecting its live position onto the straight origin->destination line -
 // a flat local-plane approximation (accurate enough at receiver range: legs
@@ -2264,8 +2370,8 @@ function renderRoute(route) {
   updateSublineLayout();
   updateOperatorRowVisibility();
   const o = route.origin, d = route.destination;
-  const oName = shortenAirportName(o.name) || o.municipality || '?';
-  const dName = shortenAirportName(d.name) || d.municipality || '?';
+  const oName = localizedCityName(shortenAirportName(o.name) || o.municipality) || '?';
+  const dName = localizedCityName(shortenAirportName(d.name) || d.municipality) || '?';
   el.innerHTML = `<div class="airport"><div class="name">${oName}</div></div>
     <div class="route-track"><div class="route-track-fill"></div><div class="route-track-plane">${ROUTE_PLANE_ICON}</div></div>
     <div class="airport"><div class="name">${dName}</div></div>`;
@@ -2307,8 +2413,8 @@ function routeDisplayInfo(cs) {
   const route = routeCache[cs];
   if (!route) return null;
   const o = route.origin, d = route.destination;
-  const oCity = (o && (o.municipality || o.iata_code || o.icao_code)) || '?';
-  const dCity = (d && (d.municipality || d.iata_code || d.icao_code)) || '?';
+  const oCity = localizedCityName(o && (o.municipality || o.iata_code || o.icao_code)) || '?';
+  const dCity = localizedCityName(d && (d.municipality || d.iata_code || d.icao_code)) || '?';
   const oCode = o && (o.iata_code || o.icao_code);
   const dCode = d && (d.iata_code || d.icao_code);
   const display = `${oCity} → ${dCity}`;

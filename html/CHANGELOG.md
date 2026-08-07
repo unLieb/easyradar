@@ -2,6 +2,14 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.62.1 – 2026-08-07
+- Route (Liste + Detailansicht): gängige Städtenamen werden auf Deutsch jetzt eingedeutscht (z. B. "Warsaw" → "Warschau", "Tenerife" → "Teneriffa") – vorher immer Englisch, unabhängig von der eingestellten Sprache
+
+## 0.62.0 – 2026-08-07
+- Radar-Modus: Reichweitenringe jetzt in drei statt zwei Stufen gestaffelt – äußerster Ring am kräftigsten, Halbwege-Ring mittelstark, restliche Ringe dezent
+- Radar-Modus: kleine Kontaktzähler-Anzeige oben links ("● N Kontakte")
+- Radar-Modus: Einstieg jetzt als kurze Animation statt hartem Schnitt – Karte blendet aus, Landschaft blendet ein, Ringe/Kompass erscheinen, danach startet erst der Sweep (~500ms)
+
 ## 0.61.7 – 2026-08-07
 - Detailansicht: Flugzeug-Icon exakt vermessen und Rumpf jetzt wirklich mittig auf der Linie (Icon-Form war nicht symmetrisch in ihrer eigenen Box); graue Reststrecke deutlich sichtbarer statt fast unsichtbar
 
