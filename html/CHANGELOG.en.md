@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.61.6 – 2026-08-07
+- Detail view: thinner route line, slightly larger plane icon
+
 ## 0.61.5 – 2026-08-07
 - Detail view: enlarged the airplane icon in the route progress bar – was hard to recognize as a plane at the previous size
 
