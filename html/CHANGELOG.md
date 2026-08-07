@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.60.3 – 2026-08-07
+- Flugzeugliste: hellblauer Kartenhintergrund bei bekannter Route entfernt – Karte bleibt weiß, hebt sich nur noch über einen dezenten Schatten ab, blauer Rahmen links bleibt als Markierung
+
 ## 0.60.2 – 2026-08-07
 - Flugzeugliste: Route-Schrift deutlich verkleinert – bei 18px passte teilweise nicht mal die erste Stadt in die Zeile
 - Detailansicht: Flughafencodes in der Routenbox entfernt, nur noch Städtenamen
