@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.56.0 – 2026-08-07
+- New: 🏛️ Aviation Legends gallery in Milestones – Concorde, SR-71, and the Spruce Goose with short historical facts, purely informational with no effect on level or XP
+
 ## 0.55.0 – 2026-08-07
 - Removed Concorde and SR-71 from the active milestone list – no flightworthy example exists anywhere in the world anymore, so they were permanently unreachable for every new user
 - New "rare aircraft found" milestones (1/5/10/20) – reward the number of rare aircraft found rather than a specific type, so progress stays fair regardless of your own region

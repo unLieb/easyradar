@@ -257,6 +257,13 @@
   .ach-msgbar-track { height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
   .ach-msgbar-fill { height: 100%; background: var(--blue); border-radius: 4px; }
 
+  .legend-card { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid var(--border); }
+  .legend-card:first-child { border-top: none; }
+  .legend-card .legend-icon { font-size: 24px; width: 30px; text-align: center; flex-shrink: 0; }
+  .legend-card .legend-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .legend-card .legend-years { font-size: 11px; color: var(--text-muted); margin: 1px 0 5px; }
+  .legend-card .legend-fact { font-size: 12px; color: var(--text-muted); line-height: 1.45; }
+
   .achievement-toast {
     position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-16px);
     background: var(--card); border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.22);
@@ -596,7 +603,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.55.0';
+const APP_VERSION = '0.56.0';
 const SITE_LAT = 52.52319, SITE_LON = 13.35822;
 
 // --- i18n --------------------------------------------------------------------
@@ -2629,6 +2636,16 @@ const ACHIEVEMENTS_CATALOG = [
   { id: 'aircraft_10000', cat: 'gesamtflugzeuge', icon: '📶' }
 ];
 
+// XP-freie "Luftfahrt-Legenden"-Galerie: rein informativ, keine Freischalt-Logik,
+// beeinflusst Level/XP nicht. Fuer Flugzeuge, die es nirgendwo auf der Welt mehr
+// live zu empfangen gibt (siehe Kommentar bei ACHIEVEMENTS_CATALOG oben). Titel
+// von first_concorde/rare_sr71 wurden dafuer bewusst in den i18n-Dateien belassen.
+const LEGENDS_CATALOG = [
+  { id: 'first_concorde', icon: '✈️', years: '1976–2003' },
+  { id: 'rare_sr71', icon: '✈️', years: '1966–1998' },
+  { id: 'legend_sprucegoose', icon: '✈️', years: '1947' }
+];
+
 function achTitle(id) { return t('ach.' + id); }
 function achCatTitle(catId) { return t('achcat.' + catId); }
 function achGroupTitle(groupId) { return t('achgroup.' + groupId); }
@@ -2792,7 +2809,7 @@ function selectAchChip(catId, id) {
 
 function renderAchCategoryList(unlockedMap) {
   let lastGroup = null;
-  return ACHIEVEMENT_CATEGORIES.map(cat => {
+  const rowsHtml = ACHIEVEMENT_CATEGORIES.map(cat => {
     const items = ACHIEVEMENTS_CATALOG.filter(a => a.cat === cat.id);
     const unlockedCount = items.filter(a => unlockedMap[a.id]).length;
     const pct = items.length ? Math.round((unlockedCount / items.length) * 100) : 0;
@@ -2803,6 +2820,28 @@ function renderAchCategoryList(unlockedMap) {
       <span class="ach-list-progress">${unlockedCount}/${items.length}<span class="ach-list-progress-track"><span class="ach-list-progress-fill" style="width:${pct}%"></span></span><span class="ach-list-arrow">›</span></span>
     </button>`;
   }).join('');
+  // Keine Freischalt-Fortschrittsanzeige hier - die Galerie ist rein informativ
+  // und gehoert nicht zum XP-System, siehe LEGENDS_CATALOG weiter oben.
+  const legendsRowHtml = `<button class="ach-list-row" onclick="event.stopPropagation(); openAchCategory('__legends__')">
+      <span>🏛️ ${t('achcat.legenden')}</span>
+      <span class="ach-list-progress">${LEGENDS_CATALOG.length} ${t('legend.count')}<span class="ach-list-arrow">›</span></span>
+    </button>`;
+  return rowsHtml + legendsRowHtml;
+}
+
+function renderLegendsGallery() {
+  const cardsHtml = LEGENDS_CATALOG.map(l => `<div class="legend-card">
+      <span class="legend-icon">${l.icon}</span>
+      <div>
+        <div class="legend-title">${achTitle(l.id)}</div>
+        <div class="legend-years">${l.years}</div>
+        <div class="legend-fact">${t('legend.' + l.id)}</div>
+      </div>
+    </div>`).join('');
+  return `<button class="ach-back-btn" onclick="event.stopPropagation(); closeAchCategory()">← ${t('common.back')}</button>
+    <div class="ach-detail-title">🏛️ ${t('achcat.legenden')}</div>
+    <div class="ach-detail-progress">${t('legend.intro')}</div>
+    ${cardsHtml}`;
 }
 
 function renderAchChipGrid(catId, items, unlockedMap) {
@@ -2867,6 +2906,7 @@ function renderAchCards(items, unlockedMap) {
 
 function renderAchCategoryDetail(catId, unlockedMap, cumMessages) {
   if (catId === '__level__') return renderLevelProfile();
+  if (catId === '__legends__') return renderLegendsGallery();
   const cat = ACHIEVEMENT_CATEGORIES.find(c => c.id === catId);
   const allItems = ACHIEVEMENTS_CATALOG.filter(a => a.cat === catId);
   const items = allItems.filter(a => !ACH_MILESTONE_IDS.has(a.id));

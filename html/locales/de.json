@@ -138,6 +138,7 @@
   "achcat.niedrigueberflug": "Niedrigster Überflug",
   "achcat.zeit": "Zeit",
   "achcat.jubilaeen": "Jubiläen",
+  "achcat.legenden": "Luftfahrt-Legenden",
 
   "ach.first_helicopter": "Erster Hubschrauber",
   "ach.first_military": "Militärflugzeug",
@@ -242,6 +243,13 @@
   "ach.rare_collection_5": "5 seltene Flugzeuge entdeckt",
   "ach.rare_collection_10": "10 seltene Flugzeuge entdeckt",
   "ach.rare_collection_20": "20 seltene Flugzeuge entdeckt",
+  "ach.legend_sprucegoose": "Spruce Goose (H-4 Hercules)",
+
+  "legend.count": "Flugzeuge",
+  "legend.intro": "Historische Flugzeuge, die es nirgendwo auf der Welt mehr live zu empfangen gibt – rein zur Erinnerung, ohne Einfluss auf Level oder XP.",
+  "legend.first_concorde": "Der einzige kommerziell erfolgreiche Überschall-Passagierjet flog mit bis zu Mach 2,04 in nur 3 Stunden über den Atlantik. Nach dem Absturz 2000 bei Paris und steigenden Betriebskosten wurde die gesamte Flotte 2003 endgültig stillgelegt – kein Exemplar ist mehr flugfähig.",
+  "legend.rare_sr71": "Kein bemanntes Serienflugzeug flog je schneller oder höher: über Mach 3,3 in mehr als 25.000 Metern Höhe. Die US Air Force zog die Blackbird 1998 aus dem aktiven Dienst zurück, NASA flog ihre letzten Exemplare bis 1999 – seither steht keine SR-71 mehr in der Luft.",
+  "legend.legend_sprucegoose": "Die Hughes H-4 Hercules war mit 97,5 Metern Spannweite das größte je gebaute Flugzeug – fast komplett aus Holz, weil Aluminium im Zweiten Weltkrieg rationiert war. Howard Hughes flog sie am 2. November 1947 genau einmal, für knapp eine Meile über dem Hafen von Long Beach. Danach hob sie nie wieder ab.",
 
   "ach.night_watchman": "Nachtwächter (02–04 Uhr)",
   "ach.early_bird": "Frühaufsteher (vor Sonnenaufgang)",

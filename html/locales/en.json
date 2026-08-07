@@ -138,6 +138,7 @@
   "achcat.niedrigueberflug": "Lowest Overflight",
   "achcat.zeit": "Time",
   "achcat.jubilaeen": "Anniversaries",
+  "achcat.legenden": "Aviation Legends",
 
   "ach.first_helicopter": "First Helicopter",
   "ach.first_military": "Military Aircraft",
@@ -242,6 +243,13 @@
   "ach.rare_collection_5": "5 rare aircraft found",
   "ach.rare_collection_10": "10 rare aircraft found",
   "ach.rare_collection_20": "20 rare aircraft found",
+  "ach.legend_sprucegoose": "Spruce Goose (H-4 Hercules)",
+
+  "legend.count": "aircraft",
+  "legend.intro": "Historic aircraft you'll never receive live again, anywhere in the world – purely for the record, with no effect on level or XP.",
+  "legend.first_concorde": "The only commercially successful supersonic airliner cruised at up to Mach 2.04, crossing the Atlantic in just 3 hours. After the 2000 crash near Paris and rising operating costs, the entire fleet was permanently retired in 2003 – no example remains flightworthy.",
+  "legend.rare_sr71": "No manned production aircraft ever flew faster or higher: over Mach 3.3 at altitudes above 25,000 meters. The US Air Force retired the Blackbird from active service in 1998, and NASA flew its last examples until 1999 – none has taken to the sky since.",
+  "legend.legend_sprucegoose": "The Hughes H-4 Hercules had a 97.5-meter wingspan – the largest aircraft ever built – made almost entirely of wood because aluminum was rationed during World War II. Howard Hughes flew it exactly once, on November 2, 1947, for barely a mile over Long Beach Harbor. It never flew again.",
 
   "ach.night_watchman": "Night Watchman (2–4 AM)",
   "ach.early_bird": "Early Bird (before sunrise)",
