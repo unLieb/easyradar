@@ -2,6 +2,12 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.60.1 – 2026-08-07
+- Flugzeugliste: Route korrigiert auf die eigentlich gewünschte Darstellung – große, blau hervorgehobene Route mittig in einer Zeile statt eigener dritter Zeile; Zeilen mit bekannter Route bekommen jetzt einen dezenten blauen Rahmen/Hintergrund
+
+## 0.60.0 – 2026-08-07
+- Detailansicht überarbeitet: Route steht jetzt ganz oben mit Flughafennamen statt Codes (Codes nur noch klein darunter), Airline steht direkt im Kopfbereich neben dem Flugzeugtyp, alle Abschnitte haben jetzt Icons
+
 ## 0.59.0 – 2026-08-07
 - Flugzeugliste: Route bekommt eine eigene Zeile mit Flugzeug-Icon, blau hervorgehoben (z. B. "✈️ Berlin → Stockholm"), Codes nur noch im Tooltip beim Hovern
 

@@ -2,6 +2,12 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.60.1 – 2026-08-07
+- Aircraft list: corrected the route display to the actually-intended look – large, blue-highlighted route centered in a single row instead of its own third line; rows with a known route now get a subtle blue border/background
+
+## 0.60.0 – 2026-08-07
+- Reworked the detail view: route now sits at the top with the airport name instead of codes (codes moved to a small secondary line), airline now shows right in the header next to the aircraft type, every section now has an icon
+
 ## 0.59.0 – 2026-08-07
 - Aircraft list: the route now gets its own row with a plane icon, highlighted in blue (e.g. "✈️ Berlin → Stockholm"), codes moved to the hover tooltip
 
