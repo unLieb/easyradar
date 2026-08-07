@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.61.3 – 2026-08-07
+- Detail view: the route progress marker now uses a detailed airplane icon instead of the simple arrow
+
 ## 0.61.2 – 2026-08-07
 - Detail view: replaced the plane emoji in the route progress bar with a slim blue icon that reliably points toward the destination – emoji looked different per device and couldn't be oriented cleanly
 

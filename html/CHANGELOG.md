@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.61.3 – 2026-08-07
+- Detailansicht: Routen-Fortschrittsmarker nutzt jetzt ein detailliertes Flugzeug-Icon statt des einfachen Pfeils
+
 ## 0.61.2 – 2026-08-07
 - Detailansicht: Flugzeug-Emoji im Routen-Fortschrittsbalken durch ein schlankes, blaues Icon ersetzt, das zuverlässig in Richtung Ziel zeigt – Emoji sahen je nach Gerät unterschiedlich aus und ließen sich nicht sauber ausrichten
 
