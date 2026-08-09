@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.62.2 – 2026-08-08
+- Detailansicht: Route zeigt jetzt nur noch Zielstadt + IATA-Code (z. B. "Prague (PRG)") statt des vollen Flughafennamens – vereinheitlicht mit der Liste und behebt nebenbei, dass manche Flughafennamen (z. B. "Václav Havel Airport Prague") nicht sauber gekürzt wurden und dreizeilig umgebrochen sind
+
 ## 0.62.1 – 2026-08-07
 - Route (Liste + Detailansicht): gängige Städtenamen werden auf Deutsch jetzt eingedeutscht (z. B. "Warsaw" → "Warschau", "Tenerife" → "Teneriffa") – vorher immer Englisch, unabhängig von der eingestellten Sprache
 

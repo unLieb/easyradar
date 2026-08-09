@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.62.2 – 2026-08-08
+- Detail view: route now shows only the destination city + IATA code (e.g. "Prague (PRG)") instead of the full airport name - consistent with the list, and fixes some airport names (e.g. "Václav Havel Airport Prague") not trimming cleanly and wrapping to three lines
+
 ## 0.62.1 – 2026-08-07
 - Route (list + detail view): common city names are now localized for German ("Warsaw" -> "Warschau", "Tenerife" -> "Teneriffa") - previously always English regardless of the selected language
 

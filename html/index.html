@@ -622,7 +622,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.62.1';
+const APP_VERSION = '0.62.2';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2370,8 +2370,17 @@ function renderRoute(route) {
   updateSublineLayout();
   updateOperatorRowVisibility();
   const o = route.origin, d = route.destination;
-  const oName = localizedCityName(shortenAirportName(o.name) || o.municipality) || '?';
-  const dName = localizedCityName(shortenAirportName(d.name) || d.municipality) || '?';
+  // City name leads (municipality, falling back to the shortened airport name only if
+  // municipality is missing - relying on the airport name alone was unreliable, e.g.
+  // "Václav Havel Airport Prague" doesn't end in "Airport" so shortenAirportName() can't
+  // trim it, wrapping to three lines). IATA code in parentheses as the familiar,
+  // traveler-facing identifier - simpler than the earlier IATA+ICAO pairing.
+  const oCity = localizedCityName(o.municipality || shortenAirportName(o.name)) || '?';
+  const dCity = localizedCityName(d.municipality || shortenAirportName(d.name)) || '?';
+  const oCode = o.iata_code || o.icao_code;
+  const dCode = d.iata_code || d.icao_code;
+  const oName = oCode ? `${oCity} (${oCode})` : oCity;
+  const dName = dCode ? `${dCity} (${dCode})` : dCity;
   el.innerHTML = `<div class="airport"><div class="name">${oName}</div></div>
     <div class="route-track"><div class="route-track-fill"></div><div class="route-track-plane">${ROUTE_PLANE_ICON}</div></div>
     <div class="airport"><div class="name">${dName}</div></div>`;
