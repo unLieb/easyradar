@@ -35,6 +35,12 @@ easyRADAR is two services sitting in front of an existing ultrafeeder/tar1090 se
 
 You need an existing `ultrafeeder` container exposing `/data/aircraft.json` and `/data/stats.json` on the same Docker network — this repo does not include a receiver/decoder setup.
 
+## Requirements
+
+- Docker / Docker Compose
+- An existing [ultrafeeder](https://github.com/sdr-enthusiasts/docker-adsb-ultrafeeder) container on the same Docker network, exposing `/data/aircraft.json` and `/data/stats.json`
+- `radar-stats` (this project's companion repo) for achievements/XP - optional if you only want the map and radar scope
+
 ## Setup
 
 1. Clone this repo and `radar-stats` as sibling directories next to your existing `docker-compose.yml`.
@@ -74,6 +80,18 @@ You need an existing `ultrafeeder` container exposing `/data/aircraft.json` and 
    ```
 
 4. `docker compose up -d radar-stats easyradar`, then open `http://<host>:8087/`.
+
+## External Services
+
+easyRADAR calls a few third-party APIs directly from the browser - no API keys needed, all free/public:
+
+| Service | Used for |
+|---|---|
+| [ADSBDB](https://www.adsbdb.com/) | Origin/destination for a callsign |
+| [Planespotters.net](https://www.planespotters.net/) | Aircraft photos |
+| [OpenStreetMap Nominatim](https://nominatim.org/) | Reverse-geocoding the flight timeline (proxied through nginx with a proper User-Agent) |
+| [adsb.fi](https://adsb.fi/) | Optional supplementary aircraft data outside your own receiver's range |
+| [CARTO](https://carto.com/) / [OpenStreetMap](https://www.openstreetmap.org/) | Base map tiles |
 
 ## License
 

@@ -35,6 +35,12 @@ easyRADAR besteht aus zwei Diensten, die vor ein bestehendes ultrafeeder-/tar109
 
 Ein bestehender `ultrafeeder`-Container, der `/data/aircraft.json` und `/data/stats.json` im selben Docker-Netzwerk bereitstellt, wird vorausgesetzt — dieses Repo enthält kein Empfänger-/Decoder-Setup.
 
+## Voraussetzungen
+
+- Docker / Docker Compose
+- Ein bestehender [ultrafeeder](https://github.com/sdr-enthusiasts/docker-adsb-ultrafeeder)-Container im selben Docker-Netzwerk, der `/data/aircraft.json` und `/data/stats.json` bereitstellt
+- `radar-stats` (das begleitende Repo dieses Projekts) für Achievements/XP — optional, wenn nur Karte und Radar-Modus gewünscht sind
+
 ## Einrichtung
 
 1. Dieses Repo und `radar-stats` als Geschwisterverzeichnisse neben eurer bestehenden `docker-compose.yml` klonen.
@@ -74,6 +80,18 @@ Ein bestehender `ultrafeeder`-Container, der `/data/aircraft.json` und `/data/st
    ```
 
 4. `docker compose up -d radar-stats easyradar`, danach `http://<host>:8087/` öffnen.
+
+## Externe Dienste
+
+easyRADAR ruft einige Drittanbieter-APIs direkt aus dem Browser auf — keine API-Keys nötig, alle frei/öffentlich:
+
+| Dienst | Verwendung |
+|---|---|
+| [ADSBDB](https://www.adsbdb.com/) | Start-/Zielflughafen zu einem Callsign |
+| [Planespotters.net](https://www.planespotters.net/) | Flugzeugfotos |
+| [OpenStreetMap Nominatim](https://nominatim.org/) | Reverse-Geocoding für die Flugverlauf-Zeitleiste (über nginx mit eigenem User-Agent proxied) |
+| [adsb.fi](https://adsb.fi/) | Optionale ergänzende Flugzeugdaten außerhalb der Reichweite des eigenen Empfängers |
+| [CARTO](https://carto.com/) / [OpenStreetMap](https://www.openstreetmap.org/) | Kartenkacheln |
 
 ## Lizenz
 
