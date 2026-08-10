@@ -30,7 +30,6 @@
   "detail.adsbVersion": "ADS-B Version",
   "detail.source": "Quelle",
   "detail.section.history": "Verlauf",
-
   "status.online": "Online",
   "status.offline": "Offline",
   "radar.toggleTooltip": "Radar-Modus",
@@ -46,7 +45,6 @@
   "status.contacts": "Kontakte",
   "status.aircraft": "Flugzeuge",
   "status.updatedAgoPrefix": "Aktualisiert vor",
-
   "stats.section.receiver": "Empfänger",
   "stats.msgRate": "Nachrichten/s",
   "stats.gain": "Verstärkung (Gain)",
@@ -71,7 +69,6 @@
   "stats.section.directions": "Empfang nach Richtung",
   "stats.section.milestones": "Meilensteine",
   "stats.footerNote": "Rekorde/Top-Listen dauerhaft gespeichert",
-
   "settings.section.display": "Anzeige",
   "settings.mapTheme": "Kartendesign",
   "settings.light": "Hell",
@@ -112,19 +109,15 @@
   "settings.externalSource": "Externe Quelle (adsb.fi)",
   "settings.externalSourceTooltip": "Blendet zusätzlich Flugzeuge außerhalb der Reichweite deiner eigenen Antenne ein, gemeldet vom kostenlosen Netzwerk adsb.fi.",
   "settings.language": "Sprache",
-
   "common.back": "Zurück",
-
   "rarity.common": "Häufig",
   "rarity.uncommon": "Ungewöhnlich",
   "rarity.rare": "Selten",
   "rarity.epic": "Episch",
   "rarity.legendary": "Legendär",
-
   "achgroup.sammlung": "Sammlungen",
   "achgroup.leistung": "Leistungsbereiche",
   "achgroup.besonderes": "Besonderes",
-
   "achcat.flugzeuge": "Flugzeuge",
   "achcat.flugzeugtypen": "Flugzeugtypen",
   "achcat.selten": "Seltene Flugzeuge",
@@ -139,14 +132,12 @@
   "achcat.zeit": "Zeit",
   "achcat.jubilaeen": "Jubiläen",
   "achcat.legenden": "Luftfahrt-Legenden",
-
   "ach.first_helicopter": "Erster Hubschrauber",
   "ach.first_military": "Militärflugzeug",
   "ach.first_business": "Erstes Geschäftsflugzeug",
   "ach.first_seaplane": "Erstes Wasserflugzeug",
   "ach.first_rescue_heli": "Erster Rettungshubschrauber",
   "ach.first_firefighter": "Erstes Löschflugzeug",
-
   "ach.first_lufthansa": "Erste Lufthansa",
   "ach.first_ryanair": "Erste Ryanair",
   "ach.first_emirates": "Erste Emirates",
@@ -155,34 +146,28 @@
   "ach.airlines_100": "100 verschiedene Airlines",
   "ach.airlines_250": "250 verschiedene Airlines",
   "ach.airlines_500": "500 verschiedene Airlines",
-
   "ach.range_100km": "Erste 100 km",
   "ach.range_150km": "Erste 150 km",
   "ach.range_200km": "Erste 200 km",
   "ach.range_250km": "Erste 250 km",
   "ach.range_300km": "Erste 300 km",
   "ach.range_400km": "Erste 400 km",
-
   "ach.daily_100": "100 Flugzeuge an einem Tag",
   "ach.daily_500": "500 Flugzeuge an einem Tag",
   "ach.daily_1000": "1000 Flugzeuge an einem Tag",
   "ach.daily_2500": "2500 Flugzeuge an einem Tag",
   "ach.daily_5000": "5000 Flugzeuge an einem Tag",
-
   "ach.msg_100000": "100.000 ADS-B-Nachrichten",
   "ach.msg_1000000": "1 Million Nachrichten",
   "ach.msg_10000000": "10 Millionen Nachrichten",
   "ach.msg_100000000": "100 Millionen Nachrichten",
-
   "ach.altitude_fl300": "Flug über FL300",
   "ach.altitude_fl400": "FL400 erreicht",
   "ach.altitude_fl450": "FL450 erreicht",
-
   "ach.lowalt_1000m": "Unter 1000 m",
   "ach.lowalt_500m": "Unter 500 m",
   "ach.lowalt_250m": "Unter 250 m",
   "ach.lowalt_100m": "Unter 100 m",
-
   "ach.country_de": "Erstes Flugzeug aus Deutschland",
   "ach.country_us": "Erstes Flugzeug aus den USA",
   "ach.country_gb": "Erstes Flugzeug aus Großbritannien",
@@ -199,7 +184,6 @@
   "ach.country_ae": "Erstes Flugzeug aus den VAE",
   "ach.country_tr": "Erstes Flugzeug aus der Türkei",
   "ach.countries_50": "50 Länder entdeckt",
-
   "achshort.country_de": "Deutschland",
   "achshort.country_us": "USA",
   "achshort.country_gb": "Großbritannien",
@@ -215,7 +199,6 @@
   "achshort.country_jp": "Japan",
   "achshort.country_ae": "VAE",
   "achshort.country_tr": "Türkei",
-
   "ach.first_concorde": "Concorde",
   "ach.first_a380": "A380",
   "ach.rare_a340": "A340",
@@ -244,35 +227,29 @@
   "ach.rare_collection_10": "10 seltene Flugzeuge entdeckt",
   "ach.rare_collection_20": "20 seltene Flugzeuge entdeckt",
   "ach.legend_sprucegoose": "Spruce Goose (H-4 Hercules)",
-
   "legend.count": "Flugzeuge",
   "legend.intro": "Historische Flugzeuge, die es nirgendwo auf der Welt mehr live zu empfangen gibt – rein zur Erinnerung, ohne Einfluss auf Level oder XP.",
   "legend.first_concorde": "Der einzige kommerziell erfolgreiche Überschall-Passagierjet flog mit bis zu Mach 2,04 in nur 3 Stunden über den Atlantik. Nach dem Absturz 2000 bei Paris und steigenden Betriebskosten wurde die gesamte Flotte 2003 endgültig stillgelegt – kein Exemplar ist mehr flugfähig.",
   "legend.rare_sr71": "Kein bemanntes Serienflugzeug flog je schneller oder höher: über Mach 3,3 in mehr als 25.000 Metern Höhe. Die US Air Force zog die Blackbird 1998 aus dem aktiven Dienst zurück, NASA flog ihre letzten Exemplare bis 1999 – seither steht keine SR-71 mehr in der Luft.",
   "legend.legend_sprucegoose": "Die Hughes H-4 Hercules war mit 97,5 Metern Spannweite das größte je gebaute Flugzeug – fast komplett aus Holz, weil Aluminium im Zweiten Weltkrieg rationiert war. Howard Hughes flog sie am 2. November 1947 genau einmal, für knapp eine Meile über dem Hafen von Long Beach. Danach hob sie nie wieder ab.",
-
   "ach.night_watchman": "Nachtwächter (02–04 Uhr)",
   "ach.early_bird": "Frühaufsteher (vor Sonnenaufgang)",
   "ach.night_owl": "Nachteule (100 Nachtflüge)",
-
   "ach.anniversary_1": "1 Tag Radar online",
   "ach.anniversary_7": "7 Tage Radar online",
   "ach.anniversary_30": "30 Tage Radar online",
   "ach.anniversary_100": "100 Tage Radar online",
   "ach.anniversary_365": "365 Tage Radar online",
-
   "ach.types_10": "10 verschiedene Flugzeugtypen",
   "ach.types_25": "25 verschiedene Flugzeugtypen",
   "ach.types_50": "50 verschiedene Flugzeugtypen",
   "ach.types_100": "100 verschiedene Flugzeugtypen",
-
   "ach.aircraft_100": "100 Flugzeuge insgesamt",
   "ach.aircraft_500": "500 Flugzeuge insgesamt",
   "ach.aircraft_1000": "1.000 Flugzeuge insgesamt",
   "ach.aircraft_2500": "2.500 Flugzeuge insgesamt",
   "ach.aircraft_5000": "5.000 Flugzeuge insgesamt",
   "ach.aircraft_10000": "10.000 Flugzeuge insgesamt",
-
   "ach.unlockedOn": "Freigeschaltet am",
   "ach.notDiscoveredYet": "Noch nicht entdeckt",
   "ach.notUnlockedYet": "Noch nicht freigeschaltet",
@@ -287,7 +264,6 @@
   "ach.unitMessages": "Nachrichten",
   "ach.unitAirlines": "Airlines",
   "ach.unitCountries": "Länder",
-
   "level.operator": "Radar-Operator",
   "level.experience": "Erfahrung",
   "level.achievements": "Achievements",
@@ -299,11 +275,9 @@
   "level.nextLevel": "Nächstes Level",
   "level.levelWord": "Level",
   "level.xpSources": "Mögliche XP-Quellen",
-
   "common.unknown": "unbekannt",
   "common.unknownType": "Typ unbekannt",
   "common.loading": "Lade…",
-
   "detail.levelFlight": "Reiseflug (waagerecht)",
   "detail.measured": "gemessen",
   "detail.isaEstimate": "ISA-Schätzung",
@@ -317,19 +291,14 @@
   "detail.aircraftPhoto": "Flugzeugfoto",
   "detail.photoBy": "Foto:",
   "detail.photosDisabled": "Flugzeugbilder deaktiviert",
-
   "map.loadingInfo": "Lade Info…",
   "map.noMoreInfo": "Keine weiteren Informationen verfügbar",
-
   "notif.militaryDetected": "Militärflugzeug entdeckt",
-
   "legend.altitude": "Flughöhe",
-
   "changelog.title": "Änderungsprotokoll",
   "changelog.loadError": "Änderungsprotokoll konnte nicht geladen werden.",
-
+  "changelog.updateAvailable": "Neue Version {version} verfügbar",
   "stats.noDirectionData": "Noch keine Richtungsdaten",
-
   "list.rareAircraft": "Seltenes Flugzeug",
   "list.externalTag": "extern"
 }

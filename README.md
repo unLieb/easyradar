@@ -1,6 +1,18 @@
 # easyRADAR
 
+*[Deutsch](README.de.md)*
+
 Self-hosted ADS-B web dashboard on top of [ultrafeeder](https://github.com/sdr-enthusiasts/docker-adsb-ultrafeeder) — a live aircraft map, a dedicated circular radar scope, and a lightweight achievement/leveling system for spotting different aircraft types, airlines, and countries. German and English out of the box.
+
+## Screenshots
+
+| Live map | Radar Mode |
+|---|---|
+| ![Live map with aircraft list](docs/screenshots/map-list.png) | ![Radar Mode](docs/screenshots/radar-mode.png) |
+
+| Aircraft detail with route | Achievements & Radar-Level |
+|---|---|
+| ![Aircraft detail view](docs/screenshots/detail-route.png) | ![Achievements panel](docs/screenshots/achievements.png) |
 
 ## Features
 

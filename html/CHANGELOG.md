@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.63.0 – 2026-08-10
+- Neu: dezenter Hinweispunkt neben der Versionsnummer, wenn auf GitHub eine neuere Version verfuegbar ist – klickt man auf die Versionsnummer, oeffnet sich wie gewohnt das Aenderungsprotokoll und der Hinweis verschwindet
+
 ## 0.62.2 – 2026-08-08
 - Detailansicht: Route zeigt jetzt nur noch Zielstadt + IATA-Code (z. B. "Prague (PRG)") statt des vollen Flughafennamens – vereinheitlicht mit der Liste und behebt nebenbei, dass manche Flughafennamen (z. B. "Václav Havel Airport Prague") nicht sauber gekürzt wurden und dreizeilig umgebrochen sind
 

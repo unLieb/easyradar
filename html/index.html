@@ -39,6 +39,8 @@
   #sidebar header h1 { font-size: 18px; font-weight: 600; margin: 0; color: var(--blue); }
   #sidebar header .version { font-size: 10px; color: var(--text-muted); margin-top: 1px; text-decoration: none; display: inline-block; background: none; border: none; padding: 0; font-family: inherit; cursor: pointer; text-align: left; }
   #sidebar header .version:hover { text-decoration: underline; }
+  #sidebar header .update-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #e64a19; margin-left: 4px; vertical-align: middle; }
+  #sidebar header .update-dot[hidden] { display: none; }
   .level-badge { display: flex; align-items: center; gap: 4px; background: none; border: none; padding: 0; margin-top: 3px; font-size: 11px; font-weight: 600; color: var(--blue); cursor: pointer; font-family: inherit; }
   .level-badge:hover { text-decoration: underline; }
 
@@ -361,7 +363,7 @@
         <img src="logo.png" alt="" class="brand-logo">
         <div class="brand-text">
           <h1>easyRADAR</h1>
-          <button class="version" id="app-version" onclick="event.stopPropagation(); openChangelogView()" data-i18n-title="changelog.tooltip"></button>
+          <button class="version" id="app-version" onclick="event.stopPropagation(); openChangelogView()" data-i18n-title="changelog.tooltip"></button><span id="update-dot" class="update-dot" hidden></span>
           <button class="level-badge" id="level-badge" onclick="event.stopPropagation(); openLevelProfile()">🛰️ <span data-i18n="level.badgeLabel">Radar-Level</span> <span id="level-number">–</span></button>
         </div>
       </header>
@@ -622,7 +624,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.62.2';
+const APP_VERSION = '0.63.0';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -3414,6 +3416,43 @@ function openChangelogView() {
   renderChangelogPanel();
   document.getElementById('panel-changelog').classList.add('show');
   if (sidebarCollapsed) toggleSidebar();
+  const dot = document.getElementById('update-dot');
+  if (dot && !dot.hidden) {
+    localStorage.setItem('dismissedUpdateVersion', dot.dataset.remoteVersion || '');
+    dot.hidden = true;
+  }
+}
+
+// Simple numeric semver-ish comparison, good enough for our X.Y.Z scheme.
+function isNewerVersion(remote, local) {
+  const r = remote.split('.').map(Number);
+  const l = local.split('.').map(Number);
+  for (let i = 0; i < Math.max(r.length, l.length); i++) {
+    const rv = r[i] || 0, lv = l[i] || 0;
+    if (rv !== lv) return rv > lv;
+  }
+  return false;
+}
+
+// Client-side only, no backend involved: reads the changelog straight off GitHub's
+// main branch. Deliberately just a pointer to "go read the changelog" - no
+// auto-update, no version caching. Fails silently (offline, rate-limited, GitHub
+// unreachable) since this is a nice-to-have, not core functionality.
+async function checkForUpdate() {
+  try {
+    const res = await fetch('https://raw.githubusercontent.com/unLieb/easyradar/main/html/CHANGELOG.md', { cache: 'no-store' });
+    if (!res.ok) return;
+    const text = await res.text();
+    const match = text.match(/^##\s+([\d.]+)/m);
+    if (!match) return;
+    const remoteVersion = match[1];
+    if (!isNewerVersion(remoteVersion, APP_VERSION)) return;
+    if (localStorage.getItem('dismissedUpdateVersion') === remoteVersion) return;
+    const dot = document.getElementById('update-dot');
+    dot.dataset.remoteVersion = remoteVersion;
+    dot.title = t('changelog.updateAvailable').replace('{version}', remoteVersion);
+    dot.hidden = false;
+  } catch (e) { /* offline or blocked - not critical, just skip */ }
 }
 
 function closeChangelogView() {
@@ -3724,6 +3763,7 @@ initI18n().then(() => {
   renderLegend();
   loadStationName();
   loadChangelog();
+  checkForUpdate();
   refresh();
   refreshTimer = setInterval(refresh, refreshRateMs);
 });
