@@ -43,16 +43,22 @@ Ein bestehender `ultrafeeder`-Container, der `/data/aircraft.json` und `/data/st
 
 ## Einrichtung
 
-1. Dieses Repo (und `radar-stats`, falls Achievements gewünscht sind) als Geschwisterverzeichnisse neben eurer bestehenden `docker-compose.yml` klonen.
-2. `html/site-config.example.js` nach `html/site-config.js` kopieren und die Koordinaten des eigenen Empfängers eintragen. Diese Datei ist gitignored — sie soll lokal beim eigenen Deployment bleiben und nie committet werden.
-3. Den/die Dienst(e) zur Compose-Datei hinzufügen, neben dem bestehenden `ultrafeeder`-Dienst.
+Kein Klonen nötig — einfach die veröffentlichten Images in eure Compose-Datei eintragen, neben dem bestehenden `ultrafeeder`-Dienst. Es werden sowohl `linux/amd64` als auch `linux/arm64` (Raspberry Pi) veröffentlicht.
+
+1. Eine `site-config.js` neben eurer Compose-Datei anlegen, mit den Koordinaten des eigenen Empfängers:
+
+   ```js
+   const SITE_LAT = 52.5200, SITE_LON = 13.4050;
+   ```
+
+2. Den/die Dienst(e) hinzufügen:
 
    **Minimal** — nur Karte und Radar-Modus, ohne Achievements/XP:
 
    ```yaml
    services:
      easyradar:
-       image: nginx:alpine
+       image: ghcr.io/unlieb/easyradar:latest
        container_name: easyradar
        restart: unless-stopped
        depends_on:
@@ -60,16 +66,15 @@ Ein bestehender `ultrafeeder`-Container, der `/data/aircraft.json` und `/data/st
        ports:
          - 8087:80
        volumes:
-         - ./radar-de/html:/usr/share/nginx/html:ro
-         - ./radar-de/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+         - ./site-config.js:/usr/share/nginx/html/site-config.js:ro
    ```
 
-   **Vollständig** — ergänzt `radar-stats` für Achievements/XP/Radar-Level (bei Minimal-Variante den `/stats-api/`-Block aus `nginx.conf` entfernen, da er dann kein Ziel zum Proxyen hat):
+   **Vollständig** — ergänzt `radar-stats` für Achievements/XP/Radar-Level:
 
    ```yaml
    services:
      radar-stats:
-       image: python:3-alpine
+       image: ghcr.io/unlieb/easyradar-stats:latest
        container_name: radar-stats
        restart: unless-stopped
        depends_on:
@@ -80,12 +85,10 @@ Ein bestehender `ultrafeeder`-Container, der `/data/aircraft.json` und `/data/st
          - SITE_LAT=52.5200
          - SITE_LON=13.4050
        volumes:
-         - ./radar-stats/stats-service.py:/app/stats-service.py:ro
-         - ./radar-stats/data:/data
-       command: python3 /app/stats-service.py
+         - radar-stats-data:/data
 
      easyradar:
-       image: nginx:alpine
+       image: ghcr.io/unlieb/easyradar:latest
        container_name: easyradar
        restart: unless-stopped
        depends_on:
@@ -94,11 +97,17 @@ Ein bestehender `ultrafeeder`-Container, der `/data/aircraft.json` und `/data/st
        ports:
          - 8087:80
        volumes:
-         - ./radar-de/html:/usr/share/nginx/html:ro
-         - ./radar-de/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+         - ./site-config.js:/usr/share/nginx/html/site-config.js:ro
+
+   volumes:
+     radar-stats-data:
    ```
 
-4. `docker compose up -d easyradar` (Minimal) bzw. `docker compose up -d radar-stats easyradar` (Vollständig), danach `http://<host>:8087/` öffnen.
+3. `docker compose up -d easyradar` (Minimal) bzw. `docker compose up -d radar-stats easyradar` (Vollständig), danach `http://<host>:8087/` öffnen.
+
+### Alternativ: selbst aus dem Quellcode bauen
+
+Wer den Code selbst anpassen möchte: dieses Repo (und `radar-stats`, für Vollständig) klonen, dann jeweils `docker build -t easyradar .` / `docker build -t radar-stats .`, und oben `image: ghcr.io/...` durch `build: ./radar-de` / `build: ./radar-stats` mit Pfad zum eigenen Klon ersetzen.
 
 ## Externe Dienste
 
