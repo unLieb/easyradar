@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.63.1 – 2026-08-10
+- Sicherheit: Text aus externen Quellen (Flugzeug-Fotos von Planespotters, Routen von ADSBDB, Nominatim-Ortsnamen, Callsigns/Flugzeugtypen vom ADS-B-Signal selbst) wird jetzt vor der Anzeige escaped, statt ungefiltert in die Seite eingefuegt zu werden
+
 ## 0.63.0 – 2026-08-10
 - Neu: dezenter Hinweispunkt neben der Versionsnummer, wenn auf GitHub eine neuere Version verfuegbar ist – klickt man auf die Versionsnummer, oeffnet sich wie gewohnt das Aenderungsprotokoll und der Hinweis verschwindet
 

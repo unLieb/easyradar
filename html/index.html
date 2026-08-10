@@ -624,7 +624,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.63.0';
+const APP_VERSION = '0.63.1';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2225,9 +2225,12 @@ function renderPhoto(photo) {
   const wrap = document.getElementById('d-photo-wrap');
   const credit = document.getElementById('d-photo-credit');
   if (photo) {
-    wrap.innerHTML = `<img src="${photo.thumbnail_large.src}" alt="${t('detail.aircraftPhoto')}">`;
+    wrap.innerHTML = `<img src="${escapeHtml(photo.thumbnail_large.src)}" alt="${t('detail.aircraftPhoto')}">`;
     credit.style.display = 'block';
-    credit.innerHTML = `${t('detail.photoBy')} ${photo.photographer} · <a href="${photo.link}" target="_blank" rel="noopener">planespotters.net</a>`;
+    // photo.link comes from the Planespotters API - escaping alone stops attribute
+    // breakout but not a javascript: href, so the scheme is checked too.
+    const safeLink = /^https:\/\//i.test(photo.link) ? photo.link : '#';
+    credit.innerHTML = `${t('detail.photoBy')} ${escapeHtml(photo.photographer)} · <a href="${escapeHtml(safeLink)}" target="_blank" rel="noopener">planespotters.net</a>`;
   } else {
     wrap.innerHTML = `<div id="d-photo-placeholder">${t('detail.noPhoto')}</div>`;
     credit.style.display = 'none';
@@ -2383,9 +2386,10 @@ function renderRoute(route) {
   const dCode = d.iata_code || d.icao_code;
   const oName = oCode ? `${oCity} (${oCode})` : oCity;
   const dName = dCode ? `${dCity} (${dCode})` : dCity;
-  el.innerHTML = `<div class="airport"><div class="name">${oName}</div></div>
+  // oName/dName are built from ADSBDB API data - escape before it lands in innerHTML.
+  el.innerHTML = `<div class="airport"><div class="name">${escapeHtml(oName)}</div></div>
     <div class="route-track"><div class="route-track-fill"></div><div class="route-track-plane">${ROUTE_PLANE_ICON}</div></div>
-    <div class="airport"><div class="name">${dName}</div></div>`;
+    <div class="airport"><div class="name">${escapeHtml(dName)}</div></div>`;
   updateRouteProgress(window.currentAircraft && window.currentAircraft[selectedHex]);
 }
 
@@ -2616,7 +2620,9 @@ function renderTimeline() {
   el.innerHTML = geocodeTimeline.slice().reverse().map(p => {
     const minsAgo = Math.max(0, Math.round((Date.now() - p.time) / 60000));
     const when = minsAgo < 1 ? t('detail.justNow') : (minsAgo === 1 ? t('detail.minuteAgo') : t('detail.minutesAgo', { n: minsAgo }));
-    return `<div class="stat-list-row"><span class="name">${when}</span><span class="count">${t('detail.overPlace', { place: p.place })}</span></div>`;
+    // p.place comes from the Nominatim reverse-geocoding API - untrusted, escape
+    // before t() splices it into the string that lands in innerHTML.
+    return `<div class="stat-list-row"><span class="name">${when}</span><span class="count">${t('detail.overPlace', { place: escapeHtml(p.place) })}</span></div>`;
   }).join('');
 }
 
@@ -2742,8 +2748,10 @@ function setStatsRange(range) {
 function barListHtml(entries) {
   if (!entries || !entries.length) return '<div class="stat-list-row"><span class="name">—</span></div>';
   const maxCount = Math.max(...entries.map(([, c]) => c));
+  // name is a top callsign or aircraft type straight off the ADS-B broadcast -
+  // untrusted, escape before it lands in innerHTML.
   return entries.map(([name, c]) => `<div class="stat-list-row">
-    <span class="name" style="min-width:56px">${name}</span>
+    <span class="name" style="min-width:56px">${escapeHtml(name)}</span>
     <span class="bar-track"><span class="bar-fill" style="width:${Math.max(6, Math.round(c / maxCount * 100))}%"></span></span>
     <span class="count">${c}</span>
   </div>`).join('');
@@ -3699,12 +3707,15 @@ function renderList(withPos) {
     const routeInfo = cs ? routeDisplayInfo(cs) : null;
     const accentClass = rowAccentClass(a);
     if (accentClass) row.classList.add(accentClass);
+    // Callsign/type come straight off the ADS-B broadcast itself (spoofable by
+    // anyone with a transmitter in range) and route text from the ADSBDB API -
+    // both untrusted, so they're escaped before landing in innerHTML.
     row.innerHTML = `
       <div class="info">
-        <div class="callsign${callsignClass}">${flag}${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${(a.flight || a.hex || '—').trim()}${isRareAircraft(a) ? `<span class="rare-badge" title="${t('list.rareAircraft')}">⭐</span>` : ''}${a._external ? `<span class="external-tag">${t('list.externalTag')}</span>` : ''}</div>
-        <div class="type">${a.t || t('common.unknownType')}</div>
+        <div class="callsign${callsignClass}">${flag}${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${escapeHtml((a.flight || a.hex || '—').trim())}${isRareAircraft(a) ? `<span class="rare-badge" title="${t('list.rareAircraft')}">⭐</span>` : ''}${a._external ? `<span class="external-tag">${t('list.externalTag')}</span>` : ''}</div>
+        <div class="type">${escapeHtml(a.t || t('common.unknownType'))}</div>
       </div>
-      <div class="route"${routeInfo ? ` title="${routeInfo.full}"` : ''}>${routeInfo ? routeInfo.display : ''}</div>
+      <div class="route"${routeInfo ? ` title="${escapeHtml(routeInfo.full)}"` : ''}>${routeInfo ? escapeHtml(routeInfo.display) : ''}</div>
       <div class="metrics">
         <div class="alt">${vRateArrow(a)}${fmtAlt(a.alt_baro)}</div>
         <div>${fmtDist(haversine(SITE_LAT, SITE_LON, a.lat, a.lon))}</div>
