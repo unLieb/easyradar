@@ -43,9 +43,28 @@ Ein bestehender `ultrafeeder`-Container, der `/data/aircraft.json` und `/data/st
 
 ## Einrichtung
 
-1. Dieses Repo und `radar-stats` als Geschwisterverzeichnisse neben eurer bestehenden `docker-compose.yml` klonen.
+1. Dieses Repo (und `radar-stats`, falls Achievements gewünscht sind) als Geschwisterverzeichnisse neben eurer bestehenden `docker-compose.yml` klonen.
 2. `html/site-config.example.js` nach `html/site-config.js` kopieren und die Koordinaten des eigenen Empfängers eintragen. Diese Datei ist gitignored — sie soll lokal beim eigenen Deployment bleiben und nie committet werden.
-3. Beide Dienste zur Compose-Datei hinzufügen, neben dem bestehenden `ultrafeeder`-Dienst:
+3. Den/die Dienst(e) zur Compose-Datei hinzufügen, neben dem bestehenden `ultrafeeder`-Dienst.
+
+   **Minimal** — nur Karte und Radar-Modus, ohne Achievements/XP:
+
+   ```yaml
+   services:
+     easyradar:
+       image: nginx:alpine
+       container_name: easyradar
+       restart: unless-stopped
+       depends_on:
+         - ultrafeeder
+       ports:
+         - 8087:80
+       volumes:
+         - ./radar-de/html:/usr/share/nginx/html:ro
+         - ./radar-de/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+   ```
+
+   **Vollständig** — ergänzt `radar-stats` für Achievements/XP/Radar-Level (bei Minimal-Variante den `/stats-api/`-Block aus `nginx.conf` entfernen, da er dann kein Ziel zum Proxyen hat):
 
    ```yaml
    services:
@@ -79,7 +98,7 @@ Ein bestehender `ultrafeeder`-Container, der `/data/aircraft.json` und `/data/st
          - ./radar-de/nginx.conf:/etc/nginx/conf.d/default.conf:ro
    ```
 
-4. `docker compose up -d radar-stats easyradar`, danach `http://<host>:8087/` öffnen.
+4. `docker compose up -d easyradar` (Minimal) bzw. `docker compose up -d radar-stats easyradar` (Vollständig), danach `http://<host>:8087/` öffnen.
 
 ## Externe Dienste
 
