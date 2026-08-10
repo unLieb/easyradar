@@ -40,8 +40,8 @@ You need an existing `ultrafeeder` container exposing `/data/aircraft.json` and 
        environment:
          - TZ=Europe/Berlin
          - STATION_NAME=YourStationName
-         - SITE_LAT=52.52319
-         - SITE_LON=13.35822
+         - SITE_LAT=52.5200
+         - SITE_LON=13.4050
        volumes:
          - ./radar-stats/stats-service.py:/app/stats-service.py:ro
          - ./radar-stats/data:/data
