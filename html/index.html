@@ -302,6 +302,8 @@
   .segmented { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .segmented button { flex: 1; padding: 7px 0; font-size: 13px; border: none; background: var(--card); color: var(--text); cursor: pointer; }
   .segmented button.active { background: var(--blue); color: #fff; }
+  .segmented.segmented-4 { flex-wrap: wrap; }
+  .segmented.segmented-4 button { flex: 1 1 50%; }
   .settings-sub { margin: 12px 0 0 6px; padding-left: 12px; border-left: 1px solid rgba(0,0,0,0.08); overflow: hidden; max-height: 200px; opacity: 1; transition: max-height 0.18s ease, opacity 0.18s ease, margin-top 0.18s ease; }
   .settings-sub.sub-hidden { max-height: 0; opacity: 0; margin-top: 0; pointer-events: none; }
   .settings-sub .label:first-child { margin-top: 0 !important; }
@@ -471,10 +473,13 @@
         <div class="stat-row"><span class="label" data-i18n="stats.mlatShare">MLAT-Anteil (aktuell)</span><span class="value" id="s-mlat">—</span></div>
 
         <div class="section-title" data-i18n="stats.section.period">Zeitraum</div>
-        <div class="segmented">
+        <div class="segmented segmented-4">
           <button id="stats-range-today" onclick="setStatsRange('today')" data-i18n="stats.today">Heute</button>
-          <button id="stats-range-alltime" onclick="setStatsRange('alltime')" data-i18n="stats.allTime">Insgesamt</button>
+          <button id="stats-range-yesterday" onclick="setStatsRange('yesterday')" data-i18n="stats.yesterday">Gestern</button>
+          <button id="stats-range-avgday" onclick="setStatsRange('avgday')" data-i18n="stats.avgPerDay">Ø/Tag</button>
+          <button id="stats-range-alltime" onclick="setStatsRange('alltime')" data-i18n="stats.allTime">Gesamt</button>
         </div>
+        <div id="s-avgday-note" style="display:none; font-size:11px; color:var(--text-muted); text-align:center; margin-top:6px;"></div>
 
         <div class="section-title" data-i18n="stats.section.records">Rekorde</div>
         <div class="stat-row"><span class="label" data-i18n="stats.aircraft">Flugzeuge</span><span class="value" id="s-uniquecount">—</span></div>
@@ -624,7 +629,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.63.1';
+const APP_VERSION = '0.64.0';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2735,6 +2740,8 @@ async function fetchReceiverStats() {
 
 function updateStatsRangeButtons() {
   document.getElementById('stats-range-today').classList.toggle('active', statsRange === 'today');
+  document.getElementById('stats-range-yesterday').classList.toggle('active', statsRange === 'yesterday');
+  document.getElementById('stats-range-avgday').classList.toggle('active', statsRange === 'avgday');
   document.getElementById('stats-range-alltime').classList.toggle('active', statsRange === 'alltime');
 }
 
@@ -3526,18 +3533,30 @@ async function fetchAndRenderDbStats() {
     document.getElementById('s-msgstoday').textContent = d.messagesToday != null ? d.messagesToday.toLocaleString(uiLocale()) : '—';
     document.getElementById('s-avgdist').textContent = d.avgDist != null ? fmtDist(d.avgDist) : '—';
     document.getElementById('s-avgalt').textContent = d.avgAlt != null ? fmtAlt(d.avgAlt) : '—';
-    document.getElementById('s-maxalt').textContent = d.maxAlt
-      ? `${fmtAlt(d.maxAlt.value)} (${d.maxAlt.callsign || '?'})` : '—';
-    document.getElementById('s-minalt').textContent = d.minAlt
-      ? `${fmtAlt(d.minAlt.value)} (${d.minAlt.callsign || '?'})` : '—';
-    document.getElementById('s-maxspeed').textContent = d.maxSpeed
-      ? `${fmtSpeed(d.maxSpeed.value)} (${d.maxSpeed.callsign || '?'})` : '—';
-    document.getElementById('s-maxdist').textContent = d.maxDist
-      ? `${fmtDist(d.maxDist.value)} (${d.maxDist.callsign || '?'})` : '—';
+    // "Ø/Tag" records are an average of daily maxima, not tied to one specific
+    // flight, so there's no callsign to show in parentheses for that range.
+    const withCs = (val, cs, fmt) => val == null ? '—' : (cs ? `${fmt(val)} (${cs})` : fmt(val));
+    document.getElementById('s-maxalt').textContent = d.maxAlt ? withCs(d.maxAlt.value, d.maxAlt.callsign, fmtAlt) : '—';
+    document.getElementById('s-minalt').textContent = d.minAlt ? withCs(d.minAlt.value, d.minAlt.callsign, fmtAlt) : '—';
+    document.getElementById('s-maxspeed').textContent = d.maxSpeed ? withCs(d.maxSpeed.value, d.maxSpeed.callsign, fmtSpeed) : '—';
+    document.getElementById('s-maxdist').textContent = d.maxDist ? withCs(d.maxDist.value, d.maxDist.callsign, fmtDist) : '—';
 
     document.getElementById('s-toptypes').innerHTML = barListHtml(d.topTypes);
     document.getElementById('s-topcallsigns').innerHTML = barListHtml(d.topCallsigns);
     if (d.topAirlineCodes) renderAirlineList(d.topAirlineCodes);
+
+    const avgdayNote = document.getElementById('s-avgday-note');
+    if (statsRange === 'avgday') {
+      if (!d.dayCount) {
+        avgdayNote.textContent = t('stats.notEnoughData');
+      } else {
+        const since = new Date(d.sinceDate + 'T00:00:00').toLocaleDateString(uiLocale());
+        avgdayNote.textContent = t('stats.sinceDate', { date: since });
+      }
+      avgdayNote.style.display = 'block';
+    } else {
+      avgdayNote.style.display = 'none';
+    }
 
     if (d.directions) renderDirectionChart(d.directions);
 

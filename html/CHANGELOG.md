@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.64.0 – 2026-08-10
+- Statistiken: zwei neue Zeitraeume ergaenzt – Gestern und Ø/Tag (Durchschnitt seit Aufzeichnungsbeginn, nur aus vollstaendig abgeschlossenen Tagen berechnet, laufender Tag zaehlt nicht mit)
+
 ## 0.63.1 – 2026-08-10
 - Sicherheit: Text aus externen Quellen (Flugzeug-Fotos von Planespotters, Routen von ADSBDB, Nominatim-Ortsnamen, Callsigns/Flugzeugtypen vom ADS-B-Signal selbst) wird jetzt vor der Anzeige escaped, statt ungefiltert in die Seite eingefuegt zu werden
 

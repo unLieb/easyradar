@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.64.0 - 2026-08-10
+- Statistics: two new time ranges - Yesterday and Avg/Day (average since recording began, computed only from fully-completed days; the day in progress does not count)
+
 ## 0.63.1 - 2026-08-10
 - Security: text from external sources (Planespotters aircraft photos, ADSBDB routes, Nominatim place names, callsigns/aircraft types from the ADS-B signal itself) is now escaped before display instead of being inserted into the page unfiltered
 
