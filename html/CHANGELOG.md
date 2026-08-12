@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.64.1 – 2026-08-10
+- Statistiken: Zeitraum-Auswahl (Heute/Gestern/Ø-Tag/Gesamt) direkt unter die Ueberschrift "Rekorde" verschoben statt eigener Abschnitt, jetzt einzeilig statt 2x2; Rekorde in "Verkehr" und "Flugrekorde" unterteilt fuer bessere Uebersicht
+
 ## 0.64.0 – 2026-08-10
 - Statistiken: zwei neue Zeitraeume ergaenzt – Gestern und Ø/Tag (Durchschnitt seit Aufzeichnungsbeginn, nur aus vollstaendig abgeschlossenen Tagen berechnet, laufender Tag zaehlt nicht mit)
 

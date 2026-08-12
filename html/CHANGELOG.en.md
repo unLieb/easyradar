@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.64.1 - 2026-08-10
+- Statistics: the time range picker (Today/Yesterday/Avg-Day/Total) now sits directly under the "Records" heading instead of its own section, single row instead of 2x2; records split into "Traffic" and "Flight Records" for clarity
+
 ## 0.64.0 - 2026-08-10
 - Statistics: two new time ranges - Yesterday and Avg/Day (average since recording began, computed only from fully-completed days; the day in progress does not count)
 
