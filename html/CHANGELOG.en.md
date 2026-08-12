@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.64.2 - 2026-08-10
+- Statistics: shortened the four flight-record labels (Max Alt. / Min Alt. / Max Speed / Max Dist. instead of Highest Altitude / Lowest Overflight / Highest Speed / Farthest Distance) - the value and callsign next to them used to feel squeezed
+
 ## 0.64.1 - 2026-08-10
 - Statistics: the time range picker (Today/Yesterday/Avg-Day/Total) now sits directly under the "Records" heading instead of its own section, single row instead of 2x2; records split into "Traffic" and "Flight Records" for clarity
 

@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.64.2 – 2026-08-10
+- Statistiken: die vier Flugrekord-Bezeichnungen gekuerzt (Max. Hoehe / Min. Hoehe / Max. Speed / Max. Distanz statt Hoechste Flughoehe / Niedrigster Ueberflug / Hoechste Geschwindigkeit / Weiteste Entfernung) - Wert und Callsign dahinter quetschten sich vorher zusammen
+
 ## 0.64.1 – 2026-08-10
 - Statistiken: Zeitraum-Auswahl (Heute/Gestern/Ø-Tag/Gesamt) direkt unter die Ueberschrift "Rekorde" verschoben statt eigener Abschnitt, jetzt einzeilig statt 2x2; Rekorde in "Verkehr" und "Flugrekorde" unterteilt fuer bessere Uebersicht
 
