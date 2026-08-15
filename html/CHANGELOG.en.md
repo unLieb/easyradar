@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.65.0 - 2026-08-10
+- New: real app-wide dark mode - the "Dark" setting (previously map tiles only) now also darkens the sidebar, statistics, settings, and detail view; Radar Mode keeps its own separate color scheme unchanged. Renamed the setting from "Map Style" to "Theme" to reflect the wider scope
+
 ## 0.64.2 - 2026-08-10
 - Statistics: shortened the four flight-record labels (Max Alt. / Min Alt. / Max Speed / Max Dist. instead of Highest Altitude / Lowest Overflight / Highest Speed / Farthest Distance) - the value and callsign next to them used to feel squeezed
 

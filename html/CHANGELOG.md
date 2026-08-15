@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.65.0 – 2026-08-10
+- Neu: echtes App-weites Dark Mode - die "Dunkel"-Einstellung (vorher nur Kartenkacheln) faerbt jetzt auch Seitenleiste, Statistik, Einstellungen und Detailansicht dunkel; Radar-Modus behaelt seine eigene Farbgebung unveraendert. Einstellung dafuer umbenannt von "Kartendesign" zu "Design"
+
 ## 0.64.2 – 2026-08-10
 - Statistiken: die vier Flugrekord-Bezeichnungen gekuerzt (Max. Hoehe / Min. Hoehe / Max. Speed / Max. Distanz statt Hoechste Flughoehe / Niedrigster Ueberflug / Hoechste Geschwindigkeit / Weiteste Entfernung) - Wert und Callsign dahinter quetschten sich vorher zusammen
 
