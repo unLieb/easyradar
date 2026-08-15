@@ -535,6 +535,7 @@
       <div class="segmented">
         <button id="maptheme-light" onclick="setMapTheme('light')" data-i18n="settings.light">Hell</button>
         <button id="maptheme-dark" onclick="setMapTheme('dark')" data-i18n="settings.dark">Dunkel</button>
+        <button id="maptheme-system" onclick="setMapTheme('system')" data-i18n="settings.system">System</button>
       </div>
       <div class="label" style="margin-top:12px" data-i18n="settings.speed">Geschwindigkeit</div>
       <div class="segmented">
@@ -647,7 +648,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.65.0';
+const APP_VERSION = '0.65.1';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -787,9 +788,15 @@ const GERMAN_LABEL_LAYERS = [
   'waterway_label', 'place_country_2', 'place_country_1', 'place_state', 'place_continent',
   'place_city_dot_r7', 'place_city_dot_r4', 'place_city_dot_r2', 'place_city_dot_z7', 'place_capital_dot_z7'
 ];
-let mapTheme = localStorage.getItem('mapTheme') === 'dark' ? 'dark' : 'light';
+const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+// No saved preference yet -> follow the OS/browser setting, same fallback
+// pattern already used for the UI language (currentLang) elsewhere in this file.
+let mapTheme = localStorage.getItem('mapTheme') || 'system';
+function effectiveDarkMode() {
+  return mapTheme === 'dark' || (mapTheme === 'system' && systemDarkQuery.matches);
+}
 
-const vectorBasemap = L.maplibreGL({ style: MAP_STYLES[mapTheme] }).addTo(map);
+const vectorBasemap = L.maplibreGL({ style: MAP_STYLES[effectiveDarkMode() ? 'dark' : 'light'] }).addTo(map);
 
 function applyGermanLabels() {
   const mlMap = vectorBasemap.getMaplibreMap();
@@ -804,19 +811,30 @@ vectorBasemap.getMaplibreMap().on('load', applyGermanLabels);
 function updateMapThemeButtons() {
   document.getElementById('maptheme-light').classList.toggle('active', mapTheme === 'light');
   document.getElementById('maptheme-dark').classList.toggle('active', mapTheme === 'dark');
+  document.getElementById('maptheme-system').classList.toggle('active', mapTheme === 'system');
   // "Dunkel" now covers the whole UI, not just the map tiles - toggled here too
   // since this already runs both at init and on every switch.
-  document.getElementById('app').classList.toggle('dark-theme', mapTheme === 'dark');
+  document.getElementById('app').classList.toggle('dark-theme', effectiveDarkMode());
+}
+
+function applyMapThemeChange() {
+  updateMapThemeButtons();
+  const mlMap = vectorBasemap.getMaplibreMap();
+  mlMap.setStyle(MAP_STYLES[effectiveDarkMode() ? 'dark' : 'light']);
+  mlMap.once('styledata', applyGermanLabels);
 }
 
 function setMapTheme(theme) {
   mapTheme = theme;
   localStorage.setItem('mapTheme', theme);
-  updateMapThemeButtons();
-  const mlMap = vectorBasemap.getMaplibreMap();
-  mlMap.setStyle(MAP_STYLES[theme]);
-  mlMap.once('styledata', applyGermanLabels);
+  applyMapThemeChange();
 }
+
+// Live-follow the OS/browser theme while "System" is selected, e.g. for a
+// tablet/monitor left open that auto-switches at sunset - no page reload needed.
+systemDarkQuery.addEventListener('change', () => {
+  if (mapTheme === 'system') applyMapThemeChange();
+});
 
 map.on('click', () => { if (selectedHex) closeDetail(); });
 

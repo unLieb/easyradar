@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.65.1 – 2026-08-10
+- Design: dritte Option "System" ergaenzt, die dem Hell/Dunkel-Modus des Betriebssystems folgt und live reagiert, wenn sich dieser waehrend die Seite offen ist aendert. Neu ohne gespeicherte Wahl (z. B. beim ersten Besuch) ist jetzt System der Standard statt Hell - genau wie bei der Sprachauswahl folgt easyRADAR damit zunaechst dem System, bis man aktiv Hell oder Dunkel waehlt
+
 ## 0.65.0 – 2026-08-10
 - Neu: echtes App-weites Dark Mode - die "Dunkel"-Einstellung (vorher nur Kartenkacheln) faerbt jetzt auch Seitenleiste, Statistik, Einstellungen und Detailansicht dunkel; Radar-Modus behaelt seine eigene Farbgebung unveraendert. Einstellung dafuer umbenannt von "Kartendesign" zu "Design"
 

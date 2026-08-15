@@ -78,6 +78,7 @@
   "settings.mapTheme": "Theme",
   "settings.light": "Light",
   "settings.dark": "Dark",
+  "settings.system": "System",
   "settings.speed": "Speed",
   "settings.altitude": "Altitude",
   "settings.range": "Range",

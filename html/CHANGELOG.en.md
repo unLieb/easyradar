@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.65.1 - 2026-08-10
+- Theme: added a third "System" option that follows the OS/browser light-dark setting and updates live if it changes while the page is open. New visitors without a saved choice now default to System instead of Light - same pattern already used for the language setting
+
 ## 0.65.0 - 2026-08-10
 - New: real app-wide dark mode - the "Dark" setting (previously map tiles only) now also darkens the sidebar, statistics, settings, and detail view; Radar Mode keeps its own separate color scheme unchanged. Renamed the setting from "Map Style" to "Theme" to reflect the wider scope
 
