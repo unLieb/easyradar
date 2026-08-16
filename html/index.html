@@ -276,6 +276,8 @@
   .ach-chip-detail .ach-chip-detail-icon { font-size: 20px; }
   .ach-chip-detail .ach-chip-detail-title { font-weight: 600; color: var(--text); font-size: 13px; }
   .ach-chip-detail .ach-chip-detail-sub { color: var(--text-muted); font-size: 11px; margin-top: 1px; }
+  .ach-chip-detail .ach-chip-detail-sub a { color: var(--blue); text-decoration: none; }
+  .ach-chip-detail .ach-chip-detail-sub a:hover { text-decoration: underline; }
 
   .ach-ladder { border-left: 2px solid var(--border); padding-left: 14px; }
   .ach-ladder-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 0; font-size: 13px; color: var(--text); }
@@ -648,7 +650,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.65.1';
+const APP_VERSION = '0.65.2';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -3158,8 +3160,16 @@ function renderAchChipGrid(catId, items, unlockedMap) {
   if (sel) {
     const u = unlockedMap[sel.id];
     const xp = ACHIEVEMENT_XP[sel.id] || 0;
+    // callsign/hex come straight off the ADS-B signal - untrusted, escape before
+    // they land in innerHTML. hex links out to planespotters' hex search so a
+    // spotted rarity can actually be double-checked (registration/photos), not
+    // just noted down; both shown together when available since callsign
+    // identifies the specific flight while hex is the permanent aircraft ID.
+    const idParts = [];
+    if (u.callsign) idParts.push(escapeHtml(u.callsign));
+    if (u.hex) idParts.push(`<a href="https://www.planespotters.net/search?q=${encodeURIComponent(u.hex)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${escapeHtml(u.hex.toUpperCase())}</a>`);
     const sub = (u
-      ? '✔ ' + t('ach.unlockedOn') + ' ' + new Date(u.unlockedAt * 1000).toLocaleDateString(uiLocale()) + (u.callsign ? ' · ' + u.callsign : '')
+      ? '✔ ' + t('ach.unlockedOn') + ' ' + new Date(u.unlockedAt * 1000).toLocaleDateString(uiLocale()) + (idParts.length ? ' · ' + idParts.join(' · ') : '')
       : '🔒 ' + t('ach.notDiscoveredYet')) + ` · ${rarityForXp(xp)} · ${xp} XP`;
     detailHtml = `<div class="ach-chip-detail"><span class="ach-chip-detail-icon">${sel.icon}</span><div><div class="ach-chip-detail-title">${chipLabel(sel)}</div><div class="ach-chip-detail-sub">${sub}</div></div></div>`;
   }

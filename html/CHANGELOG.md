@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.65.2 – 2026-08-10
+- Meilensteine (z. B. seltene Flugzeuge): Hex-Code des Flugzeugs wird jetzt zusaetzlich zum Rufnamen angezeigt und verlinkt zur Hex-Suche auf planespotters.net, um einen Fund im Nachhinein pruefen zu koennen (z. B. "war es wirklich eine Antonov"). Rufname fehlte bisher oft, wenn er beim allerersten Erfassen des Flugzeugs noch nicht gesendet wurde - wird jetzt nachtraeglich ergaenzt, sobald er in einem spaeteren Update erscheint
+
 ## 0.65.1 – 2026-08-10
 - Design: dritte Option "System" ergaenzt, die dem Hell/Dunkel-Modus des Betriebssystems folgt und live reagiert, wenn sich dieser waehrend die Seite offen ist aendert. Neu ohne gespeicherte Wahl (z. B. beim ersten Besuch) ist jetzt System der Standard statt Hell - genau wie bei der Sprachauswahl folgt easyRADAR damit zunaechst dem System, bis man aktiv Hell oder Dunkel waehlt
 

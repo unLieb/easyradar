@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.65.2 - 2026-08-10
+- Milestones (e.g. rare aircraft): the aircraft'''s hex code is now shown alongside the callsign and links to a planespotters.net hex search, so a sighting can actually be double-checked afterwards (e.g. "was that really an Antonov"). The callsign used to often be missing if it had not been broadcast yet at the exact moment the aircraft was first captured - it now gets backfilled once it shows up in a later update
+
 ## 0.65.1 - 2026-08-10
 - Theme: added a third "System" option that follows the OS/browser light-dark setting and updates live if it changes while the page is open. New visitors without a saved choice now default to System instead of Light - same pattern already used for the language setting
 
