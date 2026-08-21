@@ -1,5 +1,7 @@
 # easyRADAR
 
+![easyRADAR](docs/header.png)
+
 *[English](README.md)*
 
 Selbstgehostetes ADS-B-Web-Dashboard auf Basis von [ultrafeeder](https://github.com/sdr-enthusiasts/docker-adsb-ultrafeeder) — eine Live-Flugzeugkarte, ein eigener kreisförmiger Radar-Modus und ein leichtgewichtiges Achievement-/Level-System fürs Entdecken verschiedener Flugzeugtypen, Airlines und Länder. Deutsch und Englisch von Haus aus.
