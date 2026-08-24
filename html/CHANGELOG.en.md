@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.66.0 - 2026-08-24
+- New: aircraft type (list and detail view) is now clickable and links to a Wikipedia search jump for that model - finally a way to look up what a designator like "A21N" or "E75L" actually is
+
 ## 0.65.3 - 2026-08-24
 - Statistics: scroll position is now preserved when going into a category (e.g. Rare Aircraft) and back out - used to always jump back to the top
 

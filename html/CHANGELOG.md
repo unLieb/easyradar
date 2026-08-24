@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.66.0 – 2026-08-24
+- Neu: Flugzeugtyp (Liste und Detailansicht) ist jetzt klickbar und verlinkt zur Wikipedia-Sprungsuche fuer das jeweilige Modell - endlich nachschlagen koennen, was sich hinter Kuerzeln wie "A21N" oder "E75L" eigentlich verbirgt
+
 ## 0.65.3 – 2026-08-24
 - Statistiken: Scrollposition bleibt jetzt erhalten, wenn man in eine Kategorie (z. B. Seltene Flugzeuge) reingeht und wieder zurueckgeht - sprang vorher immer ganz nach oben
 

@@ -94,6 +94,8 @@
   .plane-row .callsign.callsign-mil { color: #2e7d32; }
   .plane-row .callsign.callsign-einsatz { color: #d32f2f; }
   .plane-row .type { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .plane-row .type a { color: inherit; text-decoration: none; }
+  .plane-row .type a:hover { text-decoration: underline; }
   .plane-row .metrics { text-align: right; font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
   .plane-row .metrics .alt { font-weight: 600; color: var(--text); font-size: 13px; }
   .plane-row .route { flex: 1; min-width: 0; text-align: center; color: var(--blue); font-weight: 700; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 4px; }
@@ -116,6 +118,8 @@
   #d-titleblock { padding: 4px 18px 12px; display: flex; justify-content: space-between; align-items: flex-start; }
   #d-callsign { font-size: 18px; font-weight: 600; margin: 0; }
   #d-subline { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  #d-type a { color: inherit; text-decoration: none; }
+  #d-type a:hover { text-decoration: underline; }
   #d-subline.no-airline { justify-content: flex-start; }
   #d-airline-header:empty { display: none; }
   #d-fav-btn { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text-muted); line-height: 1; padding: 0; margin-top: 2px; }
@@ -650,7 +654,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.65.3';
+const APP_VERSION = '0.66.0';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2616,7 +2620,13 @@ function showDetail(hex) {
   const a = window.currentAircraft && window.currentAircraft[hex];
   if (!a) return;
   document.getElementById('d-callsign').textContent = (a.flight || a.hex || '—').trim();
-  document.getElementById('d-type').textContent = a.desc || a.t || t('common.unknownType');
+  const typeLabel = a.desc || a.t || t('common.unknownType');
+  const dType = document.getElementById('d-type');
+  if (a.desc || a.t) {
+    dType.innerHTML = `<a href="${wikiSearchUrl(typeLabel)}" target="_blank" rel="noopener">${escapeHtml(typeLabel)}</a>`;
+  } else {
+    dType.textContent = typeLabel;
+  }
   document.getElementById('d-icaotype').textContent = a.t || '—';
   document.getElementById('d-reg').textContent = a.r || '—';
   const countryName = countryNameForHex(a.hex);
@@ -3435,6 +3445,23 @@ function escapeHtml(s) {
   return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+// Builds a link to Wikipedia's "jump to article if there's a close match, else
+// show search results" endpoint for an aircraft type/description. Verified live:
+// raw strings like "AIRBUS A-321neo" fail to match (Wikipedia titles it without
+// the hyphen), so the hyphen between a short letter prefix and digits gets
+// stripped ("A-321neo" -> "A321neo") - manufacturer casing turned out not to
+// matter. Parenthetical qualifiers like "(long wing)" are dropped too, since
+// they don't appear in Wikipedia's titles and only dilute the match.
+function wikiSearchUrl(query) {
+  const cleaned = query
+    .replace(/\([^)]*\)/g, '')
+    .replace(/\b([A-Za-z]{1,3})-(\d)/g, '$1$2')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const path = currentLang === 'de' ? 'de.wikipedia.org/wiki/Spezial:Suche' : 'en.wikipedia.org/wiki/Special:Search';
+  return `https://${path}?search=${encodeURIComponent(cleaned)}&go=Go`;
+}
+
 function parseChangelogMd(text) {
   let html = '';
   let inList = false;
@@ -3791,7 +3818,7 @@ function renderList(withPos) {
     row.innerHTML = `
       <div class="info">
         <div class="callsign${callsignClass}">${flag}${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${escapeHtml((a.flight || a.hex || '—').trim())}${isRareAircraft(a) ? `<span class="rare-badge" title="${t('list.rareAircraft')}">⭐</span>` : ''}${a._external ? `<span class="external-tag">${t('list.externalTag')}</span>` : ''}</div>
-        <div class="type">${escapeHtml(a.t || t('common.unknownType'))}</div>
+        <div class="type">${(a.desc || a.t) ? `<a href="${wikiSearchUrl(a.desc || a.t)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${escapeHtml(a.t || t('common.unknownType'))}</a>` : escapeHtml(t('common.unknownType'))}</div>
       </div>
       <div class="route"${routeInfo ? ` title="${escapeHtml(routeInfo.full)}"` : ''}>${routeInfo ? escapeHtml(routeInfo.display) : ''}</div>
       <div class="metrics">
