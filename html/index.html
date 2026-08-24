@@ -650,7 +650,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.65.2';
+const APP_VERSION = '0.65.3';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -3093,20 +3093,30 @@ let achOpenCategory = null;
 let selectedAchChipId = null;
 let lastAchUnlockedMap = {};
 let lastAchCumMessages = 0;
+// Re-rendering the achievements view swaps the whole innerHTML, which loses
+// #stats-panel's scroll position - remembered here so going back to the
+// category list lands where you left it instead of jumping to the top.
+let achListScrollTop = 0;
 
 function openAchCategory(catId) {
+  achListScrollTop = document.getElementById('stats-panel').scrollTop;
   achOpenCategory = catId;
   selectedAchChipId = null;
   renderAchievementsView();
+  document.getElementById('stats-panel').scrollTop = 0;
 }
 function closeAchCategory() {
   achOpenCategory = null;
   selectedAchChipId = null;
   renderAchievementsView();
+  document.getElementById('stats-panel').scrollTop = achListScrollTop;
 }
 function selectAchChip(catId, id) {
+  const panel = document.getElementById('stats-panel');
+  const scrollTop = panel.scrollTop;
   selectedAchChipId = (selectedAchChipId === id) ? null : id;
   renderAchievementsView();
+  panel.scrollTop = scrollTop;
 }
 
 function renderAchCategoryList(unlockedMap) {

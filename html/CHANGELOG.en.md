@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.65.3 - 2026-08-24
+- Statistics: scroll position is now preserved when going into a category (e.g. Rare Aircraft) and back out - used to always jump back to the top
+
 ## 0.65.2 - 2026-08-10
 - Milestones (e.g. rare aircraft): the aircraft'''s hex code is now shown alongside the callsign and links to a planespotters.net hex search, so a sighting can actually be double-checked afterwards (e.g. "was that really an Antonov"). The callsign used to often be missing if it had not been broadcast yet at the exact moment the aircraft was first captured - it now gets backfilled once it shows up in a later update
 
