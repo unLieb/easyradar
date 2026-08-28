@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.66.1 - 2026-08-28
+- Statistics: added an explanatory tooltip on "Aircraft" - counts unique aircraft in the selected period, not a sum of sightings (repeat sightings of the same aircraft only count once)
+
 ## 0.66.0 - 2026-08-24
 - New: aircraft type (list and detail view) is now clickable and links to a Wikipedia search jump for that model - finally a way to look up what a designator like "A21N" or "E75L" actually is
 

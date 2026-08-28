@@ -60,6 +60,7 @@
   "stats.notEnoughData": "Not enough days recorded yet",
   "stats.section.records": "Records",
   "stats.aircraft": "Aircraft",
+  "stats.aircraftTooltip": "Unique aircraft in this period – repeat sightings of the same aircraft only count once",
   "stats.ofWhichMilitary": "of which Military",
   "stats.messages": "Messages",
   "stats.avgRange": "Avg. Range",

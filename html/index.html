@@ -335,7 +335,7 @@
   #radius-slider { width: 100%; accent-color: var(--blue); margin: 8px 0 2px; cursor: pointer; display: block; }
   .radius-slider-scale { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
   .radius-slider-scale #radius-slider-max { opacity: 0.55; }
-  #settings-panel .label[title] { cursor: help; text-decoration: underline dotted var(--border); text-underline-offset: 3px; }
+  #settings-panel .label[title], #stats-panel .label[title] { cursor: help; text-decoration: underline dotted var(--border); text-underline-offset: 3px; }
   .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; cursor: pointer; }
   .toggle-row[title] .label { cursor: help; text-decoration: underline dotted var(--border); text-underline-offset: 3px; }
   .toggle-switch { position: relative; display: inline-block; width: 40px; height: 23px; flex-shrink: 0; }
@@ -504,7 +504,7 @@
         <div id="s-avgday-note" style="display:none; font-size:11px; color:var(--text-muted); text-align:center; margin-top:6px;"></div>
 
         <div class="subsection-title" data-i18n="stats.subsection.traffic">Verkehr</div>
-        <div class="stat-row"><span class="label" data-i18n="stats.aircraft">Flugzeuge</span><span class="value" id="s-uniquecount">—</span></div>
+        <div class="stat-row"><span class="label" data-i18n="stats.aircraft" data-i18n-title="stats.aircraftTooltip" title="Eindeutige Flugzeuge in diesem Zeitraum – Mehrfachsichtungen desselben Flugzeugs zählen nur einmal">Flugzeuge</span><span class="value" id="s-uniquecount">—</span></div>
         <div class="stat-row"><span class="label" data-i18n="stats.ofWhichMilitary">davon Militär</span><span class="value" id="s-militarycount" style="color:#2e7d32">—</span></div>
         <div class="stat-row" id="s-msgstoday-row"><span class="label" data-i18n="stats.messages">Nachrichten</span><span class="value" id="s-msgstoday">—</span></div>
         <div class="stat-row"><span class="label" data-i18n="stats.avgRange">Ø Reichweite</span><span class="value" id="s-avgdist">—</span></div>
@@ -654,7 +654,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.66.0';
+const APP_VERSION = '0.66.1';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 

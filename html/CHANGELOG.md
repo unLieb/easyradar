@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.66.1 – 2026-08-28
+- Statistiken: Erklaerungs-Tooltip bei "Flugzeuge" ergaenzt - zaehlt eindeutige Flugzeuge im gewaehlten Zeitraum, nicht die Summe der Sichtungen (Mehrfachsichtungen desselben Flugzeugs zaehlen nur einmal)
+
 ## 0.66.0 – 2026-08-24
 - Neu: Flugzeugtyp (Liste und Detailansicht) ist jetzt klickbar und verlinkt zur Wikipedia-Sprungsuche fuer das jeweilige Modell - endlich nachschlagen koennen, was sich hinter Kuerzeln wie "A21N" oder "E75L" eigentlich verbirgt
 

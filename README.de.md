@@ -123,6 +123,11 @@ easyRADAR ruft einige Drittanbieter-APIs direkt aus dem Browser auf — keine AP
 | [adsb.fi](https://adsb.fi/) | Optionale ergänzende Flugzeugdaten außerhalb der Reichweite des eigenen Empfängers |
 | [CARTO](https://carto.com/) / [OpenStreetMap](https://www.openstreetmap.org/) | Kartenkacheln |
 
+## FAQ
+
+**Warum ist "Gesamt" bei den Flugzeugen niedriger als meine addierten Tageswerte?**
+"Gesamt" zählt *eindeutige* Flugzeuge, die je gesehen wurden (nach ICAO-Hex, einer dauerhaften Kennung pro Flugzeug), nicht die Summe der Tagessichtungen. Auch jeder Tageswert ist bereits für diesen Tag dedupliziert. Da dieselben Flugzeuge (gleiche Airline-Routen, gleiche Stammgäste) öfter am Empfänger vorbeifliegen, überschätzt eine Summe der Tageswerte die tatsächliche Anzahl - z. B. ergaben 30 Tage mit ~650/Tag in Summe ~19.500, aber nur ~5.400 waren tatsächlich unterschiedliche Flugzeuge.
+
 ## Lizenz
 
 MIT, siehe [LICENSE](LICENSE).

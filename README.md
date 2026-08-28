@@ -123,6 +123,11 @@ easyRADAR calls a few third-party APIs directly from the browser - no API keys n
 | [adsb.fi](https://adsb.fi/) | Optional supplementary aircraft data outside your own receiver's range |
 | [CARTO](https://carto.com/) / [OpenStreetMap](https://www.openstreetmap.org/) | Base map tiles |
 
+## FAQ
+
+**Why is "Total" aircraft lower than my daily counts added up?**
+"Total" counts *unique* aircraft ever seen (by ICAO hex, a permanent per-aircraft ID), not a sum of daily sightings. Each daily count is also already deduplicated for that day. Since the same aircraft (same airline routes, same regulars) tends to fly past your receiver repeatedly, summing the daily numbers overcounts - e.g. 30 days at ~650/day summed to ~19,500, but only ~5,400 were actually distinct aircraft.
+
 ## License
 
 MIT, see [LICENSE](LICENSE).
