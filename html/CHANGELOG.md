@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.67.2 – 2026-08-28
+- Bundespolizei-Hubschrauber wurden nicht als "Einsatz" markiert - die Erkennung suchte nach "BPOL" (4 Buchstaben), tatsaechlich uebertragen wird aber "BPO" (z. B. BPO441). Praefix korrigiert
+
 ## 0.67.1 – 2026-08-28
 - Rettungshubschrauber (z. B. Christoph31) wurden weder als "Einsatz" farblich markiert noch loesten sie das Meilenstein-Achievement aus - die Erkennung suchte nach "CHRISTOPH" im Callsign, tatsaechlich uebertragen wird aber "CHX31" (der gesprochene Funkrufname unterscheidet sich vom ADS-B-Callsign). CHX als Praefix ergaenzt
 

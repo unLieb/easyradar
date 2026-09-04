@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.67.2 - 2026-08-28
+- Bundespolizei (German federal police) helicopters weren'''t highlighted as "emergency" - detection looked for "BPOL" (4 letters), but what actually gets transmitted is "BPO" (e.g. BPO441). Fixed the prefix
+
 ## 0.67.1 - 2026-08-28
 - Rescue helicopters (e.g. Christoph31) were neither highlighted as "emergency" nor triggering the milestone achievement - detection looked for "CHRISTOPH" in the callsign, but what actually gets transmitted is "CHX31" (the spoken radio callsign differs from the ADS-B callsign). Added CHX as a recognized prefix
 
