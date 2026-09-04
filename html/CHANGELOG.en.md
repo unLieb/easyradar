@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.68.1 - 2026-08-28
+- Emergency vehicles (air rescue, federal/state police) now get their own color (teal) on both the map icon and the list callsign, instead of previously only coloring the callsign text red (which could be confused with the descending-accent color and high-altitude red). Legend updated to match
+
 ## 0.68.0 - 2026-08-28
 - Added ICAO callsign prefixes for 13 more German state police (Landespolizei) helicopter fleets (Berlin was already covered via the federal police prefix) (e.g. PBW for Baden-Wuerttemberg, EDL for Bavaria, HUMMEL for North Rhine-Westphalia) - now highlighted red as "emergency" the same as federal police and rescue helicopters. Source: vatsim-germany.org knowledge base on police aviation
 

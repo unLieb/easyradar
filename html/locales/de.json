@@ -302,6 +302,7 @@
   "map.noMoreInfo": "Keine weiteren Informationen verfügbar",
   "notif.militaryDetected": "Militärflugzeug entdeckt",
   "legend.altitude": "Flughöhe",
+  "legend.einsatz": "Einsatz (Luftrettung/Polizei)",
   "changelog.title": "Änderungsprotokoll",
   "changelog.loadError": "Änderungsprotokoll konnte nicht geladen werden.",
   "changelog.updateAvailable": "Neue Version {version} verfügbar",

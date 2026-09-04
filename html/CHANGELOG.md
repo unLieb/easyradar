@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.68.1 – 2026-08-28
+- Einsatzfahrzeuge (Luftrettung, Bundes-/Landespolizei) bekommen jetzt eine eigene Farbe (Tuerkis) sowohl auf dem Kartensymbol als auch beim Callsign in der Liste, statt vorher nur den Callsign-Text rot einzufaerben (was mit der Sink-Rahmenfarbe und Grossflug-Rot verwechselbar war). Legende entsprechend ergaenzt
+
 ## 0.68.0 – 2026-08-28
 - 13 weitere deutsche Landespolizei-Hubschrauber-Kennungen ergaenzt (Berlin lief schon vorher ueber die Bundespolizei-Kennung mit) (z. B. PBW fuer Baden-Wuerttemberg, EDL fuer Bayern, HUMMEL fuer NRW) - werden jetzt genau wie Bundespolizei und Rettungshubschrauber rot als "Einsatz" markiert. Quelle: vatsim-germany.org Wissensdatenbank zur Polizeifliegerei
 

@@ -302,6 +302,7 @@
   "map.noMoreInfo": "No further information available",
   "notif.militaryDetected": "Military aircraft detected",
   "legend.altitude": "Altitude",
+  "legend.einsatz": "Emergency (air rescue/police)",
   "changelog.title": "Changelog",
   "changelog.loadError": "Couldn't load the changelog.",
   "changelog.updateAvailable": "New version {version} available",
