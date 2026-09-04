@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.67.0 – 2026-08-28
+- Route wird jetzt gegen die tatsaechliche Position des Flugzeugs geprueft, bevor sie angezeigt wird (Liste und Detailansicht) - ADSBDB liefert pro Callsign manchmal eine veraltete oder falsche Strecke (z. B. wiederverwendete Flugnummern), was dann komplett unplausibel zur beobachteten Position war (z. B. Route Graz-Wien bei einer Position ueber Berlin). Liegt das Flugzeug mehr als 200 km abseits der behaupteten Strecke, wird die Route lieber gar nicht angezeigt statt einer falschen
+
 ## 0.66.1 – 2026-08-28
 - Statistiken: Erklaerungs-Tooltip bei "Flugzeuge" ergaenzt - zaehlt eindeutige Flugzeuge im gewaehlten Zeitraum, nicht die Summe der Sichtungen (Mehrfachsichtungen desselben Flugzeugs zaehlen nur einmal)
 

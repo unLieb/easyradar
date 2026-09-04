@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.67.0 - 2026-08-28
+- Route is now sanity-checked against the aircraft'''s actual position before being shown (list and detail view) - ADSBDB sometimes has a stale or wrong route on file for a callsign (reused flight numbers etc.), which could be completely implausible for the observed position (e.g. a Graz-Vienna route while the aircraft is over Berlin). If the aircraft is more than 200km off the claimed route, it is no longer shown rather than showing something wrong
+
 ## 0.66.1 - 2026-08-28
 - Statistics: added an explanatory tooltip on "Aircraft" - counts unique aircraft in the selected period, not a sum of sightings (repeat sightings of the same aircraft only count once)
 
