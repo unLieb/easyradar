@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.68.4 - 2026-08-28
+- Map icons for emergency and military aircraft now get a noticeably bolder white outline instead of the thin standard border - a genuinely two-toned icon (fill + outline) for easier at-a-glance recognition
+
 ## 0.68.3 - 2026-08-28
 - German Navy helicopters (Marinefliegergeschwader 5, callsign prefix GNY) are now also recognized as military via callsign - Lynx and Sea King (S61) were missing from the type list entirely, and the EC135 (also flown by the Navy) cant be blanket-listed there since that type is predominantly civilian (rescue/police)
 

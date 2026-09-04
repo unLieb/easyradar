@@ -654,7 +654,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.68.3';
+const APP_VERSION = '0.68.4';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2219,13 +2219,21 @@ function planeColor(a, isExternal) {
 
 const MARKER_SIZE_FACTORS = { small: 0.75, medium: 1, large: 1.35 };
 
+// Every icon already has a fill + outline (svgShapeToSVG takes both) - every
+// aircraft gets a thin white outline for contrast against the map, regardless
+// of category. Einsatz/military get that outline doubled in width instead of
+// introducing a third color, so they read as genuinely two-toned and stand
+// out at a glance without adding a hue that still needs to work on both the
+// light and dark map themes.
 function getPlaneIcon(a, colorOverride) {
   const color = colorOverride;
+  const cls = classifyAircraft(a);
+  const emphasized = cls === 'einsatz' || cls === 'militaer';
   const type = (a.t || '').toUpperCase() || null;
   const [shapeName, scale] = getBaseMarker(a.category || null, type, null, null, a.type || null, a.alt_baro, false);
   const shape = shapes[shapeName] || shapes['unknown'];
   const renderScale = scale * 1.1 * (MARKER_SIZE_FACTORS[markerSize] || 1);
-  const svg = svgShapeToSVG(shape, color, '#ffffff', 1, renderScale);
+  const svg = svgShapeToSVG(shape, color, '#ffffff', emphasized ? 2 : 1, renderScale);
   return { svg, w: shape.w * renderScale, h: shape.h * renderScale };
 }
 

@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.68.4 – 2026-08-28
+- Kartensymbole von Einsatz- und Militaerflugzeugen haben jetzt einen deutlich kraeftigeren weissen Umriss statt des duennen Standard-Randes - zweifarbiges Icon (Fuellung + Kontur) fuer bessere Erkennbarkeit auf einen Blick
+
 ## 0.68.3 – 2026-08-28
 - Deutsche Marine-Hubschrauber (Marinefliegergeschwader 5, Callsign-Praefix GNY) werden jetzt zusaetzlich per Callsign als Militaer erkannt - Lynx und Sea King (S61) fehlten bisher komplett in der Typliste, und der EC135 (auch bei der Marine im Einsatz) kann dort nicht pauschal eingetragen werden, da dieser Typ ueberwiegend zivil (Rettung/Polizei) genutzt wird
 
