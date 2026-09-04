@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.68.0 – 2026-08-28
+- 13 weitere deutsche Landespolizei-Hubschrauber-Kennungen ergaenzt (Berlin lief schon vorher ueber die Bundespolizei-Kennung mit) (z. B. PBW fuer Baden-Wuerttemberg, EDL fuer Bayern, HUMMEL fuer NRW) - werden jetzt genau wie Bundespolizei und Rettungshubschrauber rot als "Einsatz" markiert. Quelle: vatsim-germany.org Wissensdatenbank zur Polizeifliegerei
+
 ## 0.67.2 – 2026-08-28
 - Bundespolizei-Hubschrauber wurden nicht als "Einsatz" markiert - die Erkennung suchte nach "BPOL" (4 Buchstaben), tatsaechlich uebertragen wird aber "BPO" (z. B. BPO441). Praefix korrigiert
 

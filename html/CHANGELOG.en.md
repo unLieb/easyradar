@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.68.0 - 2026-08-28
+- Added ICAO callsign prefixes for 13 more German state police (Landespolizei) helicopter fleets (Berlin was already covered via the federal police prefix) (e.g. PBW for Baden-Wuerttemberg, EDL for Bavaria, HUMMEL for North Rhine-Westphalia) - now highlighted red as "emergency" the same as federal police and rescue helicopters. Source: vatsim-germany.org knowledge base on police aviation
+
 ## 0.67.2 - 2026-08-28
 - Bundespolizei (German federal police) helicopters weren'''t highlighted as "emergency" - detection looked for "BPOL" (4 letters), but what actually gets transmitted is "BPO" (e.g. BPO441). Fixed the prefix
 

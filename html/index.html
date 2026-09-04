@@ -654,7 +654,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.67.2';
+const APP_VERSION = '0.68.0';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -1676,9 +1676,15 @@ const PROP_TYPES = ['C1', 'C2', 'C4', 'P28', 'PA', 'DA40', 'DA42', 'SR2', 'M20',
 // CHX is what German air rescue ("Christoph") helicopters actually transmit as
 // their ADS-B flight ident (e.g. CHX31) - CHRISTOPH is the spoken radio
 // callsign, not what's on the wire, so it alone never matched a real one.
-// Same story for Bundespolizei: BPO (e.g. BPO441), not BPOL - confirmed via
-// FlightAware, the old 4-letter BPOL never matched anything real either.
-const EINSATZ_CALLSIGN_PREFIXES = ['CHX', 'CHRISTOPH', 'RESCUE', 'REGA', 'POLIZEI', 'POLICE', 'BPO'];
+// Bundespolizei (federal police, spoken callsign "Pirol") is BPO+number
+// (e.g. BPO441) - confirmed via FlightAware. Each German state's own police
+// helicopters (Landespolizei) have their own distinct ICAO prefix, unrelated
+// to Bundespolizei's despite Berlin's spoken callsign also being "Pirol":
+// https://knowledgebase.vatsim-germany.org/books/heli-ops/page/polizeifliegerei
+const EINSATZ_CALLSIGN_PREFIXES = [
+  'CHX', 'CHRISTOPH', 'RESCUE', 'REGA', 'POLIZEI', 'POLICE', 'BPO',
+  'PBW', 'EDL', 'PBB', 'LIB', 'IBIS', 'PMV', 'PPH', 'HUMMEL', 'SRP', 'PHS', 'PIK', 'HBT'
+];
 
 // A plain startsWith() lets a short military code like "C17" (C-17 Globemaster)
 // wrongly match unrelated civilian types that happen to extend it with more
