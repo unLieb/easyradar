@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.68.2 - 2026-08-28
+- Bundeswehr rescue helicopters (Heer/Marine SAR) and the civilian offshore operator Northern Helicopter are now recognized - Bundeswehr SAR actually transmits "RESQ" (not "RESCUE") as its ident, Northern Helicopter uses "NHC". Both now also count toward the rescue-helicopter achievement
+
 ## 0.68.1 - 2026-08-28
 - Emergency vehicles (air rescue, federal/state police) now get their own color (teal) on both the map icon and the list callsign, instead of previously only coloring the callsign text red (which could be confused with the descending-accent color and high-altitude red). Legend updated to match
 

@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.68.2 – 2026-08-28
+- Bundeswehr-Rettungshubschrauber (Heer/Marine SAR) und der zivile Offshore-Betreiber Northern Helicopter werden jetzt erkannt - Bundeswehr-SAR sendet tatsaechlich "RESQ" (nicht "RESCUE") als Kennung, Northern Helicopter "NHC". Beide zaehlen jetzt auch fuer das Rettungshubschrauber-Achievement
+
 ## 0.68.1 – 2026-08-28
 - Einsatzfahrzeuge (Luftrettung, Bundes-/Landespolizei) bekommen jetzt eine eigene Farbe (Tuerkis) sowohl auf dem Kartensymbol als auch beim Callsign in der Liste, statt vorher nur den Callsign-Text rot einzufaerben (was mit der Sink-Rahmenfarbe und Grossflug-Rot verwechselbar war). Legende entsprechend ergaenzt
 

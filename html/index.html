@@ -654,7 +654,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.68.1';
+const APP_VERSION = '0.68.2';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -1681,8 +1681,11 @@ const PROP_TYPES = ['C1', 'C2', 'C4', 'P28', 'PA', 'DA40', 'DA42', 'SR2', 'M20',
 // helicopters (Landespolizei) have their own distinct ICAO prefix, unrelated
 // to Bundespolizei's despite Berlin's spoken callsign also being "Pirol":
 // https://knowledgebase.vatsim-germany.org/books/heli-ops/page/polizeifliegerei
+// Bundeswehr search & rescue (Heer/Marine) transmits RESQ+number (e.g.
+// RESQ63), not "RESCUE" - and Northern Helicopter (offshore SAR) is NHC:
+// https://knowledgebase.vatsim-germany.org/books/heli-ops/page/luftrettung
 const EINSATZ_CALLSIGN_PREFIXES = [
-  'CHX', 'CHRISTOPH', 'RESCUE', 'REGA', 'POLIZEI', 'POLICE', 'BPO',
+  'CHX', 'CHRISTOPH', 'RESQ', 'RESCUE', 'NHC', 'REGA', 'POLIZEI', 'POLICE', 'BPO',
   'PBW', 'EDL', 'PBB', 'LIB', 'IBIS', 'PMV', 'PPH', 'HUMMEL', 'SRP', 'PHS', 'PIK', 'HBT'
 ];
 
