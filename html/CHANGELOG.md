@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.67.1 – 2026-08-28
+- Rettungshubschrauber (z. B. Christoph31) wurden weder als "Einsatz" farblich markiert noch loesten sie das Meilenstein-Achievement aus - die Erkennung suchte nach "CHRISTOPH" im Callsign, tatsaechlich uebertragen wird aber "CHX31" (der gesprochene Funkrufname unterscheidet sich vom ADS-B-Callsign). CHX als Praefix ergaenzt
+
 ## 0.67.0 – 2026-08-28
 - Route wird jetzt gegen die tatsaechliche Position des Flugzeugs geprueft, bevor sie angezeigt wird (Liste und Detailansicht) - ADSBDB liefert pro Callsign manchmal eine veraltete oder falsche Strecke (z. B. wiederverwendete Flugnummern), was dann komplett unplausibel zur beobachteten Position war (z. B. Route Graz-Wien bei einer Position ueber Berlin). Liegt das Flugzeug mehr als 200 km abseits der behaupteten Strecke, wird die Route lieber gar nicht angezeigt statt einer falschen
 
