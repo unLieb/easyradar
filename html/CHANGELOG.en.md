@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.68.3 - 2026-08-28
+- German Navy helicopters (Marinefliegergeschwader 5, callsign prefix GNY) are now also recognized as military via callsign - Lynx and Sea King (S61) were missing from the type list entirely, and the EC135 (also flown by the Navy) cant be blanket-listed there since that type is predominantly civilian (rescue/police)
+
 ## 0.68.2 - 2026-08-28
 - Bundeswehr rescue helicopters (Heer/Marine SAR) and the civilian offshore operator Northern Helicopter are now recognized - Bundeswehr SAR actually transmits "RESQ" (not "RESCUE") as its ident, Northern Helicopter uses "NHC". Both now also count toward the rescue-helicopter achievement
 

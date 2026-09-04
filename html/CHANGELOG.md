@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.68.3 – 2026-08-28
+- Deutsche Marine-Hubschrauber (Marinefliegergeschwader 5, Callsign-Praefix GNY) werden jetzt zusaetzlich per Callsign als Militaer erkannt - Lynx und Sea King (S61) fehlten bisher komplett in der Typliste, und der EC135 (auch bei der Marine im Einsatz) kann dort nicht pauschal eingetragen werden, da dieser Typ ueberwiegend zivil (Rettung/Polizei) genutzt wird
+
 ## 0.68.2 – 2026-08-28
 - Bundeswehr-Rettungshubschrauber (Heer/Marine SAR) und der zivile Offshore-Betreiber Northern Helicopter werden jetzt erkannt - Bundeswehr-SAR sendet tatsaechlich "RESQ" (nicht "RESCUE") als Kennung, Northern Helicopter "NHC". Beide zaehlen jetzt auch fuer das Rettungshubschrauber-Achievement
 

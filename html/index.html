@@ -654,7 +654,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.68.2';
+const APP_VERSION = '0.68.3';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -1688,6 +1688,13 @@ const EINSATZ_CALLSIGN_PREFIXES = [
   'CHX', 'CHRISTOPH', 'RESQ', 'RESCUE', 'NHC', 'REGA', 'POLIZEI', 'POLICE', 'BPO',
   'PBW', 'EDL', 'PBB', 'LIB', 'IBIS', 'PMV', 'PPH', 'HUMMEL', 'SRP', 'PHS', 'PIK', 'HBT'
 ];
+// German Navy (Marinefliegergeschwader 5, Nordholz) is GNY+number. Worth a
+// callsign check specifically because its Lynx and Sea King (S61) aren't in
+// MIL_TYPES at all, and its EC135s can't go in MIL_TYPES to begin with - that
+// type is predominantly civilian (rescue/police), so tagging it military by
+// type alone would misclassify every civilian one:
+// https://knowledgebase.vatsim-germany.org/books/heli-ops/page/militarfliegerei
+const MIL_CALLSIGN_PREFIXES = ['GNY'];
 
 // A plain startsWith() lets a short military code like "C17" (C-17 Globemaster)
 // wrongly match unrelated civilian types that happen to extend it with more
@@ -1722,6 +1729,7 @@ function classifyAircraft(a) {
   const flight = (a.flight || '').trim().toUpperCase();
   if (EINSATZ_CALLSIGN_PREFIXES.some(p => flight.startsWith(p))) return 'einsatz';
   if (a.dbFlags && (a.dbFlags & 1)) return 'militaer';
+  if (MIL_CALLSIGN_PREFIXES.some(p => flight.startsWith(p))) return 'militaer';
   if (cat === 'A7') return 'helikopter';
   if (MIL_TYPES.some(p => matchesMilType(t, p))) return 'militaer';
   if (BIZ_TYPES.some(p => t.startsWith(p))) return 'business';
