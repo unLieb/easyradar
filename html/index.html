@@ -506,6 +506,7 @@
         <div class="subsection-title" data-i18n="stats.subsection.traffic">Verkehr</div>
         <div class="stat-row"><span class="label" data-i18n="stats.aircraft" data-i18n-title="stats.aircraftTooltip" title="Eindeutige Flugzeuge in diesem Zeitraum – Mehrfachsichtungen desselben Flugzeugs zählen nur einmal">Flugzeuge</span><span class="value" id="s-uniquecount">—</span></div>
         <div class="stat-row"><span class="label" data-i18n="stats.ofWhichMilitary">davon Militär</span><span class="value" id="s-militarycount" style="color:#2e7d32">—</span></div>
+        <div class="stat-row"><span class="label" data-i18n="stats.ofWhichEinsatz">davon Einsatz</span><span class="value" id="s-einsatzcount" style="color:#00897b">—</span></div>
         <div class="stat-row" id="s-msgstoday-row"><span class="label" data-i18n="stats.messages">Nachrichten</span><span class="value" id="s-msgstoday">—</span></div>
         <div class="stat-row"><span class="label" data-i18n="stats.avgRange">Ø Reichweite</span><span class="value" id="s-avgdist">—</span></div>
         <div class="stat-row"><span class="label" data-i18n="stats.avgAltitude">Ø Flughöhe</span><span class="value" id="s-avgalt">—</span></div>
@@ -654,7 +655,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.68.4';
+const APP_VERSION = '0.69.0';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -3693,6 +3694,7 @@ async function fetchAndRenderDbStats() {
 
     document.getElementById('s-uniquecount').textContent = d.uniqueCount != null ? d.uniqueCount : '—';
     document.getElementById('s-militarycount').textContent = d.militaryCount != null ? d.militaryCount : '—';
+    document.getElementById('s-einsatzcount').textContent = d.einsatzCount != null ? d.einsatzCount : '—';
     document.getElementById('s-msgstoday-row').style.display = d.messagesToday != null ? 'flex' : 'none';
     document.getElementById('s-msgstoday').textContent = d.messagesToday != null ? d.messagesToday.toLocaleString(uiLocale()) : '—';
     document.getElementById('s-avgdist').textContent = d.avgDist != null ? fmtDist(d.avgDist) : '—';

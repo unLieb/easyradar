@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.69.0 - 2026-09-05
+- New stat "of which Emergency Services": shows the number of distinct emergency vehicles (air rescue, federal/state police) in the selected time range, mirroring the existing "of which Military" row
+
 ## 0.68.4 - 2026-08-28
 - Map icons for emergency and military aircraft now get a noticeably bolder white outline instead of the thin standard border - a genuinely two-toned icon (fill + outline) for easier at-a-glance recognition
 

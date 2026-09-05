@@ -62,6 +62,7 @@
   "stats.aircraft": "Flugzeuge",
   "stats.aircraftTooltip": "Eindeutige Flugzeuge in diesem Zeitraum – Mehrfachsichtungen desselben Flugzeugs zählen nur einmal",
   "stats.ofWhichMilitary": "davon Militär",
+  "stats.ofWhichEinsatz": "davon Einsatz",
   "stats.messages": "Nachrichten",
   "stats.avgRange": "Ø Reichweite",
   "stats.avgAltitude": "Ø Flughöhe",

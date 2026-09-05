@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.69.0 – 2026-09-05
+- Neue Statistik "davon Einsatz": zeigt die Anzahl unterschiedlicher Einsatzfahrzeuge (Luftrettung, Bundes-/Landespolizei) im gewählten Zeitraum an, analog zur bestehenden "davon Militär"-Zeile
+
 ## 0.68.4 – 2026-08-28
 - Kartensymbole von Einsatz- und Militaerflugzeugen haben jetzt einen deutlich kraeftigeren weissen Umriss statt des duennen Standard-Randes - zweifarbiges Icon (Fuellung + Kontur) fuer bessere Erkennbarkeit auf einen Blick
 

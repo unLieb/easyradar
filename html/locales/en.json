@@ -62,6 +62,7 @@
   "stats.aircraft": "Aircraft",
   "stats.aircraftTooltip": "Unique aircraft in this period – repeat sightings of the same aircraft only count once",
   "stats.ofWhichMilitary": "of which Military",
+  "stats.ofWhichEinsatz": "of which Emergency Services",
   "stats.messages": "Messages",
   "stats.avgRange": "Avg. Range",
   "stats.avgAltitude": "Avg. Altitude",
