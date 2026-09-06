@@ -143,6 +143,8 @@
   #d-photo-wrap { height: 200px; background: #dde2e7; display: flex; align-items: center; justify-content: center; overflow: hidden; will-change: height; }
   #d-photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
   #d-photo-placeholder { font-size: 12px; color: var(--text-muted); padding: 40px 0; }
+  #d-photo-placeholder.silhouette { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 20px 0; }
+  #d-photo-placeholder.silhouette svg { opacity: 0.55; }
   #d-photo-credit { font-size: 10px; color: var(--text-muted); text-align: right; padding: 3px 12px; }
   #d-photo-credit a { color: var(--text-muted); }
 
@@ -698,7 +700,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.72.1';
+const APP_VERSION = '0.73.0';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2202,7 +2204,7 @@ function setPhotosEnabled(on) {
   photosEnabled = on;
   localStorage.setItem('photosEnabled', on);
   updatePhotosEnabledButtons();
-  if (selectedHex) loadPhoto(selectedHex);
+  if (selectedHex) loadPhoto(selectedHex, window.currentAircraft && window.currentAircraft[selectedHex]);
 }
 
 function updateRefreshRateButtons() {
@@ -2263,16 +2265,10 @@ function planeColor(a, isExternal) {
 
 const MARKER_SIZE_FACTORS = { small: 0.75, medium: 1, large: 1.35 };
 
-// Every icon already has a fill + outline (svgShapeToSVG takes both) - every
-// aircraft gets a thin white outline for contrast against the map, regardless
-// of category. Einsatz/military get that outline doubled in width instead of
-// introducing a third color, so they read as genuinely two-toned and stand
-// out at a glance without adding a hue that still needs to work on both the
-// light and dark map themes.
-function getPlaneIcon(a, colorOverride) {
-  const color = colorOverride;
-  const cls = classifyAircraft(a);
-  const emphasized = cls === 'einsatz' || cls === 'militaer';
+// Shared by the map marker (getPlaneIcon) and the photo-placeholder
+// silhouette (photoFallbackSvg) - both need "which tar1090 shape best
+// represents this aircraft", just at very different render sizes/colors.
+function getShapeNameForAircraft(a) {
   const type = (a.t || '').toUpperCase() || null;
   let [shapeName, scale] = getBaseMarker(a.category || null, type, null, null, a.type || null, a.alt_baro, false);
   // MLAT-only tracks (common for small GA aircraft - no ADS-B category is
@@ -2285,11 +2281,49 @@ function getPlaneIcon(a, colorOverride) {
   if (shapeName === 'unknown' && type && PROP_TYPES.some(p => type.startsWith(p))) {
     shapeName = 'cessna';
     scale = 1;
+  } else if (shapeName === 'unknown' && type && ICAO_HELICOPTER_NUMBERS[type]) {
+    // Same gap, for helicopters: an EC135/EC145/etc. with no category
+    // broadcast (the exact MLAT-only case resolveAircraftDesc() below
+    // handles for the Wikipedia link, e.g. Christoph 82) otherwise falls
+    // through to 'unknown' too, since EC35/EC45/... aren't in tar1090's
+    // TypeDesignatorIcons either. Reuses the same known-code list rather
+    // than a separate one - it's already exactly "ICAO codes we know are
+    // Eurocopter helicopters".
+    shapeName = 'helicopter';
+    scale = 1;
   }
+  return [shapeName, scale];
+}
+
+// Every icon already has a fill + outline (svgShapeToSVG takes both) - every
+// aircraft gets a thin white outline for contrast against the map, regardless
+// of category. Einsatz/military get that outline doubled in width instead of
+// introducing a third color, so they read as genuinely two-toned and stand
+// out at a glance without adding a hue that still needs to work on both the
+// light and dark map themes.
+function getPlaneIcon(a, colorOverride) {
+  const color = colorOverride;
+  const cls = classifyAircraft(a);
+  const emphasized = cls === 'einsatz' || cls === 'militaer';
+  const [shapeName, scale] = getShapeNameForAircraft(a);
   const shape = shapes[shapeName] || shapes['unknown'];
   const renderScale = scale * 1.1 * (MARKER_SIZE_FACTORS[markerSize] || 1);
   const svg = svgShapeToSVG(shape, color, '#ffffff', emphasized ? 2 : 1, renderScale);
   return { svg, w: shape.w * renderScale, h: shape.h * renderScale };
+}
+
+// Fallback illustration for the detail panel's photo slot when planespotters
+// has nothing (see loadPhoto) - reuses the same shape lookup as the map
+// marker so a rescue helicopter still reads as a helicopter, an airliner
+// still reads as an airliner, etc., just rendered larger and in a neutral
+// muted tone instead of the map's altitude/role colors (which have no
+// meaning here - there's no altitude or einsatz/military status to encode
+// in a static photo placeholder).
+function photoFallbackSvg(a) {
+  const [shapeName] = getShapeNameForAircraft(a);
+  const shape = shapes[shapeName] || shapes['unknown'];
+  const renderScale = 84 / Math.max(shape.w, shape.h);
+  return svgShapeToSVG(shape, 'var(--text-muted)', 'var(--text-muted)', 0.5, renderScale);
 }
 
 function haversine(lat1, lon1, lat2, lon2) {
@@ -2367,7 +2401,9 @@ function fmtTemp(a) {
 const photoCache = {};
 const routeCache = {};
 
-function renderPhoto(photo) {
+// aircraft is optional (only used for the no-photo fallback silhouette) so
+// existing callers that only have a photo/hex still work unchanged.
+function renderPhoto(photo, aircraft) {
   const wrap = document.getElementById('d-photo-wrap');
   const credit = document.getElementById('d-photo-credit');
   if (photo) {
@@ -2378,29 +2414,42 @@ function renderPhoto(photo) {
     const safeLink = /^https:\/\//i.test(photo.link) ? photo.link : '#';
     credit.innerHTML = `${t('detail.photoBy')} ${escapeHtml(photo.photographer)} · <a href="${escapeHtml(safeLink)}" target="_blank" rel="noopener">planespotters.net</a>`;
   } else {
-    wrap.innerHTML = `<div id="d-photo-placeholder">${t('detail.noPhoto')}</div>`;
+    const svg = aircraft ? photoFallbackSvg(aircraft) : '';
+    wrap.innerHTML = `<div id="d-photo-placeholder" class="silhouette">${svg}<span>${t('detail.noPhoto')}</span></div>`;
     credit.style.display = 'none';
   }
 }
 
-async function loadPhoto(hex) {
+async function fetchFirstPhoto(url) {
+  const res = await fetch(url);
+  const data = await res.json();
+  return (data.photos && data.photos[0]) || null;
+}
+
+// Tries the registration first, since planespotters' registration index
+// covers plenty of special-purpose aircraft (police/rescue helicopters
+// especially) that its hex index doesn't - verified live for several police
+// helicopters that had a registration match but none by hex. Only falls
+// back to hex when the registration lookup comes back genuinely empty, not
+// on every load, to keep this to one request for the common case.
+async function loadPhoto(hex, aircraft) {
   if (!photosEnabled) {
     document.getElementById('d-photo-wrap').innerHTML = `<div id="d-photo-placeholder">${t('detail.photosDisabled')}</div>`;
     document.getElementById('d-photo-credit').style.display = 'none';
     return;
   }
-  if (photoCache[hex] !== undefined) { renderPhoto(photoCache[hex]); return; }
+  if (photoCache[hex] !== undefined) { renderPhoto(photoCache[hex], aircraft); return; }
   document.getElementById('d-photo-wrap').innerHTML = '<div id="d-photo-placeholder">Lade Foto…</div>';
   document.getElementById('d-photo-credit').style.display = 'none';
+  const reg = aircraft && aircraft.r;
   try {
-    const res = await fetch(`https://api.planespotters.net/pub/photos/hex/${hex}`);
-    const data = await res.json();
-    const photo = (data.photos && data.photos[0]) || null;
+    let photo = reg ? await fetchFirstPhoto(`https://api.planespotters.net/pub/photos/reg/${encodeURIComponent(reg)}`) : null;
+    if (!photo) photo = await fetchFirstPhoto(`https://api.planespotters.net/pub/photos/hex/${hex}`);
     photoCache[hex] = photo;
-    if (selectedHex === hex) renderPhoto(photo);
+    if (selectedHex === hex) renderPhoto(photo, aircraft);
   } catch (e) {
     photoCache[hex] = null;
-    if (selectedHex === hex) renderPhoto(null);
+    if (selectedHex === hex) renderPhoto(null, aircraft);
   }
 }
 
@@ -2785,7 +2834,7 @@ function showDetail(hex) {
 
   if (hex !== lastDetailHex) {
     lastDetailHex = hex;
-    loadPhoto(hex);
+    loadPhoto(hex, a);
     loadRoute(hex, a.flight);
     loadOperator(a.r, hex);
     geocodeTimeline = [];

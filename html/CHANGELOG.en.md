@@ -2,6 +2,11 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.73.0 - 2026-09-07
+- Photo lookup now queries planespotters.net by registration first, only falling back to the hex address if that comes back empty - registration lookup often finds photos for special-purpose aircraft like police/rescue helicopters that the hex index doesn't have
+- If both come up empty, the detail panel now shows an SVG silhouette matching the aircraft type (helicopter, jet, propeller plane, ...) instead of the empty gray "no photo available" box - reuses the same shape lookup as the map markers
+- Fixed in passing: a helicopter with no ADS-B category broadcast (e.g. MLAT-only, the exact case Christoph 82 hit earlier) got the generic "unknown" silhouette instead of a helicopter shape
+
 ## 0.72.1 - 2026-09-07
 - The Wikipedia link for the Boeing 737 MAX 7/8/9/10 now jumps straight to the matching section in the "Boeing 737" article (e.g. `#Boeing_737_Max_8`) on German Wikipedia, instead of only the parent "MAX versions" chapter - unlike English Wikipedia, German Wikipedia covers every MAX variant in one shared article with named subsections, which plain search can't jump into directly
 - Fixed a related regression on English Wikipedia along the way: there, every MAX variant has its own article (e.g. "Boeing 737 MAX 8"), and the previous number-stripping unnecessarily sent it to the more general family article instead of the exact page

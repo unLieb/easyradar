@@ -2,6 +2,11 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.73.0 – 2026-09-07
+- Fotosuche fragt jetzt zuerst planespotters.net über die Registrierung ab, erst danach (falls kein Treffer) über die Hex-Adresse - Registrierungs-Suche findet bei Spezialmaschinen wie Polizei-/Rettungshubschraubern oft Fotos, die über die Hex-Adresse nicht auffindbar sind
+- Liefert auch das keinen Treffer, zeigt das Detail-Panel jetzt eine zum Flugzeugtyp passende SVG-Silhouette (Helikopter, Jet, Propellerflugzeug, …) statt des leeren grauen "Kein Foto verfügbar"-Kastens - nutzt dieselbe Formerkennung wie die Kartensymbole
+- Dabei nebenbei behoben: Ein Helikopter ohne ADS-B-Kategorie (z. B. MLAT-only, wie beim eingangs erwähnten Christoph 82) bekam bislang die generische "unbekannt"-Silhouette statt einer Helikopter-Form
+
 ## 0.72.1 – 2026-09-07
 - Wikipedia-Link für Boeing 737 MAX 7/8/9/10 springt jetzt direkt zum passenden Abschnitt im Artikel "Boeing 737" (z. B. `#Boeing_737_Max_8`) statt nur zum übergeordneten Kapitel "Die „Max"-Versionen" - die deutsche Wikipedia fasst anders als die englische alle MAX-Varianten in einem gemeinsamen Artikel mit benannten Unterabschnitten zusammen, ohne dass die normale Suche dorthin direkt springen kann
 - Dabei nebenbei einen Qualitätsverlust auf der englischen Wikipedia behoben: Dort hat jede MAX-Variante einen eigenen Artikel (z. B. "Boeing 737 MAX 8"), die bisherige Nummer-Kürzung führte dort unnötig auf den allgemeineren Familienartikel statt auf die genaue Seite
