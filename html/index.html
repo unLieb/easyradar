@@ -698,7 +698,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.70.2';
+const APP_VERSION = '0.70.3';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -3586,12 +3586,16 @@ function escapeHtml(s) {
 // completely unrelated topics for some types - "EC35" (the EC135's actual
 // ICAO designator) matches a Chinese EV van and asteroid list pages on
 // dewiki before it ever gets near a helicopter, whereas "AIRBUS HELICOPTERS
-// EC135" lands squarely on the right article. Raw strings like
-// "AIRBUS A-321neo" still fail to match as-is (Wikipedia titles it without
-// the hyphen), so the hyphen between a short letter prefix and digits gets
-// stripped ("A-321neo" -> "A321neo") - manufacturer casing turned out not to
-// matter. Parenthetical qualifiers like "(long wing)" are dropped too, since
-// they don't appear in Wikipedia's titles and only dilute the match.
+// EC135" lands squarely on the right article. The type database often packs
+// several variants into one desc, joined by slashes - EC35 itself is really
+// "AIRBUS HELICOPTERS EC-135/635" - so everything from the first "/" onward
+// is cut before anything else runs, leaving just the one variant instead of
+// diluting the query with its siblings. Raw strings like "AIRBUS A-321neo"
+// still fail to match as-is (Wikipedia titles it without the hyphen), so the
+// hyphen between a short letter prefix and digits gets stripped
+// ("A-321neo" -> "A321neo") - manufacturer casing turned out not to matter.
+// Parenthetical qualifiers like "(long wing)" are dropped too, since they
+// don't appear in Wikipedia's titles and only dilute the match.
 // Falls back to the ICAO code only when there's no description at all, with
 // "aircraft"/"Flugzeug" appended to steer the search toward aviation -
 // without that, an ambiguous short code like the EC35 case above would
@@ -3608,6 +3612,7 @@ function escapeHtml(s) {
 function wikiTypeUrl(icaoType, desc) {
   const path = currentLang === 'de' ? 'de.wikipedia.org/wiki/Spezial:Suche' : 'en.wikipedia.org/wiki/Special:Search';
   const cleaned = (desc || '')
+    .replace(/\/.*$/, '')
     .replace(/\([^)]*\)/g, '')
     .replace(/\b([A-Za-z]{1,3})-(\d)/g, '$1$2')
     .replace(/\s+/g, ' ')

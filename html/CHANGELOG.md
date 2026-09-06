@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.70.3 – 2026-09-05
+- Wikipedia-Suchbegriff für Flugzeugtyp/-modell schneidet jetzt Schrägstrich-Varianten in der Modellbeschreibung ab, bevor gesucht wird - die Typdatenbank listet für ca. 80 Typen mehrere Varianten in einem Feld (z. B. wird aus "AIRBUS HELICOPTERS EC-135/635" so "AIRBUS HELICOPTERS EC135" statt der bisher unbereinigten "EC135/635")
+
 ## 0.70.2 – 2026-09-05
 - Wikipedia-Verlinkung bei Flugzeugtyp/-modell nutzt jetzt primär die bereinigte Modellbeschreibung (a.desc) statt des ICAO-Codes - der reine 4-stellige Code ist bei manchen Typen zu kurz/mehrdeutig (z. B. matcht "EC35" für den Eurocopter EC135 auf de.wikipedia.org eher ein chinesisches Elektroauto als den Hubschrauber). Nur wenn keine Beschreibung vorliegt, wird weiterhin der ICAO-Code genutzt, jetzt ergänzt um "Flugzeug"/"aircraft", um die Zuordnung zur Luftfahrt zu erzwingen
 

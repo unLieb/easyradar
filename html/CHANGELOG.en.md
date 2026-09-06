@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.70.3 - 2026-09-05
+- The Wikipedia search term for the aircraft type/model now cuts off slash-separated variant lists in the model description before searching - the type database packs several variants into one field for around 80 types (e.g. "AIRBUS HELICOPTERS EC-135/635" now becomes "AIRBUS HELICOPTERS EC135" instead of the previously uncleaned "EC135/635")
+
 ## 0.70.2 - 2026-09-05
 - The Wikipedia link on the aircraft type/model now prefers the cleaned model description (a.desc) over the ICAO code - the bare 4-character code is too short/ambiguous for some types (e.g. "EC35", the Eurocopter EC135's actual ICAO designator, matches a Chinese electric van on German Wikipedia before it gets anywhere near the helicopter). Only falls back to the ICAO code when there's no description at all, now with "aircraft"/"Flugzeug" appended to force the aviation match
 
