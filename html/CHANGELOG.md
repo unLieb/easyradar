@@ -2,6 +2,10 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.72.0 – 2026-09-07
+- Neuer Fallback für Luftfahrzeuge mit ICAO-Typ (z. B. `EC45`) aber (noch) ganz ohne Klartext-Beschreibung, live beobachtet bei Christoph 82 (Rettungshubschrauber): "Eurocopter EC "+Modellnummer wird für EC120/EC130/EC135/EC145 automatisch erzeugt und sowohl in der Anzeige als auch für den Wikipedia-Link genutzt - landet dadurch ohne Zwischenstopp direkt auf dem Artikel. EC25 bewusst ausgenommen: der Code steht für zwei unterschiedliche reale Modelle (EC225 zivil/EC725 militärisch), eine Rückrichtung wäre geraten statt belegt - dort greift weiterhin der allgemeine ICAO-Code+"Flugzeug"-Fallback
+- Nebenbei behoben: Die Großbuchstaben-Normalisierung konnte kurze 2-Buchstaben-Codes wie "EC" (wenn durch ein Leerzeichen von der Modellnummer getrennt) versehentlich klein schreiben ("Ec")
+
 ## 0.71.2 – 2026-09-07
 - Wikipedia-Suchbegriff kürzt jetzt die angehängte Untervarianten-Nummer bei "Boeing 737 MAX 7/8/10" auf "Boeing 737 MAX" - dafür existiert bereits ein Direkt-Redirect (auf den die MAX 9 sowieso verweist), wo die einzelnen Nummern-Varianten sonst nur auf der Suchergebnisseite hängen blieben. Bewusst NICHT als allgemeine Regel für jede Endziffer umgesetzt: A350-900/A320neo etc. haben bereits eigene, noch präzisere Redirects und würden durch das Kürzen nur schlechter treffen
 - Nebenbei behoben: Großbuchstaben-Normalisierung für Herstellernamen (z. B. "BOEING" -> "Boeing") konnte bei Bindestrich-Codes wie "EC-135" den Buchstabenteil isoliert erwischen und zu "Ec135" verstümmeln, statt "EC135" zu erhalten

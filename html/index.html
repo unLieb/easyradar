@@ -698,7 +698,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.71.2';
+const APP_VERSION = '0.72.0';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2753,10 +2753,11 @@ function showDetail(hex) {
   const a = window.currentAircraft && window.currentAircraft[hex];
   if (!a) return;
   document.getElementById('d-callsign').textContent = (a.flight || a.hex || '—').trim();
-  const typeLabel = a.desc || a.t || t('common.unknownType');
+  const resolvedDesc = resolveAircraftDesc(a);
+  const typeLabel = resolvedDesc || a.t || t('common.unknownType');
   const dType = document.getElementById('d-type');
-  if (a.desc || a.t) {
-    dType.innerHTML = `<a href="${wikiTypeUrl(a.t, a.desc)}" target="_blank" rel="noopener">${escapeHtml(typeLabel)}</a>`;
+  if (resolvedDesc || a.t) {
+    dType.innerHTML = `<a href="${wikiTypeUrl(a.t, resolvedDesc)}" target="_blank" rel="noopener">${escapeHtml(typeLabel)}</a>`;
   } else {
     dType.textContent = typeLabel;
   }
@@ -3671,14 +3672,42 @@ const MANUFACTURER_REBRANDS = [
 // by the hyphen-digit step below into "Ec135". Model codes like "A320" or
 // "MD-11" are never touched either way (digit right after the letters, no
 // whitespace to delimit a match) - mangling their case risks the exact
-// redirect match below. Verified live this doesn't actually change any
-// go=Go outcome by itself (Wikipedia's redirect matching is already
-// case-insensitive - "BOEING 737 MAX" and "Boeing 737 MAX" land on the exact
-// same article), but it's likewise never worse, so there's no reason not to
-// - and full-text search (the fallback when there's no exact redirect) can
-// still be case-sensitive in ways go=Go isn't.
+// redirect match below. Requires 3+ letters, not 2+: resolveAircraftDesc()
+// below produces strings like "Eurocopter EC 145", where a 2+ minimum would
+// catch the standalone "EC" (space-delimited on both sides there, unlike
+// "EC135") and mangle it into "Ec" - harmless for the actual redirect
+// (verified case-insensitive either way) but wrong in the UI, which shows
+// this exact string. Checked the type database for other short
+// manufacturer-prefix-plus-space-plus-number patterns this might affect -
+// none found, so 3+ costs nothing while fixing the EC case. Verified this
+// doesn't actually change any go=Go outcome by itself even for the words it
+// does touch (Wikipedia's redirect matching is already case-insensitive -
+// "BOEING 737 MAX" and "Boeing 737 MAX" land on the exact same article), but
+// it's likewise never worse, so there's no reason not to - and full-text
+// search (the fallback when there's no exact redirect) can still be
+// case-sensitive in ways go=Go isn't.
 function toTitleCase(s) {
-  return s.replace(/(^|\s)([A-ZÀ-ÖØ-Þ]{2,})(?=\s|$)/g, (m, pre, w) => pre + w.charAt(0) + w.slice(1).toLowerCase());
+  return s.replace(/(^|\s)([A-ZÀ-ÖØ-Þ]{3,})(?=\s|$)/g, (m, pre, w) => pre + w.charAt(0) + w.slice(1).toLowerCase());
+}
+
+// Fallback for aircraft with an ICAO type designator (a.t) but no free-text
+// description at all (seen live: Christoph 82, an EC145 rescue helicopter,
+// briefly had "t":"EC45" with no "desc" yet - a.desc isn't guaranteed to
+// arrive in the same poll as a.t). "Eurocopter EC " + the model number
+// verified live to redirect straight to the article, same as the full
+// manufacturer name does elsewhere in this file.
+// Deliberately NOT a generic "EC + prepend a 1" rule: that pattern (EC20 ->
+// 120, EC30 -> 130, EC35 -> 135, EC45 -> 145) only holds because those four
+// dropped a leading "1" to fit the 4-character ICAO code. EC25 breaks it -
+// verified live that "Eurocopter EC 125" has no article, because the real
+// aircraft behind that code is the EC225 (civil) or EC725 (military), not
+// EC125 - dropped a leading "2" or "7", not "1". Since the code alone can't
+// tell those two apart, EC25 is left out here rather than guessing one.
+const ICAO_HELICOPTER_NUMBERS = { EC20: '120', EC30: '130', EC35: '135', EC45: '145' };
+function resolveAircraftDesc(a) {
+  if (a.desc) return a.desc;
+  const t = (a.t || '').toUpperCase();
+  return ICAO_HELICOPTER_NUMBERS[t] ? `Eurocopter EC ${ICAO_HELICOPTER_NUMBERS[t]}` : null;
 }
 function wikiTypeUrl(icaoType, desc) {
   const path = currentLang === 'de' ? 'de.wikipedia.org/wiki/Spezial:Suche' : 'en.wikipedia.org/wiki/Special:Search';
@@ -4061,13 +4090,14 @@ function renderList(withPos) {
     const routeInfo = cs ? routeDisplayInfo(cs, a) : null;
     const accentClass = rowAccentClass(a);
     if (accentClass) row.classList.add(accentClass);
+    const resolvedDesc = resolveAircraftDesc(a);
     // Callsign/type come straight off the ADS-B broadcast itself (spoofable by
     // anyone with a transmitter in range) and route text from the ADSBDB API -
     // both untrusted, so they're escaped before landing in innerHTML.
     row.innerHTML = `
       <div class="info">
         <div class="callsign${callsignClass}">${flag}${isFavorite(a.hex) ? '<span class="star on">★</span>' : ''}${escapeHtml((a.flight || a.hex || '—').trim())}${isRareAircraft(a) ? `<span class="rare-badge" title="${t('list.rareAircraft')}">⭐</span>` : ''}${a._external ? `<span class="external-tag">${t('list.externalTag')}</span>` : ''}</div>
-        <div class="type">${(a.desc || a.t) ? `<a href="${wikiTypeUrl(a.t, a.desc)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${escapeHtml(a.t || t('common.unknownType'))}</a>` : escapeHtml(t('common.unknownType'))}</div>
+        <div class="type">${(resolvedDesc || a.t) ? `<a href="${wikiTypeUrl(a.t, resolvedDesc)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${escapeHtml(a.t || t('common.unknownType'))}</a>` : escapeHtml(t('common.unknownType'))}</div>
       </div>
       <div class="route"${routeInfo ? ` title="${escapeHtml(routeInfo.full)}"` : ''}>${routeInfo ? escapeHtml(routeInfo.display) : ''}</div>
       <div class="metrics">
