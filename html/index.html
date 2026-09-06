@@ -698,7 +698,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.70.1';
+const APP_VERSION = '0.70.2';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -3579,35 +3579,45 @@ function escapeHtml(s) {
 }
 
 // Builds a link to Wikipedia's "jump to article if there's a close match, else
-// show search results" endpoint for an aircraft. Prefers the bare ICAO type
-// designator (e.g. "B738", "DA40") as the search term when we have one -
-// Wikipedia has direct redirect pages for almost all of them, landing exactly
-// on the right article (verified live across a broad sample of airliner and
-// GA designators). go=Go rather than a bare /wiki/<code> URL, though, since a
-// few designators genuinely have no article (e.g. "P28R", a real aircraft
-// from this app's own data) - a bare URL would 404 there, while go=Go falls
-// back to search results gracefully instead.
-// Falls back to the free-text description only when there's no ICAO code.
-// Verified live: raw strings like "AIRBUS A-321neo" fail to match (Wikipedia
-// titles it without the hyphen), so the hyphen between a short letter prefix
-// and digits gets stripped ("A-321neo" -> "A321neo") - manufacturer casing
-// turned out not to matter. Parenthetical qualifiers like "(long wing)" are
-// dropped too, since they don't appear in Wikipedia's titles and only dilute
-// the match. That fallback search also gets &ns0=1, restricting results to
-// the main article namespace so Talk/User/Category pages can't drown out the
-// actual aircraft article - not needed for the ICAO-code case above, since
-// go=Go's exact-title match never considers those namespaces to begin with.
+// show search results" endpoint for an aircraft. Prefers the free-text
+// description (a.desc, e.g. "AIRBUS HELICOPTERS EC135") as the search term
+// when there is one - it disambiguates far better than the bare ICAO type
+// code alone. Verified live: the 4-char code by itself can collide with
+// completely unrelated topics for some types - "EC35" (the EC135's actual
+// ICAO designator) matches a Chinese EV van and asteroid list pages on
+// dewiki before it ever gets near a helicopter, whereas "AIRBUS HELICOPTERS
+// EC135" lands squarely on the right article. Raw strings like
+// "AIRBUS A-321neo" still fail to match as-is (Wikipedia titles it without
+// the hyphen), so the hyphen between a short letter prefix and digits gets
+// stripped ("A-321neo" -> "A321neo") - manufacturer casing turned out not to
+// matter. Parenthetical qualifiers like "(long wing)" are dropped too, since
+// they don't appear in Wikipedia's titles and only dilute the match.
+// Falls back to the ICAO code only when there's no description at all, with
+// "aircraft"/"Flugzeug" appended to steer the search toward aviation -
+// without that, an ambiguous short code like the EC35 case above would
+// return unrelated results instead of the aircraft. (Deliberately not
+// appended when a.desc IS available and used above: verified live that it
+// actually breaks the exact-redirect match for codes that already resolve
+// perfectly on their own, e.g. "B738 Flugzeug" no longer jumps straight to
+// the Boeing 737 article the way bare "B738" does - but since this is now
+// only a fallback for the rare case of a missing description, that no
+// longer applies to those already-working codes.)
+// &ns0=1 restricts results to the main article namespace so Talk/User/
+// Category pages can't drown out the actual aircraft article - harmless for
+// the exact-redirect case too, since go=Go's exact-title match ignores it.
 function wikiTypeUrl(icaoType, desc) {
   const path = currentLang === 'de' ? 'de.wikipedia.org/wiki/Spezial:Suche' : 'en.wikipedia.org/wiki/Special:Search';
-  if (icaoType) {
-    return `https://${path}?search=${encodeURIComponent(icaoType)}&go=Go`;
-  }
   const cleaned = (desc || '')
     .replace(/\([^)]*\)/g, '')
     .replace(/\b([A-Za-z]{1,3})-(\d)/g, '$1$2')
     .replace(/\s+/g, ' ')
     .trim();
-  return `https://${path}?search=${encodeURIComponent(cleaned)}&go=Go&ns0=1`;
+  if (cleaned) {
+    return `https://${path}?search=${encodeURIComponent(cleaned)}&go=Go&ns0=1`;
+  }
+  const suffix = currentLang === 'de' ? 'Flugzeug' : 'aircraft';
+  const query = icaoType ? `${icaoType} ${suffix}` : '';
+  return `https://${path}?search=${encodeURIComponent(query)}&go=Go&ns0=1`;
 }
 
 function parseChangelogMd(text) {

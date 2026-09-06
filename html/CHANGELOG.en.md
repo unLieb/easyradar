@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.70.2 - 2026-09-05
+- The Wikipedia link on the aircraft type/model now prefers the cleaned model description (a.desc) over the ICAO code - the bare 4-character code is too short/ambiguous for some types (e.g. "EC35", the Eurocopter EC135's actual ICAO designator, matches a Chinese electric van on German Wikipedia before it gets anywhere near the helicopter). Only falls back to the ICAO code when there's no description at all, now with "aircraft"/"Flugzeug" appended to force the aviation match
+
 ## 0.70.1 - 2026-09-05
 - The Wikipedia link on the aircraft type/model now prefers the bare ICAO type code (e.g. "B738", "DA40") as the search term over the model name - Wikipedia has direct redirect pages for almost all of them, landing exactly on the right article. No ICAO code available? Falls back to the cleaned-up model name as before, now restricted to the article namespace so Talk/User/Category pages can no longer dilute the results
 

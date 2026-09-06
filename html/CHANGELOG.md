@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.70.2 – 2026-09-05
+- Wikipedia-Verlinkung bei Flugzeugtyp/-modell nutzt jetzt primär die bereinigte Modellbeschreibung (a.desc) statt des ICAO-Codes - der reine 4-stellige Code ist bei manchen Typen zu kurz/mehrdeutig (z. B. matcht "EC35" für den Eurocopter EC135 auf de.wikipedia.org eher ein chinesisches Elektroauto als den Hubschrauber). Nur wenn keine Beschreibung vorliegt, wird weiterhin der ICAO-Code genutzt, jetzt ergänzt um "Flugzeug"/"aircraft", um die Zuordnung zur Luftfahrt zu erzwingen
+
 ## 0.70.1 – 2026-09-05
 - Wikipedia-Verlinkung bei Flugzeugtyp/-modell nutzt jetzt bevorzugt den reinen ICAO-Typ-Code (z. B. "B738", "DA40") statt der Bezeichnung als Suchbegriff - Wikipedia hat dafür fast durchweg direkte Weiterleitungsseiten, die exakt beim richtigen Artikel landen. Kein ICAO-Code vorhanden? Dann weiterhin die bereinigte Modellbezeichnung, jetzt aber mit Einschränkung auf den Artikel-Namensraum, damit Diskussions-/Benutzer-/Kategorieseiten nicht mehr die Trefferliste verwässern
 
