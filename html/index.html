@@ -643,7 +643,7 @@
 
       <div class="section-title">🔔 <span data-i18n="settings.section.notifications">Benachrichtigungen</span></div>
       <label class="toggle-row">
-        <span class="label" style="margin:0" data-i18n="settings.notifications">Browser-Benachrichtigungen bei neuen Meilensteinen und Militärflugzeugen</span>
+        <span class="label" style="margin:0" data-i18n="settings.notifications">Browser-Benachrichtigungen bei neuen Meilensteinen, Militär- und Einsatzflugzeugen</span>
         <span class="toggle-switch"><input type="checkbox" id="notif-toggle" onchange="setNotifications(this.checked)"><span class="toggle-slider"></span></span>
       </label>
 
@@ -698,7 +698,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.70.3';
+const APP_VERSION = '0.71.0';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -3113,15 +3113,44 @@ let achievementsFirstLoad = localStorage.getItem('knownAchievementIds') === null
 let knownRecordBrokenAt = JSON.parse(localStorage.getItem('knownRecordBrokenAt') || 'null') || {};
 let recordsFirstLoad = localStorage.getItem('knownRecordBrokenAt') === null;
 
-// Uses the plain Notification API (not full Web Push), so it only fires while
-// this tab/browser is actually running - no service worker or server-side push
-// infrastructure needed. Covers "I have the radar open in the background".
+// Still no full Web Push / server-side infrastructure - notifications only
+// fire while this tab/browser is actually running, covering "I have the
+// radar open in the background". But routing a *click* on a notification
+// back to the app (focus the open tab, or open one if none is left, then
+// select the aircraft) needs the Clients API, which only service workers
+// get - a plain page-created `new Notification(...)` has no equivalent.
+// So sw.js is registered purely for its 'notificationclick' listener, and
+// notifications go through swRegistration.showNotification() once that's
+// ready; new Notification() remains the fallback for browsers without
+// service worker support (or the brief window before registration
+// resolves), with a plain onclick doing the same-tab half of the job.
 let notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
 let notifiedMilitaryHexes = new Set();
+let notifiedEinsatzHexes = new Set();
+let swRegistration = null;
 
-function showBrowserNotification(title, body) {
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').then(reg => { swRegistration = reg; }).catch(() => {});
+  // Sent by sw.js's notificationclick handler when the tab it focused was
+  // already open (rather than freshly opened via openWindow, which instead
+  // carries the hex as a ?focusHex= URL param handled at startup below, since
+  // there's no live client yet to postMessage to in that case).
+  navigator.serviceWorker.addEventListener('message', event => {
+    if (event.data && event.data.type === 'FOCUS_AIRCRAFT' && event.data.hex) selectPlane(event.data.hex);
+  });
+}
+
+function showBrowserNotification(title, body, hex) {
   if (!notificationsEnabled || typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
-  try { new Notification(title, { body }); } catch (e) { /* ignore */ }
+  const data = hex ? { hex, url: '/' } : undefined;
+  if (swRegistration) {
+    swRegistration.showNotification(title, { body, data }).catch(() => {});
+    return;
+  }
+  try {
+    const n = new Notification(title, { body, data });
+    n.onclick = () => { window.focus(); if (hex) selectPlane(hex); n.close(); };
+  } catch (e) { /* ignore */ }
 }
 
 function updateNotificationButtons() {
@@ -3148,7 +3177,15 @@ function checkMilitaryNotification(a) {
   if (classifyAircraft(a) !== 'militaer') return;
   notifiedMilitaryHexes.add(a.hex);
   const label = (a.flight || a.hex || '').trim();
-  showBrowserNotification('🪖 ' + t('notif.militaryDetected'), `${label}${a.t ? ' · ' + a.t : ''}`.trim());
+  showBrowserNotification('🪖 ' + t('notif.militaryDetected'), `${label}${a.t ? ' · ' + a.t : ''}`.trim(), a.hex);
+}
+
+function checkEinsatzNotification(a) {
+  if (notifiedEinsatzHexes.has(a.hex)) return;
+  if (classifyAircraft(a) !== 'einsatz') return;
+  notifiedEinsatzHexes.add(a.hex);
+  const label = (a.flight || a.hex || '').trim();
+  showBrowserNotification('🚑 ' + t('notif.einsatzDetected'), `${label}${a.t ? ' · ' + a.t : ''}`.trim(), a.hex);
 }
 
 function showAchievementToast(icon, title, sub, xp) {
@@ -3903,6 +3940,7 @@ async function refresh() {
     if (a.lat == null || a.lon == null) continue;
     window.currentAircraft[a.hex] = a;
     checkMilitaryNotification(a);
+    checkEinsatzNotification(a);
     a._external = false;
     if (matchesFilterAndSearch(a) || a.hex === selectedHex) {
       seen.add(a.hex);
@@ -3916,6 +3954,7 @@ async function refresh() {
       if (localHexes.has(a.hex) || a.lat == null || !withinRadius(a)) continue;
       window.currentAircraft[a.hex] = a;
       checkMilitaryNotification(a);
+      checkEinsatzNotification(a);
       a._external = true;
       if (matchesFilterAndSearch(a) || a.hex === selectedHex) {
         seen.add(a.hex);
@@ -4044,7 +4083,22 @@ initI18n().then(() => {
   loadStationName();
   loadChangelog();
   checkForUpdate();
-  refresh();
+  // sw.js's notificationclick handler opens a fresh tab (no easyRADAR tab was
+  // left open) via clients.openWindow(`/?focusHex=...`) rather than
+  // postMessage, since there's no existing page to message yet - pick that up
+  // here once the first refresh() has populated window.currentAircraft, then
+  // strip it from the URL so a later reload/share of the link doesn't
+  // re-trigger it.
+  refresh().then(() => {
+    const params = new URLSearchParams(location.search);
+    const focusHex = params.get('focusHex');
+    if (focusHex) {
+      selectPlane(focusHex.toLowerCase());
+      params.delete('focusHex');
+      const qs = params.toString();
+      history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
+    }
+  });
   refreshTimer = setInterval(refresh, refreshRateMs);
 });
 </script>

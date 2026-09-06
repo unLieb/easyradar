@@ -2,6 +2,10 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.71.0 – 2026-09-05
+- Browser-Benachrichtigungen gibt es jetzt auch für neu gesichtete Einsatzfahrzeuge (Luftrettung/Polizei), analog zu Militärflugzeugen und Achievements
+- Klick auf eine Militär-/Einsatz-Benachrichtigung zentriert die Karte jetzt direkt auf das auslösende Flugzeug und öffnet dessen Detailansicht - wechselt dafür zum bereits offenen easyRADAR-Tab, oder öffnet einen neuen, falls keiner mehr offen ist. Dafür registriert die App erstmals einen Service Worker (sw.js), rein für dessen notificationclick-Handling - keine Offline-Funktionen oder Caching
+
 ## 0.70.3 – 2026-09-05
 - Wikipedia-Suchbegriff für Flugzeugtyp/-modell schneidet jetzt Schrägstrich-Varianten in der Modellbeschreibung ab, bevor gesucht wird - die Typdatenbank listet für ca. 80 Typen mehrere Varianten in einem Feld (z. B. wird aus "AIRBUS HELICOPTERS EC-135/635" so "AIRBUS HELICOPTERS EC135" statt der bisher unbereinigten "EC135/635")
 
