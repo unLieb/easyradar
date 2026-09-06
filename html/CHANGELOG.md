@@ -2,6 +2,10 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.71.2 – 2026-09-07
+- Wikipedia-Suchbegriff kürzt jetzt die angehängte Untervarianten-Nummer bei "Boeing 737 MAX 7/8/10" auf "Boeing 737 MAX" - dafür existiert bereits ein Direkt-Redirect (auf den die MAX 9 sowieso verweist), wo die einzelnen Nummern-Varianten sonst nur auf der Suchergebnisseite hängen blieben. Bewusst NICHT als allgemeine Regel für jede Endziffer umgesetzt: A350-900/A320neo etc. haben bereits eigene, noch präzisere Redirects und würden durch das Kürzen nur schlechter treffen
+- Nebenbei behoben: Großbuchstaben-Normalisierung für Herstellernamen (z. B. "BOEING" -> "Boeing") konnte bei Bindestrich-Codes wie "EC-135" den Buchstabenteil isoliert erwischen und zu "Ec135" verstümmeln, statt "EC135" zu erhalten
+
 ## 0.71.1 – 2026-09-07
 - Wikipedia-Suchbegriff ersetzt jetzt "AIRBUS HELICOPTERS" durch die ältere Bezeichnung "Eurocopter", gegen die viele Weiterleitungen tatsächlich geschrieben sind - "Eurocopter EC135" landet dadurch ohne Zwischenstopp direkt auf dem Artikel, wo "AIRBUS HELICOPTERS EC135" nur auf der Suchergebnisseite hängen blieb. Geprüft gegen alle 9 betroffenen Typen in der Datenbank: durchweg gleich gut oder besser, kein einziger Fall verschlechtert sich
 

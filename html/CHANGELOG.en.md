@@ -2,6 +2,10 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.71.2 - 2026-09-07
+- The Wikipedia search term now strips the trailing sub-variant number from "Boeing 737 MAX 7/8/10" down to "Boeing 737 MAX" - a direct redirect already exists for that (the one MAX 9 resolves to anyway), where the individual number variants otherwise got stuck on the search-results page. Deliberately not made a general "strip any trailing number" rule: A350-900/A320neo etc. already have their own, even more precise redirects and stripping their number would only make the match worse
+- Also fixed in passing: uppercase-to-title-case normalization for manufacturer names (e.g. "BOEING" -> "Boeing") could catch just the letters part of a hyphenated code like "EC-135" and mangle it into "Ec135" instead of preserving "EC135"
+
 ## 0.71.1 - 2026-09-07
 - The Wikipedia search term now swaps "AIRBUS HELICOPTERS" for the older name "Eurocopter", which many redirects are actually written against - "Eurocopter EC135" now jumps straight to the article with no search stop at all, where "AIRBUS HELICOPTERS EC135" stayed on the search-results page. Checked against all 9 affected types in the database: equally good or better across the board, nothing regresses
 

@@ -698,7 +698,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.71.1';
+const APP_VERSION = '0.71.2';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -3662,13 +3662,42 @@ function escapeHtml(s) {
 const MANUFACTURER_REBRANDS = [
   [/\bAIRBUS HELICOPTERS\b/gi, 'Eurocopter'],
 ];
+// Turns a fully-uppercase word (manufacturer/model names straight from the
+// type database, e.g. "BOEING") into title case ("Boeing"). Only touches a
+// letters-only run that's *whitespace*-delimited on both sides (start/end of
+// string count too) - not \b, which a hyphen also counts as: "EC-135" would
+// otherwise see "EC" as its own \b-delimited word (a hyphen isn't a \w
+// character) and title-case just that half, leaving "Ec-135" behind, broken
+// by the hyphen-digit step below into "Ec135". Model codes like "A320" or
+// "MD-11" are never touched either way (digit right after the letters, no
+// whitespace to delimit a match) - mangling their case risks the exact
+// redirect match below. Verified live this doesn't actually change any
+// go=Go outcome by itself (Wikipedia's redirect matching is already
+// case-insensitive - "BOEING 737 MAX" and "Boeing 737 MAX" land on the exact
+// same article), but it's likewise never worse, so there's no reason not to
+// - and full-text search (the fallback when there's no exact redirect) can
+// still be case-sensitive in ways go=Go isn't.
+function toTitleCase(s) {
+  return s.replace(/(^|\s)([A-ZÀ-ÖØ-Þ]{2,})(?=\s|$)/g, (m, pre, w) => pre + w.charAt(0) + w.slice(1).toLowerCase());
+}
 function wikiTypeUrl(icaoType, desc) {
   const path = currentLang === 'de' ? 'de.wikipedia.org/wiki/Spezial:Suche' : 'en.wikipedia.org/wiki/Special:Search';
   let cleaned = (desc || '').replace(/\/.*$/, '');
   for (const [from, to] of MANUFACTURER_REBRANDS) cleaned = cleaned.replace(from, to);
-  cleaned = cleaned
+  cleaned = toTitleCase(cleaned)
     .replace(/\([^)]*\)/g, '')
     .replace(/\b([A-Za-z]{1,3})-(\d)/g, '$1$2')
+    // Trailing sub-variant number after a named suffix like "MAX" - verified
+    // live this is safe ONLY for that specific case: "Boeing 737 MAX 7/8/10"
+    // have no article of their own and stayed stuck on the search page, but
+    // "Boeing 737 MAX" (no number) redirects straight to the same target
+    // "Boeing 737 MAX 9" itself resolves to anyway. Deliberately not a
+    // general "strip any trailing number" rule - checked that broadly
+    // against every other trailing-number pattern in the type database
+    // (A350-900/A350-1000, A320neo, ...) and those already resolve to their
+    // own more specific exact redirect, so stripping their number would only
+    // make the match worse, not better.
+    .replace(/\bMAX\s+\d+\s*$/i, 'MAX')
     .replace(/\s+/g, ' ')
     .trim();
   if (cleaned) {
