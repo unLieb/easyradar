@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.70.1 – 2026-09-05
+- Wikipedia-Verlinkung bei Flugzeugtyp/-modell nutzt jetzt bevorzugt den reinen ICAO-Typ-Code (z. B. "B738", "DA40") statt der Bezeichnung als Suchbegriff - Wikipedia hat dafür fast durchweg direkte Weiterleitungsseiten, die exakt beim richtigen Artikel landen. Kein ICAO-Code vorhanden? Dann weiterhin die bereinigte Modellbezeichnung, jetzt aber mit Einschränkung auf den Artikel-Namensraum, damit Diskussions-/Benutzer-/Kategorieseiten nicht mehr die Trefferliste verwässern
+
 ## 0.70.0 – 2026-09-05
 - Glassmorphism-Look für Seitenleiste, Einstellungen/Statistiken-Panel und Legende: leicht transparenter Hintergrund mit Weichzeichner-Effekt, durch den die Karte dahinter dezent durchschimmert (im Radar-Modus bewusst unverändert, um den Retro-HUD-Look zu erhalten)
 - Schlankere, abgerundete Scrollbar (6px, transparente Spur) für alle scrollbaren Bereiche statt des klobigen Standard-Browser-Balkens, passend zu Hell-/Dunkelmodus

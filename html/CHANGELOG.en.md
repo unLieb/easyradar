@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.70.1 - 2026-09-05
+- The Wikipedia link on the aircraft type/model now prefers the bare ICAO type code (e.g. "B738", "DA40") as the search term over the model name - Wikipedia has direct redirect pages for almost all of them, landing exactly on the right article. No ICAO code available? Falls back to the cleaned-up model name as before, now restricted to the article namespace so Talk/User/Category pages can no longer dilute the results
+
 ## 0.70.0 - 2026-09-05
 - Glassmorphism look for the sidebar, settings/stats panels, and legend: a slightly translucent, blurred background that lets the map shimmer through subtly (deliberately left untouched in Radar Mode, to keep its retro HUD look)
 - Slimmer, rounded scrollbar (6px, transparent track) for every scrollable area instead of the browser's default chunky one, matching both light and dark mode
