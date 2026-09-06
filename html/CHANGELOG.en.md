@@ -2,6 +2,10 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.72.1 - 2026-09-07
+- The Wikipedia link for the Boeing 737 MAX 7/8/9/10 now jumps straight to the matching section in the "Boeing 737" article (e.g. `#Boeing_737_Max_8`) on German Wikipedia, instead of only the parent "MAX versions" chapter - unlike English Wikipedia, German Wikipedia covers every MAX variant in one shared article with named subsections, which plain search can't jump into directly
+- Fixed a related regression on English Wikipedia along the way: there, every MAX variant has its own article (e.g. "Boeing 737 MAX 8"), and the previous number-stripping unnecessarily sent it to the more general family article instead of the exact page
+
 ## 0.72.0 - 2026-09-07
 - New fallback for aircraft with an ICAO type (e.g. `EC45`) but no free-text description at all yet, observed live on Christoph 82 (a rescue helicopter): "Eurocopter EC "+model number is now generated for EC120/EC130/EC135/EC145 and used both for display and the Wikipedia link - lands straight on the article with no search stop. EC25 deliberately left out: that code covers two different real aircraft (EC225 civil/EC725 military), so reversing it would be a guess rather than a known fact - falls back to the general ICAO-code+"aircraft" case there instead
 - Also fixed in passing: the uppercase-to-title-case step could lowercase a short 2-letter code like "EC" when separated from the model number by a space ("Ec")

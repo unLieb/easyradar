@@ -2,6 +2,10 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.72.1 – 2026-09-07
+- Wikipedia-Link für Boeing 737 MAX 7/8/9/10 springt jetzt direkt zum passenden Abschnitt im Artikel "Boeing 737" (z. B. `#Boeing_737_Max_8`) statt nur zum übergeordneten Kapitel "Die „Max"-Versionen" - die deutsche Wikipedia fasst anders als die englische alle MAX-Varianten in einem gemeinsamen Artikel mit benannten Unterabschnitten zusammen, ohne dass die normale Suche dorthin direkt springen kann
+- Dabei nebenbei einen Qualitätsverlust auf der englischen Wikipedia behoben: Dort hat jede MAX-Variante einen eigenen Artikel (z. B. "Boeing 737 MAX 8"), die bisherige Nummer-Kürzung führte dort unnötig auf den allgemeineren Familienartikel statt auf die genaue Seite
+
 ## 0.72.0 – 2026-09-07
 - Neuer Fallback für Luftfahrzeuge mit ICAO-Typ (z. B. `EC45`) aber (noch) ganz ohne Klartext-Beschreibung, live beobachtet bei Christoph 82 (Rettungshubschrauber): "Eurocopter EC "+Modellnummer wird für EC120/EC130/EC135/EC145 automatisch erzeugt und sowohl in der Anzeige als auch für den Wikipedia-Link genutzt - landet dadurch ohne Zwischenstopp direkt auf dem Artikel. EC25 bewusst ausgenommen: der Code steht für zwei unterschiedliche reale Modelle (EC225 zivil/EC725 militärisch), eine Rückrichtung wäre geraten statt belegt - dort greift weiterhin der allgemeine ICAO-Code+"Flugzeug"-Fallback
 - Nebenbei behoben: Die Großbuchstaben-Normalisierung konnte kurze 2-Buchstaben-Codes wie "EC" (wenn durch ein Leerzeichen von der Modellnummer getrennt) versehentlich klein schreiben ("Ec")

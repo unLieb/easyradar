@@ -698,7 +698,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.72.0';
+const APP_VERSION = '0.72.1';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -3709,23 +3709,47 @@ function resolveAircraftDesc(a) {
   const t = (a.t || '').toUpperCase();
   return ICAO_HELICOPTER_NUMBERS[t] ? `Eurocopter EC ${ICAO_HELICOPTER_NUMBERS[t]}` : null;
 }
+// 737 MAX sub-variants need two entirely different tricks per language,
+// because dewiki and enwiki structure this family differently - not just a
+// different search string. enwiki gives MAX 7/8/9/10 each their own real
+// article ("Boeing_737_MAX_8"), so keeping the number and letting go=Go do
+// its normal exact-title match already lands perfectly - the generic
+// MAX-number-stripping below would only throw that away. dewiki instead
+// covers the whole family in one "Boeing 737" article, with named sections
+// per variant (id="Boeing_737_Max_8") - go=Go has no way to jump to a
+// section, only a whole page, so the fix there is to bypass search
+// entirely and link straight to "Boeing_737#Boeing_737_Max_8". Both
+// verified live. Scoped to the 4 numbers actually in the type database
+// (B37M/B38M/B39M/B3XM) rather than matching any digit - an unrecognized
+// future variant falls through to the generic MAX-stripping further down
+// instead of guessing a section/article that might not exist.
+const B737_MAX_NUMBERS = ['7', '8', '9', '10'];
 function wikiTypeUrl(icaoType, desc) {
   const path = currentLang === 'de' ? 'de.wikipedia.org/wiki/Spezial:Suche' : 'en.wikipedia.org/wiki/Special:Search';
   let cleaned = (desc || '').replace(/\/.*$/, '');
   for (const [from, to] of MANUFACTURER_REBRANDS) cleaned = cleaned.replace(from, to);
-  cleaned = toTitleCase(cleaned)
+  cleaned = toTitleCase(cleaned);
+  const maxMatch = cleaned.match(/\bBoeing 737 MAX (\d+)\b/i);
+  if (maxMatch && B737_MAX_NUMBERS.includes(maxMatch[1])) {
+    const n = maxMatch[1];
+    return currentLang === 'de'
+      ? `https://de.wikipedia.org/wiki/Boeing_737#Boeing_737_Max_${n}`
+      : `https://en.wikipedia.org/wiki/Boeing_737_MAX_${n}`;
+  }
+  cleaned = cleaned
     .replace(/\([^)]*\)/g, '')
     .replace(/\b([A-Za-z]{1,3})-(\d)/g, '$1$2')
-    // Trailing sub-variant number after a named suffix like "MAX" - verified
-    // live this is safe ONLY for that specific case: "Boeing 737 MAX 7/8/10"
-    // have no article of their own and stayed stuck on the search page, but
-    // "Boeing 737 MAX" (no number) redirects straight to the same target
-    // "Boeing 737 MAX 9" itself resolves to anyway. Deliberately not a
-    // general "strip any trailing number" rule - checked that broadly
-    // against every other trailing-number pattern in the type database
-    // (A350-900/A350-1000, A320neo, ...) and those already resolve to their
-    // own more specific exact redirect, so stripping their number would only
-    // make the match worse, not better.
+    // Trailing sub-variant number after a named suffix like "MAX", for any
+    // MAX variant NOT covered by the exact section/article link above -
+    // verified live this is safe ONLY for that specific case: an unrecognized
+    // "Boeing 737 MAX <n>" has no article/section of its own and stays stuck
+    // on the search page, but "Boeing 737 MAX" (no number) redirects
+    // straight to the general family article. Deliberately not a general
+    // "strip any trailing number" rule - checked that broadly against every
+    // other trailing-number pattern in the type database (A350-900/
+    // A350-1000, A320neo, ...) and those already resolve to their own more
+    // specific exact redirect, so stripping their number would only make
+    // the match worse, not better.
     .replace(/\bMAX\s+\d+\s*$/i, 'MAX')
     .replace(/\s+/g, ' ')
     .trim();
