@@ -698,7 +698,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.71.0';
+const APP_VERSION = '0.71.1';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -3646,10 +3646,27 @@ function escapeHtml(s) {
 // &ns0=1 restricts results to the main article namespace so Talk/User/
 // Category pages can't drown out the actual aircraft article - harmless for
 // the exact-redirect case too, since go=Go's exact-title match ignores it.
+// MANUFACTURER_REBRANDS swaps a current manufacturer name in the type
+// database for an older one Wikipedia's redirects were actually written
+// against - verified live for "AIRBUS HELICOPTERS" -> "Eurocopter" (the
+// pre-2014 name): "Eurocopter EC135" redirects straight to the article with
+// no search stop at all, where "AIRBUS HELICOPTERS EC135" never did. Checked
+// this against all 9 EC-xx/H160/Tiger designators sharing that prefix in the
+// type database - it either resolves the same exact redirect (EC120, EC135)
+// or is at worst equally good as a plain search term for the rest, and for
+// one (H160, which never actually carried the Eurocopter name - it launched
+// after the 2014 rebrand) it even turned a previously empty ns0 search into
+// a correct top hit, so nothing regresses. Only ever add an entry here after
+// checking it the same way - the wrong old name for a type would actively
+// hurt the search instead of helping it.
+const MANUFACTURER_REBRANDS = [
+  [/\bAIRBUS HELICOPTERS\b/gi, 'Eurocopter'],
+];
 function wikiTypeUrl(icaoType, desc) {
   const path = currentLang === 'de' ? 'de.wikipedia.org/wiki/Spezial:Suche' : 'en.wikipedia.org/wiki/Special:Search';
-  const cleaned = (desc || '')
-    .replace(/\/.*$/, '')
+  let cleaned = (desc || '').replace(/\/.*$/, '');
+  for (const [from, to] of MANUFACTURER_REBRANDS) cleaned = cleaned.replace(from, to);
+  cleaned = cleaned
     .replace(/\([^)]*\)/g, '')
     .replace(/\b([A-Za-z]{1,3})-(\d)/g, '$1$2')
     .replace(/\s+/g, ' ')

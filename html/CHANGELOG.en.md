@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.71.1 - 2026-09-07
+- The Wikipedia search term now swaps "AIRBUS HELICOPTERS" for the older name "Eurocopter", which many redirects are actually written against - "Eurocopter EC135" now jumps straight to the article with no search stop at all, where "AIRBUS HELICOPTERS EC135" stayed on the search-results page. Checked against all 9 affected types in the database: equally good or better across the board, nothing regresses
+
 ## 0.71.0 - 2026-09-05
 - Browser notifications now also fire for newly-sighted emergency vehicles (air rescue/police), matching military aircraft and achievements
 - Clicking a military/emergency notification now centers the map on the aircraft that triggered it and opens its detail view - switching to the already-open easyRADAR tab, or opening a new one if none is left. This is the app's first use of a service worker (sw.js), purely for its notificationclick handling - no offline support or caching
