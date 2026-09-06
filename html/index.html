@@ -21,13 +21,44 @@
     --border: #e2e6ea;
     --dark: #1c2530;
     --dark-text: #aab2bd;
+    /* Glassmorphism background for the sidebar and floating panels - a
+       translucent tint of --card rather than --card itself, so the map keeps
+       shimmering through under backdrop-filter: blur() instead of the panel
+       looking fully solid. */
+    --glass: rgba(255, 255, 255, 0.82);
+    --scrollbar-thumb: rgba(0, 0, 0, 0.18);
+    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.32);
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--text); background: var(--bg); }
   #page { display: flex; flex-direction: column; height: 100vh; height: 100dvh; width: 100vw; overflow: hidden; }
   #app { flex: 1; display: flex; position: relative; overflow: hidden; height: 100%; }
 
-  #sidebar { position: absolute; top: 0; left: 0; height: 100%; width: 340px; min-width: 340px; background: var(--card); box-shadow: 4px 0 24px rgba(0,0,0,0.06); display: flex; flex-direction: column; z-index: 500; transition: transform 0.2s ease; }
+  /* Slim custom scrollbar for every scrollable panel, instead of the browser's
+     default chunky one - thin enough to stay out of the way, transparent
+     track so it doesn't fight the glass background above. Firefox uses the
+     scrollbar-width/-color standard, WebKit/Blink (Chrome, Safari, Edge) use
+     the ::-webkit-scrollbar pseudo-elements; both are set so it's consistent
+     across browsers. */
+  #panel-list, #panel-detail, #panel-changelog, #settings-panel, #stats-panel {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+  #panel-list::-webkit-scrollbar, #panel-detail::-webkit-scrollbar, #panel-changelog::-webkit-scrollbar, #settings-panel::-webkit-scrollbar, #stats-panel::-webkit-scrollbar {
+    width: 6px;
+  }
+  #panel-list::-webkit-scrollbar-track, #panel-detail::-webkit-scrollbar-track, #panel-changelog::-webkit-scrollbar-track, #settings-panel::-webkit-scrollbar-track, #stats-panel::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  #panel-list::-webkit-scrollbar-thumb, #panel-detail::-webkit-scrollbar-thumb, #panel-changelog::-webkit-scrollbar-thumb, #settings-panel::-webkit-scrollbar-thumb, #stats-panel::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 10px;
+  }
+  #panel-list::-webkit-scrollbar-thumb:hover, #panel-detail::-webkit-scrollbar-thumb:hover, #panel-changelog::-webkit-scrollbar-thumb:hover, #settings-panel::-webkit-scrollbar-thumb:hover, #stats-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+
+  #sidebar { position: absolute; top: 0; left: 0; height: 100%; width: 340px; min-width: 340px; background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 4px 0 24px rgba(0,0,0,0.06); display: flex; flex-direction: column; z-index: 500; transition: transform 0.2s ease; }
   #sidebar.collapsed { transform: translateX(-340px); }
 
   #collapse-btn { position: absolute; top: 50%; transform: translateY(-50%); left: 340px; width: 22px; height: 44px; background: var(--card); border: 1px solid var(--border); border-left: none; border-radius: 0 12px 12px 0; box-shadow: 3px 0 12px rgba(0,0,0,0.08); cursor: pointer; z-index: 600; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: left 0.2s ease; }
@@ -162,6 +193,8 @@
     --text: #d8f5e6;
     --text-muted: #7fa895;
     --border: #1c3d2a;
+    --scrollbar-thumb: rgba(216, 245, 230, 0.18);
+    --scrollbar-thumb-hover: rgba(216, 245, 230, 0.32);
     /* color wird von body vorberechnet geerbt (nicht pro Element neu über var(--text)
        aufgelöst) - ohne diese Zeile bleiben reine Text-Werte, die color nie selbst setzen
        (z. B. Detail-Panel-Werte), bei der hellen Body-Farbe hängen und sind auf dunklem
@@ -170,6 +203,13 @@
   }
   #app.radar-mode .plane-row:hover, #app.radar-mode .plane-row.radar-hover-linked { background: rgba(150,255,195,0.08); }
   #app.radar-mode #status-bar-wrap { display: none; }
+  /* Radar Mode keeps its solid retro-HUD look - the glassmorphism panels
+     below stay opaque here instead of picking up --glass. */
+  #app.radar-mode #sidebar, #app.radar-mode #settings-panel, #app.radar-mode #stats-panel, #app.radar-mode #legend {
+    background: var(--card);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 
   /* App-wide dark mode (the "Dunkel" choice in Settings, independent of Radar
      Mode's own always-dark styling above) - same override trick, same reason
@@ -182,6 +222,9 @@
     --text: #e4e7eb;
     --text-muted: #aab2bd;
     --border: #2c3542;
+    --glass: rgba(28, 37, 48, 0.82);
+    --scrollbar-thumb: rgba(255, 255, 255, 0.18);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.32);
     color: var(--text);
   }
   #app.dark-theme:not(.radar-mode) .plane-row:hover,
@@ -214,7 +257,7 @@
   @keyframes statusPulse { 0% { background: rgba(26,115,232,0.22); } 100% { background: transparent; } }
   .value-flash { animation: statusPulse 500ms ease-out; border-radius: 4px; }
 
-  #legend { background: var(--card); border-radius: 14px; box-shadow: 0 6px 24px rgba(0,0,0,0.10); padding: 10px 14px; font-size: 11px; color: var(--text-muted); }
+  #legend { background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 14px; box-shadow: 0 6px 24px rgba(0,0,0,0.10); padding: 10px 14px; font-size: 11px; color: var(--text-muted); }
   #legend .legend-title { font-weight: 600; color: var(--text); margin-bottom: 4px; }
   #legend .legend-row { display: flex; align-items: center; gap: 6px; margin: 3px 0; white-space: nowrap; }
   #legend .swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
@@ -226,7 +269,7 @@
 
   .plane-icon { transition: transform 0.4s linear; }
 
-  #settings-panel { display: none; position: absolute; bottom: 64px; left: 356px; background: var(--card); border-radius: 18px; box-shadow: 0 12px 40px rgba(0,0,0,0.14); padding: 20px 22px; width: 240px; max-height: 70vh; overflow-y: auto; z-index: 950; transition: left 0.2s ease; }
+  #settings-panel { display: none; position: absolute; bottom: 64px; left: 356px; background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 18px; box-shadow: 0 12px 40px rgba(0,0,0,0.14); padding: 20px 22px; width: 240px; max-height: 70vh; overflow-y: auto; z-index: 950; transition: left 0.2s ease; }
   #app.collapsed #settings-panel { left: 16px; }
   #settings-panel.show { display: block; }
   #settings-panel .label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
@@ -237,7 +280,7 @@
   #settings-panel .section-title { padding: 18px 0 17px; margin: 0; position: sticky; top: 0; z-index: 2; background: var(--card); border-bottom: 1px solid var(--border); }
   #settings-panel .section-title:first-child { padding-top: 0; }
 
-  #stats-panel { display: none; position: absolute; bottom: 64px; left: 356px; background: var(--card); border-radius: 18px; box-shadow: 0 12px 40px rgba(0,0,0,0.14); padding: 20px 22px; width: 280px; max-height: 70vh; overflow-y: auto; z-index: 950; transition: left 0.2s ease; }
+  #stats-panel { display: none; position: absolute; bottom: 64px; left: 356px; background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 18px; box-shadow: 0 12px 40px rgba(0,0,0,0.14); padding: 20px 22px; width: 280px; max-height: 70vh; overflow-y: auto; z-index: 950; transition: left 0.2s ease; }
   #app.collapsed #stats-panel { left: 16px; }
   #stats-panel.show { display: block; }
   #stats-panel .stat-row { display: flex; justify-content: space-between; font-size: 13px; padding: 9px 0; }
@@ -655,7 +698,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.69.1';
+const APP_VERSION = '0.70.0';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 

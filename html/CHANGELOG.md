@@ -2,7 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
-## 0.69.1 – 2026-09-05
+## 0.70.0 – 2026-09-05
+- Glassmorphism-Look für Seitenleiste, Einstellungen/Statistiken-Panel und Legende: leicht transparenter Hintergrund mit Weichzeichner-Effekt, durch den die Karte dahinter dezent durchschimmert (im Radar-Modus bewusst unverändert, um den Retro-HUD-Look zu erhalten)
+- Schlankere, abgerundete Scrollbar (6px, transparente Spur) für alle scrollbaren Bereiche statt des klobigen Standard-Browser-Balkens, passend zu Hell-/Dunkelmodus
 - Kleine Propellerflugzeuge ohne ADS-B-Kategorie (z. B. MLAT-only, wie bei der Cessna 208 Caravan und der Piper PA-28R beobachtet) wurden bisher mit dem generischen "unbekannt"-Symbol dargestellt, das auf der Karte eher wie ein Verkehrsflugzeug aussieht - werden jetzt anhand der bereits vorhandenen Propellerflugzeug-Typliste korrekt mit dem Propellerflugzeug-Symbol angezeigt
 
 ## 0.69.0 – 2026-09-05

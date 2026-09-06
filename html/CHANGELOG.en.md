@@ -2,6 +2,10 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.70.0 - 2026-09-05
+- Glassmorphism look for the sidebar, settings/stats panels, and legend: a slightly translucent, blurred background that lets the map shimmer through subtly (deliberately left untouched in Radar Mode, to keep its retro HUD look)
+- Slimmer, rounded scrollbar (6px, transparent track) for every scrollable area instead of the browser's default chunky one, matching both light and dark mode
+
 ## 0.69.1 - 2026-09-05
 - Small propeller aircraft without a broadcast ADS-B category (e.g. MLAT-only tracks, as observed for a Cessna 208 Caravan and a Piper PA-28R) previously showed the generic "unknown" icon, which reads more like an airliner on the map - they're now correctly shown with the propeller-plane icon using the existing propeller-type list
 
