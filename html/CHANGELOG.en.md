@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.69.1 - 2026-09-05
+- Small propeller aircraft without a broadcast ADS-B category (e.g. MLAT-only tracks, as observed for a Cessna 208 Caravan and a Piper PA-28R) previously showed the generic "unknown" icon, which reads more like an airliner on the map - they're now correctly shown with the propeller-plane icon using the existing propeller-type list
+
 ## 0.69.0 - 2026-09-05
 - New stat "of which Emergency Services": shows the number of distinct emergency vehicles (air rescue, federal/state police) in the selected time range, mirroring the existing "of which Military" row
 

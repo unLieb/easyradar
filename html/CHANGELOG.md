@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.69.1 – 2026-09-05
+- Kleine Propellerflugzeuge ohne ADS-B-Kategorie (z. B. MLAT-only, wie bei der Cessna 208 Caravan und der Piper PA-28R beobachtet) wurden bisher mit dem generischen "unbekannt"-Symbol dargestellt, das auf der Karte eher wie ein Verkehrsflugzeug aussieht - werden jetzt anhand der bereits vorhandenen Propellerflugzeug-Typliste korrekt mit dem Propellerflugzeug-Symbol angezeigt
+
 ## 0.69.0 – 2026-09-05
 - Neue Statistik "davon Einsatz": zeigt die Anzahl unterschiedlicher Einsatzfahrzeuge (Luftrettung, Bundes-/Landespolizei) im gewählten Zeitraum an, analog zur bestehenden "davon Militär"-Zeile
 

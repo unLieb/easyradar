@@ -655,7 +655,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.69.0';
+const APP_VERSION = '0.69.1';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2231,7 +2231,18 @@ function getPlaneIcon(a, colorOverride) {
   const cls = classifyAircraft(a);
   const emphasized = cls === 'einsatz' || cls === 'militaer';
   const type = (a.t || '').toUpperCase() || null;
-  const [shapeName, scale] = getBaseMarker(a.category || null, type, null, null, a.type || null, a.alt_baro, false);
+  let [shapeName, scale] = getBaseMarker(a.category || null, type, null, null, a.type || null, a.alt_baro, false);
+  // MLAT-only tracks (common for small GA aircraft - no ADS-B category is
+  // broadcast, and their type designator usually isn't in tar1090's
+  // TypeDesignatorIcons table either, e.g. C208/P28R) otherwise fall all the
+  // way through to the generic 'unknown' silhouette, which reads as a
+  // jet/airliner at this icon size. If PROP_TYPES already tells us this is a
+  // propeller aircraft, use the same icon a properly-broadcasting category A1
+  // ("light aircraft") aircraft would get instead.
+  if (shapeName === 'unknown' && type && PROP_TYPES.some(p => type.startsWith(p))) {
+    shapeName = 'cessna';
+    scale = 1;
+  }
   const shape = shapes[shapeName] || shapes['unknown'];
   const renderScale = scale * 1.1 * (MARKER_SIZE_FACTORS[markerSize] || 1);
   const svg = svgShapeToSVG(shape, color, '#ffffff', emphasized ? 2 : 1, renderScale);
