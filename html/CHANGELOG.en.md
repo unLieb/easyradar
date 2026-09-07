@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.74.1 - 2026-09-07
+- The type label in the aircraft detail panel (e.g. "AIRBUS A-321") is now immediately recognizable as a Wikipedia link - a permanent dotted underline instead of only on hover, plus a small ↗ arrow at the end. Consistent with the same "dotted underline = there's more here" pattern the app already uses for the airport popup links and the stats tooltips
+
 ## 0.74.0 - 2026-09-07
 - Airport popups now have a quiet Wikipedia link: the preview photo itself is clickable and opens the article in a new tab, plus a small "Wikipedia ↗" link right next to the ICAO code. Uses the article title already stored in airports.json (present for ~96% of airports, including exactly the EDUZ → "Flugplatz Zerbst" case) instead of a new text search - the remaining airports without a stored title fall back to a search using name + ICAO code
 

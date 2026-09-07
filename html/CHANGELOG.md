@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.74.1 – 2026-09-07
+- Die Typenbezeichnung im Flugzeug-Detailpanel (z. B. "AIRBUS A-321") ist jetzt sofort als Wikipedia-Link erkennbar - permanente gepunktete Unterstreichung statt nur beim Hover, plus kleiner ↗-Pfeil am Ende. Konsistent mit dem gleichen "unterstrichen gepunktet = hier gibt's mehr"-Muster, das die App schon bei den Flughafen-Popup-Links und den Statistik-Tooltips nutzt
+
 ## 0.74.0 – 2026-09-07
 - Flughafen-Popups haben jetzt einen dezenten Wikipedia-Link: das Vorschaubild selbst ist klickbar und öffnet den Artikel in einem neuen Tab, zusätzlich ein kleiner "Wikipedia ↗"-Link direkt neben dem ICAO-Code. Nutzt dafür den bereits in airports.json hinterlegten Artikeltitel (für ~96 % der Flughäfen vorhanden, u. a. exakt für den Fall EDUZ → "Flugplatz Zerbst") statt einer neuen Textsuche - für die restlichen Flughäfen ohne hinterlegten Titel greift ein Suche-Fallback mit Klarname + ICAO-Code
 
