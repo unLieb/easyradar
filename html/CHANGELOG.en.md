@@ -2,6 +2,10 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.74.3 - 2026-09-07
+- Wikipedia links for German airports (ED/ET ICAO prefix) now land on de.wikipedia.org without exception - even the one remaining airport with no German article (Hohenfels) now uses German search instead of pointing straight at English Wikipedia, rather than only preferring a known German title
+- airports.json now loads via a version-tagged URL (?v=app version) instead of an uncached fetch - browsers that had already loaded the app before a data correction (like the language fix in 0.74.2) could otherwise keep serving the stale cached copy indefinitely, even across a normal page reload
+
 ## 0.74.2 - 2026-09-07
 - Airport Wikipedia links for German airports (e.g. BER, Hannover) now point to German Wikipedia by default instead of English - 63 of 64 affected airports in airports.json had the English article stored even though a German one exists. Fixed directly in the data (found via Wikipedia's own langlinks API, not guessed naming conventions) rather than only in code, since that's where the mismatch was. Only one airport (Hohenfels Army Airfield) genuinely has no German article and stays on English
 - Also added as a safety net: if a future German airport entry (ED/ET ICAO prefix) has no stored article title at all, the search fallback now defaults to German Wikipedia regardless of the app's own UI language

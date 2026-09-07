@@ -701,7 +701,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.74.2';
+const APP_VERSION = '0.74.3';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2052,19 +2052,34 @@ function airportIcon(ap) {
 // even where a German article exists (e.g. EDDB/EDDV, verified live and
 // fixed in airports.json itself via Wikipedia's own langlinks API rather
 // than guessed naming conventions - "Berlin Brandenburg Airport" ->
-// "Flughafen Berlin Brandenburg" etc., 63 of 64 affected airports had one).
-// That data fix covers the normal case. This function's own belt-and-
-// braces part is narrower: if some future airport entry has no wikiTitle at
-// all, a German ICAO prefix (ED/ET) still forces the German Wikipedia for
-// the search fallback below, regardless of the app's own UI language -
-// the airport's home wiki matters more here than the viewer's language.
+// "Flughafen Berlin Brandenburg" etc., 63 of 64 affected German airports had
+// one; that pass covered every ED*/ET* entry in the file, not just the
+// reported cases). Only one (Hohenfels Army Airfield, ETIH) genuinely has no
+// German article.
+//
+// This function enforces German Wikipedia for every German-ICAO airport
+// (ED/ET) as a hard rule, not just when the data happens to agree - but a
+// German ICAO code alone doesn't mean we know the German TITLE, and the
+// German/English titles frequently differ entirely (the Berlin example
+// above). So: reuse the stored title verbatim only when its own language is
+// already German; otherwise (wrong-language title, or none at all) fall
+// back to a German Wikipedia SEARCH rather than guessing a German-sounding
+// title ourselves - checked several naming patterns in the data (Flughafen,
+// Flugplatz, Fliegerhorst, Heeresflugplatz, Verkehrslandeplatz, NATO-Flugplatz,
+// ...) and there's no single reliable pattern to construct one from, so the
+// search's own fuzzy matching is safer than a guess. This still guarantees
+// the de.wikipedia.org domain for 100% of German-ICAO airports (including
+// Hohenfels now, via search instead of a dead-end English-domain link) -
+// just not always as an exact-redirect landing, when we don't actually know
+// the right title.
 const GERMAN_AIRPORT_ICAO = /^(ED|ET)/;
 function airportWikiUrl(ap) {
-  if (ap.wikiTitle) {
+  const isGerman = GERMAN_AIRPORT_ICAO.test(ap.icao || '');
+  if (ap.wikiTitle && (!isGerman || ap.wikiLang === 'de')) {
     const lang = ap.wikiLang || 'en';
     return `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(ap.wikiTitle)}`;
   }
-  const lang = GERMAN_AIRPORT_ICAO.test(ap.icao || '') ? 'de' : currentLang;
+  const lang = isGerman ? 'de' : currentLang;
   const path = lang === 'de' ? 'de.wikipedia.org/wiki/Spezial:Suche' : 'en.wikipedia.org/wiki/Special:Search';
   const query = ap.icao ? `${ap.name} ${ap.icao}` : ap.name;
   return `https://${path}?search=${encodeURIComponent(query)}&go=Go&ns0=1`;
@@ -2116,7 +2131,15 @@ async function loadAirportInfo(ap, marker) {
 
 async function loadAirports() {
   if (airportsLoaded) return;
-  const res = await fetch('/airports.json');
+  // Versioned query param, not a plain '/airports.json' fetch: the file has
+  // no explicit cache-control of its own, so browsers that loaded the app
+  // before an airports.json content fix (e.g. the German-Wikipedia-language
+  // correction) could otherwise keep serving the stale cached copy from
+  // disk cache indefinitely, even across a plain reload - verified this
+  // exact effect live while testing that fix. Tying the cache key to
+  // APP_VERSION guarantees a fresh fetch on every version bump without
+  // needing cache:'no-store' (and its cost) on every single load.
+  const res = await fetch(`/airports.json?v=${APP_VERSION}`);
   const data = await res.json();
   airportLayer = L.layerGroup();
   for (const ap of data) {
