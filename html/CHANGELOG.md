@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.74.5 – 2026-09-07
+- Wikipedia-Fallback-Suche für Flughäfen ohne passenden gespeicherten Titel nutzt jetzt bevorzugt nur den ICAO-Code statt Name+Code - z. B. landet "EPKT" ohne Zwischenstopp direkt auf "Flughafen Katowice", wo der lange Name mit Code auf der Suchergebnisseite hängen blieb. Stichprobe von ~20 ausländischen Flughäfen ohne deutschen Titel bestätigt: meist ein Direkttreffer. Ein reales, aber seltenes Kollisionsrisiko bleibt (ein sehr kurzer Flugplatz-Code ohne eigenen Redirect kann zufällig mit einem völlig unrelated Artikel kollidieren) - der Name allein hätte das dort auch nicht zuverlässig verhindert. Klartext bleibt weiterhin der Suchbegriff, wenn gar kein ICAO-Code vorliegt
+
 ## 0.74.4 – 2026-09-07
 - Flughafen-Wikipedia-Links richten sich jetzt nach der App-Sprache statt nur nach deutschen ICAO-Codes: bei deutscher UI landet jetzt auch ein großer internationaler Flughafen wie Amsterdam Schiphol oder Brüssel auf de.wikipedia.org (per Suche, sofern kein deutscher Titel hinterlegt ist - live geprüft: landet zuverlässig auf dem richtigen Artikel als Top-Treffer). Bei englischer UI dreht sich das Bild symmetrisch um. Die Logik dafür ist sogar kürzer als vorher, nicht länger
 

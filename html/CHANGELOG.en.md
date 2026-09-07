@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.74.5 - 2026-09-07
+- The Wikipedia fallback search for airports with no matching stored title now prefers the bare ICAO code over name+code - e.g. "EPKT" now jumps straight to "Flughafen Katowice" with no search stop, where the long name with the code stayed stuck on the search page. Checked a sample of ~20 foreign airports with no German title stored: mostly land on an exact hit this way. A real but rare collision risk remains (a very short airfield code with no redirect of its own can coincidentally collide with a completely unrelated article) - the name alone wouldn't have reliably prevented that case either. Plain name stays the query when there's no ICAO code at all
+
 ## 0.74.4 - 2026-09-07
 - Airport Wikipedia links now follow the app's UI language instead of just German ICAO codes: with the UI in German, a major international airport like Amsterdam Schiphol or Brussels now also lands on de.wikipedia.org (via search when no German title is stored - checked live, reliably lands on the right article as the top hit). With the UI in English it's symmetrically the other way round. The logic for this is actually shorter than before, not longer
 

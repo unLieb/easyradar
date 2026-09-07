@@ -701,7 +701,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.74.4';
+const APP_VERSION = '0.74.5';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2044,9 +2044,7 @@ function airportIcon(ap) {
 // that's the exact title the REST summary API below already fetches
 // successfully, so a direct /wiki/<title> link is both simpler and more
 // precise than running it through the aircraft-type search pipeline. Only
-// the remaining airports without one need an actual search: name + ICAO
-// code as the query, not the ICAO code alone - same lesson as the aircraft
-// type links (a bare 3-4 letter code is often too ambiguous on its own).
+// the remaining airports without one need an actual search.
 //
 // The underlying data used to mislabel most German airports as wikiLang=en
 // even where a German article exists (e.g. EDDB/EDDV, verified live and
@@ -2071,7 +2069,22 @@ function airportWikiUrl(ap) {
     return `https://${currentLang}.wikipedia.org/wiki/${encodeURIComponent(ap.wikiTitle)}`;
   }
   const path = currentLang === 'de' ? 'de.wikipedia.org/wiki/Spezial:Suche' : 'en.wikipedia.org/wiki/Special:Search';
-  const query = ap.icao ? `${ap.name} ${ap.icao}` : ap.name;
+  // Airport ICAO codes alone as the query, not name + code: unlike aircraft
+  // type codes (which frequently collide with unrelated topics - see the
+  // EC35 case elsewhere in this file), airport ICAO codes are checked live
+  // to have a direct Wikipedia redirect in most cases (Katowice/EPKT
+  // reported as stuck on the search page with the long English name
+  // attached - "EPKT" alone redirects straight to "Flughafen Katowice";
+  // checked a broader sample of ~20 foreign airports without a stored
+  // German title and most redirect directly this way too). Only fall back
+  // to the name when there's no ICAO code at all. This isn't risk-free -
+  // found one real collision (EKMB, a small Danish airfield with no
+  // redirect of its own: bare "EKMB" top-hits an unrelated "Superintendent"
+  // article, purely from "ekmb" appearing in a cited URL there) - but it's
+  // rare, and the name-inclusive query didn't reliably help there either
+  // (still no redirect, just a vaguer top hit); no way to know in advance
+  // which case a given code will be without an actual network round-trip.
+  const query = ap.icao || ap.name;
   return `https://${path}?search=${encodeURIComponent(query)}&go=Go&ns0=1`;
 }
 
