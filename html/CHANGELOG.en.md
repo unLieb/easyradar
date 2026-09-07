@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.73.1 - 2026-09-07
+- The Wikipedia search term now inserts a hyphen between the model letter and number for certain small/kit-aircraft manufacturers (currently: Aeroprakt) whose type-database entry has none - "AEROPRAKT A22" becomes "Aeroprakt A-22", landing straight on the article with no search stop. Deliberately a checked manufacturer list rather than a blanket rule: tested broadly, inserting a hyphen everywhere actually makes already-exact matches worse - "Airbus A-320" (hyphenated) resolves to the more general family article instead of the precise A320 article "Airbus A320" already hits exactly, and "Cessna C-172" doesn't change anything over "Cessna C172"
+
 ## 0.73.0 - 2026-09-07
 - Photo lookup now queries planespotters.net by registration first, only falling back to the hex address if that comes back empty - registration lookup often finds photos for special-purpose aircraft like police/rescue helicopters that the hex index doesn't have
 - If both come up empty, the detail panel now shows an SVG silhouette matching the aircraft type (helicopter, jet, propeller plane, ...) instead of the empty gray "no photo available" box - reuses the same shape lookup as the map markers

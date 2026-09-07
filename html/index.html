@@ -700,7 +700,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.73.0';
+const APP_VERSION = '0.73.1';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -3712,6 +3712,20 @@ function escapeHtml(s) {
 const MANUFACTURER_REBRANDS = [
   [/\bAIRBUS HELICOPTERS\b/gi, 'Eurocopter'],
 ];
+
+// Small/kit manufacturers whose Wikipedia titles put a hyphen between the
+// model's letter prefix and its number ("Aeroprakt A-22") where the type
+// database has none ("AEROPRAKT A22"). Deliberately a per-manufacturer
+// allowlist, NOT a blanket "letter+number gets a hyphen" rule - checked that
+// broadly first and it's actively harmful for the established programs
+// already working well without one: "Airbus A-320" (hyphenated) resolves to
+// the more general "Airbus-A320-Familie" instead of the specific "Airbus
+// A320" article the unhyphenated form already hits exactly, and "Cessna
+// C-172" doesn't redirect any better than "Cessna C172" (neither does).
+// Verified live for AEROPRAKT specifically: "Aeroprakt A22" stays stuck on
+// the search page, "Aeroprakt A-22" redirects straight to the article. Only
+// ever add a manufacturer here after checking it the same way.
+const HYPHENATE_MODEL_FOR = ['AEROPRAKT'];
 // Turns a fully-uppercase word (manufacturer/model names straight from the
 // type database, e.g. "BOEING") into title case ("Boeing"). Only touches a
 // letters-only run that's *whitespace*-delimited on both sides (start/end of
@@ -3778,6 +3792,18 @@ function wikiTypeUrl(icaoType, desc) {
   let cleaned = (desc || '').replace(/\/.*$/, '');
   for (const [from, to] of MANUFACTURER_REBRANDS) cleaned = cleaned.replace(from, to);
   cleaned = toTitleCase(cleaned);
+  // Early return, same reason the MAX case below has one: the general
+  // hyphen-digit REMOVAL step further down (A-321neo -> A321neo, verified
+  // correct for the established programs) would otherwise immediately undo
+  // the hyphen just inserted here.
+  for (const mfr of HYPHENATE_MODEL_FOR) {
+    const mfrTitleCase = mfr.charAt(0) + mfr.slice(1).toLowerCase();
+    const re = new RegExp(`\\b${mfr}\\s+([A-Za-z]{1,3})(\\d{1,3})\\b`, 'i');
+    if (re.test(cleaned)) {
+      const hyphenated = cleaned.replace(re, `${mfrTitleCase} $1-$2`).replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
+      return `https://${path}?search=${encodeURIComponent(hyphenated)}&go=Go&ns0=1`;
+    }
+  }
   const maxMatch = cleaned.match(/\bBoeing 737 MAX (\d+)\b/i);
   if (maxMatch && B737_MAX_NUMBERS.includes(maxMatch[1])) {
     const n = maxMatch[1];
