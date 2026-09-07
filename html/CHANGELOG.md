@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.74.4 – 2026-09-07
+- Flughafen-Wikipedia-Links richten sich jetzt nach der App-Sprache statt nur nach deutschen ICAO-Codes: bei deutscher UI landet jetzt auch ein großer internationaler Flughafen wie Amsterdam Schiphol oder Brüssel auf de.wikipedia.org (per Suche, sofern kein deutscher Titel hinterlegt ist - live geprüft: landet zuverlässig auf dem richtigen Artikel als Top-Treffer). Bei englischer UI dreht sich das Bild symmetrisch um. Die Logik dafür ist sogar kürzer als vorher, nicht länger
+
 ## 0.74.3 – 2026-09-07
 - Wikipedia-Links für deutsche Flughäfen (ICAO-Präfix ED/ET) landen jetzt ausnahmslos auf de.wikipedia.org - auch der eine verbliebene Sonderfall ohne deutschen Artikel (Hohenfels) nutzt jetzt die deutsche Suche statt direkt auf die englische Wikipedia zu zeigen, statt nur einen bekannten deutschen Titel zu bevorzugen
 - airports.json wird jetzt mit einer versionsgebundenen URL geladen (?v=Appversion) statt ungecacht - Browser, die die App vor einer Datenkorrektur (wie dem Sprach-Fix in 0.74.2) schon einmal geladen hatten, konnten sonst die veraltete, zwischengespeicherte Datei unbegrenzt weiterverwenden, selbst nach einem normalen Neuladen der Seite

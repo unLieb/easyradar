@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.74.4 - 2026-09-07
+- Airport Wikipedia links now follow the app's UI language instead of just German ICAO codes: with the UI in German, a major international airport like Amsterdam Schiphol or Brussels now also lands on de.wikipedia.org (via search when no German title is stored - checked live, reliably lands on the right article as the top hit). With the UI in English it's symmetrically the other way round. The logic for this is actually shorter than before, not longer
+
 ## 0.74.3 - 2026-09-07
 - Wikipedia links for German airports (ED/ET ICAO prefix) now land on de.wikipedia.org without exception - even the one remaining airport with no German article (Hohenfels) now uses German search instead of pointing straight at English Wikipedia, rather than only preferring a known German title
 - airports.json now loads via a version-tagged URL (?v=app version) instead of an uncached fetch - browsers that had already loaded the app before a data correction (like the language fix in 0.74.2) could otherwise keep serving the stale cached copy indefinitely, even across a normal page reload
