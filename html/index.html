@@ -700,7 +700,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.73.1';
+const APP_VERSION = '0.74.0';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2038,15 +2038,41 @@ function airportIcon(ap) {
   });
 }
 
-function mediaHtml(info) {
-  if (!info || !info.thumb) return t('detail.noPhoto');
-  return `<img src="${info.thumb}" style="width:100%; border-radius:6px; display:block;">`;
+// airports.json already carries a wikiTitle/wikiLang pair for ~96% of
+// airports (sourced alongside the rest of that file, not derived here) -
+// that's the exact title the REST summary API below already fetches
+// successfully, so a direct /wiki/<title> link is both simpler and more
+// precise than running it through the aircraft-type search pipeline. Only
+// the remaining airports without one need an actual search: name + ICAO
+// code as the query, not the ICAO code alone - same lesson as the aircraft
+// type links (a bare 3-4 letter code is often too ambiguous on its own).
+function airportWikiUrl(ap) {
+  if (ap.wikiTitle) {
+    const lang = ap.wikiLang || 'en';
+    return `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(ap.wikiTitle)}`;
+  }
+  const path = currentLang === 'de' ? 'de.wikipedia.org/wiki/Spezial:Suche' : 'en.wikipedia.org/wiki/Special:Search';
+  const query = ap.icao ? `${ap.name} ${ap.icao}` : ap.name;
+  return `https://${path}?search=${encodeURIComponent(query)}&go=Go&ns0=1`;
 }
 
-function airportPopupHtml(ap, media) {
+// wikiUrl wraps the image itself in a link when present, so the photo
+// doubles as the obvious "read more" affordance the popup's real estate is
+// mostly spent on.
+function mediaHtml(info, wikiUrl) {
+  if (!info || !info.thumb) return t('detail.noPhoto');
+  const img = `<img src="${escapeHtml(info.thumb)}" style="width:100%; border-radius:6px; display:block;">`;
+  return wikiUrl ? `<a href="${escapeHtml(wikiUrl)}" target="_blank" rel="noopener">${img}</a>` : img;
+}
+
+// The Wikipedia link sits next to the ICAO/IATA line rather than as its own
+// row, and stays small/muted - the photo is still the visual focus of the
+// popup, this is meant to read as a quiet extra, not a second headline.
+function airportPopupHtml(ap, media, wikiUrl) {
+  const wikiLink = wikiUrl ? ` · <a href="${escapeHtml(wikiUrl)}" target="_blank" rel="noopener" style="color:#6b7480; text-decoration:underline dotted;">Wikipedia ↗</a>` : '';
   return `<div style="min-width:180px">
     <div style="font-weight:600; font-size:13px; margin-bottom:2px;">${ap.name}</div>
-    <div style="font-size:11px; color:#6b7480; margin-bottom:6px;">${ap.icao}${ap.iata ? ' / ' + ap.iata : ''}</div>
+    <div style="font-size:11px; color:#6b7480; margin-bottom:6px;">${ap.icao}${ap.iata ? ' / ' + ap.iata : ''}${wikiLink}</div>
     <div>${media}</div>
   </div>`;
 }
@@ -2056,8 +2082,9 @@ const airportInfoCache = {};
 async function loadAirportInfo(ap, marker) {
   if (!ap.wikiTitle) return;
   const key = ap.wikiLang + ':' + ap.wikiTitle;
+  const wikiUrl = airportWikiUrl(ap);
   if (airportInfoCache[key] !== undefined) {
-    marker.setPopupContent(airportPopupHtml(ap, mediaHtml(airportInfoCache[key])));
+    marker.setPopupContent(airportPopupHtml(ap, mediaHtml(airportInfoCache[key], wikiUrl), wikiUrl));
     return;
   }
   try {
@@ -2066,10 +2093,10 @@ async function loadAirportInfo(ap, marker) {
     const data = await res.json();
     const info = { thumb: data.thumbnail ? data.thumbnail.source : null, extract: data.extract || '' };
     airportInfoCache[key] = info;
-    marker.setPopupContent(airportPopupHtml(ap, mediaHtml(info)));
+    marker.setPopupContent(airportPopupHtml(ap, mediaHtml(info, wikiUrl), wikiUrl));
   } catch (e) {
     airportInfoCache[key] = null;
-    marker.setPopupContent(airportPopupHtml(ap, mediaHtml(null)));
+    marker.setPopupContent(airportPopupHtml(ap, mediaHtml(null, wikiUrl), wikiUrl));
   }
 }
 
@@ -2080,7 +2107,7 @@ async function loadAirports() {
   airportLayer = L.layerGroup();
   for (const ap of data) {
     const marker = L.marker([ap.lat, ap.lon], { icon: airportIcon(ap) });
-    marker.bindPopup(airportPopupHtml(ap, ap.wikiTitle ? t('map.loadingInfo') : t('map.noMoreInfo')));
+    marker.bindPopup(airportPopupHtml(ap, ap.wikiTitle ? t('map.loadingInfo') : t('map.noMoreInfo'), airportWikiUrl(ap)));
     marker.on('popupopen', () => loadAirportInfo(ap, marker));
     airportLayer.addLayer(marker);
   }

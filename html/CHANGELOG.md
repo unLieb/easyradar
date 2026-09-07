@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.74.0 – 2026-09-07
+- Flughafen-Popups haben jetzt einen dezenten Wikipedia-Link: das Vorschaubild selbst ist klickbar und öffnet den Artikel in einem neuen Tab, zusätzlich ein kleiner "Wikipedia ↗"-Link direkt neben dem ICAO-Code. Nutzt dafür den bereits in airports.json hinterlegten Artikeltitel (für ~96 % der Flughäfen vorhanden, u. a. exakt für den Fall EDUZ → "Flugplatz Zerbst") statt einer neuen Textsuche - für die restlichen Flughäfen ohne hinterlegten Titel greift ein Suche-Fallback mit Klarname + ICAO-Code
+
 ## 0.73.1 – 2026-09-07
 - Wikipedia-Suchbegriff fügt jetzt bei bestimmten Klein-/Bausatzflugzeug-Herstellern (aktuell: Aeroprakt) einen Bindestrich zwischen Modellbuchstabe und -nummer ein, wenn der Hersteller in der Typdatenbank keinen hat - "AEROPRAKT A22" wird zu "Aeroprakt A-22" und landet damit ohne Zwischenstopp direkt auf dem Artikel. Bewusst als geprüfte Hersteller-Liste statt einer pauschalen Regel: gegengetestet zeigt sich, dass ein pauschal eingefügter Bindestrich etablierte, bereits exakt funktionierende Treffer verschlechtert (z. B. landet "Airbus A-320" auf dem allgemeineren Familienartikel statt dem präzisen A320-Artikel, den "Airbus A320" ohne Bindestrich bereits exakt trifft; bei "Cessna C-172" ändert sich gegenüber "Cessna C172" gar nichts)
 
