@@ -2,6 +2,10 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.74.2 – 2026-09-07
+- Flughafen-Wikipedia-Links zeigen jetzt bei deutschen Flughäfen (z. B. BER, Hannover) primär auf die deutsche statt der englischen Wikipedia - 63 von 64 betroffenen Flughäfen in airports.json hatten fälschlich den englischen Artikel hinterlegt, obwohl ein deutscher existiert. Behoben direkt in den Daten (per Wikipedias eigener Sprachlink-API ermittelt, nicht per Namens-Ratespiel) statt nur im Code, da die Fehlzuordnung dort lag. Nur ein einziger Flughafen (Hohenfels Army Airfield) hat wirklich keinen deutschen Artikel und bleibt bei Englisch
+- Zusätzlich als Sicherheitsnetz: Fehlt einem deutschen Flughafen (ICAO-Präfix ED/ET) künftig mal der hinterlegte Artikeltitel komplett, nutzt die Ausweich-Suche automatisch die deutsche Wikipedia, unabhängig von der App-Sprache
+
 ## 0.74.1 – 2026-09-07
 - Die Typenbezeichnung im Flugzeug-Detailpanel (z. B. "AIRBUS A-321") ist jetzt sofort als Wikipedia-Link erkennbar - permanente gepunktete Unterstreichung statt nur beim Hover, plus kleiner ↗-Pfeil am Ende. Konsistent mit dem gleichen "unterstrichen gepunktet = hier gibt's mehr"-Muster, das die App schon bei den Flughafen-Popup-Links und den Statistik-Tooltips nutzt
 

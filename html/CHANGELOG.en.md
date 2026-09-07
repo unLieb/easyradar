@@ -2,6 +2,10 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.74.2 - 2026-09-07
+- Airport Wikipedia links for German airports (e.g. BER, Hannover) now point to German Wikipedia by default instead of English - 63 of 64 affected airports in airports.json had the English article stored even though a German one exists. Fixed directly in the data (found via Wikipedia's own langlinks API, not guessed naming conventions) rather than only in code, since that's where the mismatch was. Only one airport (Hohenfels Army Airfield) genuinely has no German article and stays on English
+- Also added as a safety net: if a future German airport entry (ED/ET ICAO prefix) has no stored article title at all, the search fallback now defaults to German Wikipedia regardless of the app's own UI language
+
 ## 0.74.1 - 2026-09-07
 - The type label in the aircraft detail panel (e.g. "AIRBUS A-321") is now immediately recognizable as a Wikipedia link - a permanent dotted underline instead of only on hover, plus a small ↗ arrow at the end. Consistent with the same "dotted underline = there's more here" pattern the app already uses for the airport popup links and the stats tooltips
 

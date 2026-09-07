@@ -701,7 +701,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.74.1';
+const APP_VERSION = '0.74.2';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -2047,12 +2047,25 @@ function airportIcon(ap) {
 // the remaining airports without one need an actual search: name + ICAO
 // code as the query, not the ICAO code alone - same lesson as the aircraft
 // type links (a bare 3-4 letter code is often too ambiguous on its own).
+//
+// The underlying data used to mislabel most German airports as wikiLang=en
+// even where a German article exists (e.g. EDDB/EDDV, verified live and
+// fixed in airports.json itself via Wikipedia's own langlinks API rather
+// than guessed naming conventions - "Berlin Brandenburg Airport" ->
+// "Flughafen Berlin Brandenburg" etc., 63 of 64 affected airports had one).
+// That data fix covers the normal case. This function's own belt-and-
+// braces part is narrower: if some future airport entry has no wikiTitle at
+// all, a German ICAO prefix (ED/ET) still forces the German Wikipedia for
+// the search fallback below, regardless of the app's own UI language -
+// the airport's home wiki matters more here than the viewer's language.
+const GERMAN_AIRPORT_ICAO = /^(ED|ET)/;
 function airportWikiUrl(ap) {
   if (ap.wikiTitle) {
     const lang = ap.wikiLang || 'en';
     return `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(ap.wikiTitle)}`;
   }
-  const path = currentLang === 'de' ? 'de.wikipedia.org/wiki/Spezial:Suche' : 'en.wikipedia.org/wiki/Special:Search';
+  const lang = GERMAN_AIRPORT_ICAO.test(ap.icao || '') ? 'de' : currentLang;
+  const path = lang === 'de' ? 'de.wikipedia.org/wiki/Spezial:Suche' : 'en.wikipedia.org/wiki/Special:Search';
   const query = ap.icao ? `${ap.name} ${ap.icao}` : ap.name;
   return `https://${path}?search=${encodeURIComponent(query)}&go=Go&ns0=1`;
 }
