@@ -2,6 +2,10 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.75.0 - 2026-09-10
+- The "most frequent callsigns" stat is now hidden for Today / Yesterday / Avg-day: a callsign maps 1:1 to an aircraft on a given day, so every count there was inevitably just "1x". It stays for "All time", where it meaningfully counts the days a callsign was seen - recurring idents like those of rescue/police helicopters (e.g. CHX31) rise to the top there, while airline flights use a different flight number every day. Top aircraft types and top airlines don't have this problem and stay visible in every range
+- The stats panel now opens on "All time" by default instead of "Today", so the more meaningful view is shown first (your last-picked view is still remembered)
+
 ## 0.74.5 - 2026-09-07
 - The Wikipedia fallback search for airports with no matching stored title now prefers the bare ICAO code over name+code - e.g. "EPKT" now jumps straight to "Flughafen Katowice" with no search stop, where the long name with the code stayed stuck on the search page. Checked a sample of ~20 foreign airports with no German title stored: mostly land on an exact hit this way. A real but rare collision risk remains (a very short airfield code with no redirect of its own can coincidentally collide with a completely unrelated article) - the name alone wouldn't have reliably prevented that case either. Plain name stays the query when there's no ICAO code at all
 

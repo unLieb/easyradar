@@ -566,8 +566,10 @@
         <div class="section-title" data-i18n="stats.section.topTypes">Top Flugzeugtypen</div>
         <div id="s-toptypes"></div>
 
-        <div class="section-title" data-i18n="stats.section.topCallsigns">Häufigste Rufzeichen</div>
-        <div id="s-topcallsigns"></div>
+        <div id="s-topcallsigns-section">
+          <div class="section-title" data-i18n="stats.section.topCallsigns">Häufigste Rufzeichen</div>
+          <div id="s-topcallsigns"></div>
+        </div>
 
         <div class="section-title" data-i18n="stats.section.topAirlines">Häufigste Fluggesellschaft</div>
         <div id="s-topairlines"></div>
@@ -701,7 +703,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.74.5';
+const APP_VERSION = '0.75.0';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -1708,7 +1710,7 @@ async function resolveSiteLocation() {
   }
 }
 resolveSiteLocation();
-let statsRange = localStorage.getItem('statsRange') || 'today';
+let statsRange = localStorage.getItem('statsRange') || 'alltime';
 let activeFilter = 'all';
 let searchQuery = '';
 let showFavoritesOnly = false;
@@ -4072,6 +4074,16 @@ async function fetchAndRenderDbStats() {
     document.getElementById('s-toptypes').innerHTML = barListHtml(d.topTypes);
     document.getElementById('s-topcallsigns').innerHTML = barListHtml(d.topCallsigns);
     if (d.topAirlineCodes) renderAirlineList(d.topAirlineCodes);
+
+    // A callsign (flight number) maps 1:1 to an aircraft on any given day, so
+    // in a single-day range every count here is just 1 - the "most frequent
+    // callsigns" list is only meaningful over "all time", where it counts the
+    // days a callsign was seen and recurring ones (rescue/police flights that
+    // keep the same callsign daily, unlike airline flight numbers) rise to
+    // the top. Top types / top airlines don't have this problem (many
+    // aircraft share a type or an airline prefix within one day), so those
+    // stay visible in every range.
+    document.getElementById('s-topcallsigns-section').style.display = statsRange === 'alltime' ? '' : 'none';
 
     const avgdayNote = document.getElementById('s-avgday-note');
     if (statsRange === 'avgday') {

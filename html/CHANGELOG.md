@@ -2,6 +2,10 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.75.0 – 2026-09-10
+- Statistik "Häufigste Rufzeichen" wird bei Heute / Gestern / Ø-Tag ausgeblendet: Ein Rufzeichen gehört an einem Tag eindeutig zu einem Flugzeug, deshalb stand dort zwangsläufig überall "1×". Bei "Gesamt" bleibt die Liste und zählt sinnvoll die Tage, an denen ein Rufzeichen gesehen wurde - wiederkehrende Kennungen wie die von Rettungs-/Polizeihubschraubern (z. B. CHX31) stehen dort ganz oben, während Linienflüge täglich wechselnde Flugnummern haben. Top Flugzeugtypen und Häufigste Fluggesellschaft sind davon nicht betroffen und bleiben in allen Zeiträumen sichtbar
+- Das Statistik-Panel öffnet jetzt standardmäßig auf "Gesamt" statt "Heute", damit die aussagekräftigere Ansicht zuerst sichtbar ist (die zuletzt gewählte Ansicht wird weiterhin gemerkt)
+
 ## 0.74.5 – 2026-09-07
 - Wikipedia-Fallback-Suche für Flughäfen ohne passenden gespeicherten Titel nutzt jetzt bevorzugt nur den ICAO-Code statt Name+Code - z. B. landet "EPKT" ohne Zwischenstopp direkt auf "Flughafen Katowice", wo der lange Name mit Code auf der Suchergebnisseite hängen blieb. Stichprobe von ~20 ausländischen Flughäfen ohne deutschen Titel bestätigt: meist ein Direkttreffer. Ein reales, aber seltenes Kollisionsrisiko bleibt (ein sehr kurzer Flugplatz-Code ohne eigenen Redirect kann zufällig mit einem völlig unrelated Artikel kollidieren) - der Name allein hätte das dort auch nicht zuverlässig verhindert. Klartext bleibt weiterhin der Suchbegriff, wenn gar kein ICAO-Code vorliegt
 
