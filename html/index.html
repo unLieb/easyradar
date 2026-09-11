@@ -278,6 +278,12 @@
   #settings-panel .label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
   .section-title { font-size: 11px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: .04em; margin: 18px 0 17px; padding: 0 18px; }
   .section-title:first-child { margin-top: 0; }
+  /* #s-topcallsigns-section wraps "Häufigste Rufzeichen" so its visibility
+     can be toggled by range (see fetchAndRenderDbStats) - that makes the
+     title :first-child of its new wrapper parent, wrongly triggering the
+     rule above (meant only for a section-title that's actually first in the
+     whole panel) and collapsing its top margin to 0. Restore it here. */
+  #s-topcallsigns-section .section-title:first-child { margin-top: 18px; }
   .subsection-title { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .03em; margin: 14px 0 8px; }
   #stats-panel .section-title { padding: 0; }
   #settings-panel .section-title { padding: 18px 0 17px; margin: 0; position: sticky; top: 0; z-index: 2; background: var(--card); border-bottom: 1px solid var(--border); }
@@ -703,7 +709,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.75.0';
+const APP_VERSION = '0.75.1';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 

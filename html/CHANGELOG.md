@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.75.1 – 2026-09-10
+- Optischen Fehler in den Gesamtstatistiken behoben: Bei "Häufigste Rufzeichen" fehlte der Abstand zwischen Überschrift und der Liste darüber - eine Nebenwirkung des neuen Wrapper-Elements aus 0.75.0 (das die Sektion ein-/ausblendbar macht), das die Überschrift versehentlich zum ersten Kind seines Elternelements machte und dadurch fälschlich die "erste Überschrift im Panel"-Regel auslöste
+
 ## 0.75.0 – 2026-09-10
 - Statistik "Häufigste Rufzeichen" wird bei Heute / Gestern / Ø-Tag ausgeblendet: Ein Rufzeichen gehört an einem Tag eindeutig zu einem Flugzeug, deshalb stand dort zwangsläufig überall "1×". Bei "Gesamt" bleibt die Liste und zählt sinnvoll die Tage, an denen ein Rufzeichen gesehen wurde - wiederkehrende Kennungen wie die von Rettungs-/Polizeihubschraubern (z. B. CHX31) stehen dort ganz oben, während Linienflüge täglich wechselnde Flugnummern haben. Top Flugzeugtypen und Häufigste Fluggesellschaft sind davon nicht betroffen und bleiben in allen Zeiträumen sichtbar
 - Das Statistik-Panel öffnet jetzt standardmäßig auf "Gesamt" statt "Heute", damit die aussagekräftigere Ansicht zuerst sichtbar ist (die zuletzt gewählte Ansicht wird weiterhin gemerkt)

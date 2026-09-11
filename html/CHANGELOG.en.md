@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.75.1 - 2026-09-10
+- Fixed a visual bug in the overall stats: "Most frequent callsigns" was missing the gap between its heading and the list above it - a side effect of the new wrapper element from 0.75.0 (which makes the section toggleable) accidentally making the heading the first child of its parent, wrongly triggering the "first heading in the panel" rule
+
 ## 0.75.0 - 2026-09-10
 - The "most frequent callsigns" stat is now hidden for Today / Yesterday / Avg-day: a callsign maps 1:1 to an aircraft on a given day, so every count there was inevitably just "1x". It stays for "All time", where it meaningfully counts the days a callsign was seen - recurring idents like those of rescue/police helicopters (e.g. CHX31) rise to the top there, while airline flights use a different flight number every day. Top aircraft types and top airlines don't have this problem and stay visible in every range
 - The stats panel now opens on "All time" by default instead of "Today", so the more meaningful view is shown first (your last-picked view is still remembered)
