@@ -69,6 +69,7 @@
   "stats.maxAltitude": "Max. Höhe",
   "stats.lowestOverflight": "Min. Höhe",
   "stats.maxSpeed": "Max. Speed",
+  "stats.maxSpeedTooltip": "Geschwindigkeit über Grund, also Fluggeschwindigkeit plus Wind. Bei starkem Rückenwind (z. B. im Jetstream) sind deshalb Werte möglich, die über der Höchstgeschwindigkeit des Flugzeugtyps liegen.",
   "stats.maxDistance": "Max. Distanz",
   "stats.section.topTypes": "Top Flugzeugtypen",
   "stats.section.topCallsigns": "Häufigste Rufzeichen",

@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.75.5 - 2026-09-20
+- "Max Speed" in the statistics now has a tooltip: it shows ground speed (airspeed plus wind), not the airspeed through the air. With a strong tailwind in the jet stream, values above the aircraft type's top speed are therefore possible - e.g. 1,165 km/h for an A350 (Mach 0.89 ≈ 945 km/h), which is a genuine reading and not an error. The label itself stays short
+
 ## 0.75.4 - 2026-09-20
 - The stats panel now reopens scrolled to the top after being closed, instead of at the last scrolled position. The remembered scroll position still applies only when going back out of a sub-view (e.g. from a milestone category back to the category list)
 

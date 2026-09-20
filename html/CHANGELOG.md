@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.75.5 – 2026-09-20
+- "Max. Speed" in den Statistiken hat jetzt einen Tooltip: Angezeigt wird die Geschwindigkeit über Grund (Fluggeschwindigkeit plus Wind), nicht die Fluggeschwindigkeit durch die Luft. Bei starkem Rückenwind im Jetstream sind deshalb Werte über der Höchstgeschwindigkeit des Flugzeugtyps möglich - etwa 1.165 km/h bei einem A350 (Mach 0,89 ≈ 945 km/h), was ein realer Messwert und kein Fehler ist. Die Beschriftung selbst bleibt unverändert kurz
+
 ## 0.75.4 – 2026-09-20
 - Das Statistik-Panel öffnet nach dem Schließen wieder ganz oben, statt an der zuletzt gescrollten Stelle. Die gemerkte Scrollposition gilt weiterhin nur für den Weg zurück aus einem Untermenü (z. B. aus einer Meilenstein-Kategorie zurück zur Kategorieliste)
 

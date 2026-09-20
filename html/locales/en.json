@@ -69,6 +69,7 @@
   "stats.maxAltitude": "Max Alt.",
   "stats.lowestOverflight": "Min Alt.",
   "stats.maxSpeed": "Max Speed",
+  "stats.maxSpeedTooltip": "Ground speed, i.e. airspeed plus wind. With a strong tailwind (e.g. in the jet stream) values above the aircraft type's top speed are therefore possible.",
   "stats.maxDistance": "Max Dist.",
   "stats.section.topTypes": "Top Aircraft Types",
   "stats.section.topCallsigns": "Most Frequent Callsigns",

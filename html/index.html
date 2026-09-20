@@ -568,7 +568,7 @@
         <div class="subsection-title" data-i18n="stats.subsection.flightRecords">Flugrekorde</div>
         <div class="stat-row"><span class="label" data-i18n="stats.maxAltitude">Höchste Flughöhe</span><span class="value" id="s-maxalt">—</span></div>
         <div class="stat-row"><span class="label" data-i18n="stats.lowestOverflight">Niedrigster Überflug</span><span class="value" id="s-minalt">—</span></div>
-        <div class="stat-row"><span class="label" data-i18n="stats.maxSpeed">Höchste Geschwindigkeit</span><span class="value" id="s-maxspeed">—</span></div>
+        <div class="stat-row"><span class="label" data-i18n="stats.maxSpeed" data-i18n-title="stats.maxSpeedTooltip" title="Geschwindigkeit über Grund, also Fluggeschwindigkeit plus Wind. Bei starkem Rückenwind (z. B. im Jetstream) sind deshalb Werte möglich, die über der Höchstgeschwindigkeit des Flugzeugtyps liegen.">Höchste Geschwindigkeit</span><span class="value" id="s-maxspeed">—</span></div>
         <div class="stat-row"><span class="label" data-i18n="stats.maxDistance">Weiteste Entfernung</span><span class="value" id="s-maxdist">—</span></div>
 
         <div class="section-title" data-i18n="stats.section.topTypes">Top Flugzeugtypen</div>
@@ -711,7 +711,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.75.4';
+const APP_VERSION = '0.75.5';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
