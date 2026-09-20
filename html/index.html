@@ -711,7 +711,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.75.2';
+const APP_VERSION = '0.75.3';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -1750,7 +1750,9 @@ async function resolveSiteLocation() {
   }
 }
 resolveSiteLocation();
-let statsRange = localStorage.getItem('statsRange') || 'alltime';
+// Deliberately not persisted: every time the stats panel is closed it falls
+// back to today (see resetStatsPanelState), so it always opens on the day view.
+let statsRange = 'today';
 let activeFilter = 'all';
 let searchQuery = '';
 let showFavoritesOnly = false;
@@ -1914,7 +1916,7 @@ function closeSidebarOnMobile() {
 function toggleSettings() {
   document.getElementById('stats-panel').classList.remove('show');
   document.getElementById('stats-btn-float').classList.remove('active');
-  resetAchievementsNav();
+  resetStatsPanelState();
   document.getElementById('settings-panel').classList.toggle('show');
   document.getElementById('settings-btn-float').classList.toggle('active');
 }
@@ -1926,7 +1928,7 @@ function toggleStats() {
   const opening = !panel.classList.contains('show');
   panel.classList.toggle('show');
   document.getElementById('stats-btn-float').classList.toggle('active');
-  if (!opening) resetAchievementsNav();
+  if (!opening) resetStatsPanelState();
 }
 
 function updateSpeedUnitButtons() {
@@ -2337,7 +2339,7 @@ document.addEventListener('click', (e) => {
     if (panel.classList.contains('show') && !panel.contains(e.target) && !btn.contains(e.target)) {
       panel.classList.remove('show');
       btn.classList.remove('active');
-      if (panelId === 'stats-panel') resetAchievementsNav();
+      if (panelId === 'stats-panel') resetStatsPanelState();
     }
   }
 });
@@ -3090,9 +3092,15 @@ function updateStatsRangeButtons() {
 
 function setStatsRange(range) {
   statsRange = range;
-  localStorage.setItem('statsRange', range);
   updateStatsRangeButtons();
   fetchAndRenderDbStats();
+}
+
+// Called whenever the stats panel gets closed: back to the day view (and out of
+// any open achievement category), so the next open never lands on a stale tab.
+function resetStatsPanelState() {
+  resetAchievementsNav();
+  if (statsRange !== 'today') setStatsRange('today');
 }
 
 function barListHtml(entries) {

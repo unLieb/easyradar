@@ -2,6 +2,10 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.75.3 – 2026-09-20
+- Das Statistik-Panel springt beim Schließen jetzt wieder auf die Tagesansicht ("Heute") zurück und öffnet sich beim nächsten Mal dort - egal ob man zuvor "Gestern", "Ø Tag" oder "Gesamt" angesehen hat und egal, wie das Panel geschlossen wurde (Stats-Button, Klick daneben oder Wechsel zu den Einstellungen). Die Auswahl wird nicht mehr im Browser gespeichert, daher startet auch nach einem Neuladen die Tagesansicht. Das ersetzt die Vorgabe "öffnet auf Gesamt" aus 0.75.0
+- Stats-Dienst: Unmögliche Höchstgeschwindigkeiten werden nicht mehr gezählt. Eine fehlerhaft dekodierte Messung hatte eine Boeing 737 mit über 1.800 km/h als Rekord eingetragen, weil die Plausibilitätsgrenze mit 2000 kt viel zu hoch lag. Jetzt gilt für zivile Flugzeuge eine Grenze von 750 kt, für militärische 1500 kt, und ein Messwert muss zusätzlich zum vorherigen (5 Sekunden davor) passen, sodass einzelne Ausreißer nie gespeichert werden. Die zwei bereits gespeicherten Fehlwerte (988 kt und 789 kt) wurden aus der Datenbank entfernt und der Rekord neu berechnet
+
 ## 0.75.2 – 2026-09-20
 - Ohne WebGL (z. B. Chromium-Browser mit deaktivierter Hardwarebeschleunigung) blieb easyRADAR bisher komplett leer: Die Vektorkarte warf beim Start einen Fehler, wodurch das gesamte Startskript abbrach - keine Texte, keine Flugdaten, nur eine graue Karte mit "0 Flugzeuge". Jetzt fällt die App in diesem Fall auf OpenStreetMap-Rasterkacheln zurück und funktioniert ansonsten normal (Dunkelmodus per Farbfilter, die deutschen Kartenbeschriftungen entfallen dort). CARTOs eigene Rasterkacheln taugen dafür nicht: Sie tragen inzwischen ein "API KEY REQUIRED"-Wasserzeichen
 

@@ -2,6 +2,10 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.75.3 - 2026-09-20
+- The stats panel now jumps back to the day view ("Today") when it is closed and opens there next time - regardless of whether you had looked at "Yesterday", "Avg day" or "All time", and however the panel was closed (stats button, click outside, or switching to settings). The selection is no longer saved in the browser, so a page reload also starts on the day view. This replaces the "opens on All time" default from 0.75.0
+- Stats service: impossible top speeds are no longer counted. A wrongly decoded sample had recorded a Boeing 737 at over 1,800 km/h as the record, because the plausibility limit of 2000 kt was far too high. Civil aircraft are now capped at 750 kt and military ones at 1500 kt, and a sample must also agree with the previous one (5 seconds earlier), so isolated outliers are never stored. The two bad values already stored (988 kt and 789 kt) were removed from the database and the record recalculated
+
 ## 0.75.2 - 2026-09-20
 - Without WebGL (e.g. a Chromium-based browser with hardware acceleration disabled) easyRADAR used to stay completely empty: the vector map threw on startup, which aborted the entire startup script - no text, no aircraft data, just a grey map with "0 aircraft". It now falls back to OpenStreetMap raster tiles in that case and otherwise works normally (dark mode via a color filter, German map labels don't apply there). CARTO's own raster tiles aren't usable for this: they now carry an "API KEY REQUIRED" watermark
 
