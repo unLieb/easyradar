@@ -711,7 +711,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.75.3';
+const APP_VERSION = '0.75.4';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -1929,6 +1929,10 @@ function toggleStats() {
   panel.classList.toggle('show');
   document.getElementById('stats-btn-float').classList.toggle('active');
   if (!opening) resetStatsPanelState();
+  // Scroll position is only meant to survive going back out of an achievement
+  // category (achListScrollTop), not a close/reopen. Reset on open rather than
+  // on close: a display:none panel has no layout box to scroll.
+  if (opening) panel.scrollTop = 0;
 }
 
 function updateSpeedUnitButtons() {
