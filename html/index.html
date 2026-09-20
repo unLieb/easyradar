@@ -206,6 +206,8 @@
   }
   #app.radar-mode .plane-row:hover, #app.radar-mode .plane-row.radar-hover-linked { background: rgba(150,255,195,0.08); }
   #app.radar-mode #status-bar-wrap { display: none; }
+  /* Dark mode for the WebGL-less raster fallback map (see RASTER_TILE_URL). */
+  .raster-dark .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9); }
   /* Radar Mode keeps its solid retro-HUD look - the glassmorphism panels
      below stay opaque here instead of picking up --glass. */
   #app.radar-mode #sidebar, #app.radar-mode #settings-panel, #app.radar-mode #stats-panel, #app.radar-mode #legend {
@@ -709,7 +711,7 @@
 // that we don't use, but they must exist (the file runs in strict mode).
 let halloween = false, atcStyle = false, squareMania = false;
 
-const APP_VERSION = '0.75.1';
+const APP_VERSION = '0.75.2';
 // SITE_LAT/SITE_LON come from site-config.js (gitignored, real coordinates live
 // only on the deployed host) - see site-config.example.js for the template.
 
@@ -857,9 +859,37 @@ function effectiveDarkMode() {
   return mapTheme === 'dark' || (mapTheme === 'system' && systemDarkQuery.matches);
 }
 
-const vectorBasemap = L.maplibreGL({ style: MAP_STYLES[effectiveDarkMode() ? 'dark' : 'light'] }).addTo(map);
+// MapLibre needs WebGL, and its constructor throws synchronously without it
+// (e.g. a Chromium-based browser with GPU acceleration disabled or on the
+// driver blocklist - seen on Vivaldi/Linux). That exception used to abort the
+// whole top-level script right here, so nothing after it ever ran: no
+// translations, no aircraft polling, just an empty grey map with "0 aircraft".
+// Fall back to plain OpenStreetMap raster tiles so the rest of the app keeps
+// working; the German-label override is vector-only and simply doesn't apply
+// there (OSM's own tiles are labeled in the local language anyway). Not CARTO's
+// raster tiles: verified they now carry an "API KEY REQUIRED" watermark across
+// every tile (only CARTO's vector styles are still free to use). OSM has no dark
+// variant, so dark mode inverts the tile pane with a CSS filter instead (see
+// .raster-dark below) - the same kind of hack the vector Dark Matter style
+// replaced in the first place, acceptable for a last-resort fallback.
+const RASTER_TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+let vectorBasemap = null;
+let rasterBasemap = null;
+try {
+  vectorBasemap = L.maplibreGL({ style: MAP_STYLES[effectiveDarkMode() ? 'dark' : 'light'] }).addTo(map);
+} catch (e) {
+  console.warn('easyRADAR: WebGL/MapLibre unavailable, falling back to raster tiles:', e);
+  if (vectorBasemap) { try { map.removeLayer(vectorBasemap); } catch (_) {} }
+  vectorBasemap = null;
+  rasterBasemap = L.tileLayer(RASTER_TILE_URL, {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+  map.getContainer().classList.toggle('raster-dark', effectiveDarkMode());
+}
 
 function applyGermanLabels() {
+  if (!vectorBasemap) return;
   const mlMap = vectorBasemap.getMaplibreMap();
   GERMAN_LABEL_LAYERS.forEach(id => {
     if (mlMap.getLayer(id)) {
@@ -867,7 +897,7 @@ function applyGermanLabels() {
     }
   });
 }
-vectorBasemap.getMaplibreMap().on('load', applyGermanLabels);
+if (vectorBasemap) vectorBasemap.getMaplibreMap().on('load', applyGermanLabels);
 
 function updateMapThemeButtons() {
   document.getElementById('maptheme-light').classList.toggle('active', mapTheme === 'light');
@@ -880,6 +910,10 @@ function updateMapThemeButtons() {
 
 function applyMapThemeChange() {
   updateMapThemeButtons();
+  if (!vectorBasemap) {
+    map.getContainer().classList.toggle('raster-dark', effectiveDarkMode());
+    return;
+  }
   const mlMap = vectorBasemap.getMaplibreMap();
   mlMap.setStyle(MAP_STYLES[effectiveDarkMode() ? 'dark' : 'light']);
   mlMap.once('styledata', applyGermanLabels);

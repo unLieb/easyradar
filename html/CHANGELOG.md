@@ -2,6 +2,9 @@
 
 Alle nennenswerten Änderungen an easyRADAR werden ab hier festgehalten.
 
+## 0.75.2 – 2026-09-20
+- Ohne WebGL (z. B. Chromium-Browser mit deaktivierter Hardwarebeschleunigung) blieb easyRADAR bisher komplett leer: Die Vektorkarte warf beim Start einen Fehler, wodurch das gesamte Startskript abbrach - keine Texte, keine Flugdaten, nur eine graue Karte mit "0 Flugzeuge". Jetzt fällt die App in diesem Fall auf OpenStreetMap-Rasterkacheln zurück und funktioniert ansonsten normal (Dunkelmodus per Farbfilter, die deutschen Kartenbeschriftungen entfallen dort). CARTOs eigene Rasterkacheln taugen dafür nicht: Sie tragen inzwischen ein "API KEY REQUIRED"-Wasserzeichen
+
 ## 0.75.1 – 2026-09-10
 - Optischen Fehler in den Gesamtstatistiken behoben: Bei "Häufigste Rufzeichen" fehlte der Abstand zwischen Überschrift und der Liste darüber - eine Nebenwirkung des neuen Wrapper-Elements aus 0.75.0 (das die Sektion ein-/ausblendbar macht), das die Überschrift versehentlich zum ersten Kind seines Elternelements machte und dadurch fälschlich die "erste Überschrift im Panel"-Regel auslöste
 

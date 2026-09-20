@@ -2,6 +2,9 @@
 
 Notable changes to easyRADAR are documented here from this version onward. Earlier releases were German-only — see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## 0.75.2 - 2026-09-20
+- Without WebGL (e.g. a Chromium-based browser with hardware acceleration disabled) easyRADAR used to stay completely empty: the vector map threw on startup, which aborted the entire startup script - no text, no aircraft data, just a grey map with "0 aircraft". It now falls back to OpenStreetMap raster tiles in that case and otherwise works normally (dark mode via a color filter, German map labels don't apply there). CARTO's own raster tiles aren't usable for this: they now carry an "API KEY REQUIRED" watermark
+
 ## 0.75.1 - 2026-09-10
 - Fixed a visual bug in the overall stats: "Most frequent callsigns" was missing the gap between its heading and the list above it - a side effect of the new wrapper element from 0.75.0 (which makes the section toggleable) accidentally making the heading the first child of its parent, wrongly triggering the "first heading in the panel" rule
 
